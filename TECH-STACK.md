@@ -18,7 +18,7 @@ HTML, raw CSS, and a few lines of Vanilla JS — earned, not imported.
 ### Build Orchestration — GNU Make
 
 The original dependency graph engine, shipping since 1976. Make sees your source files, knows
-your output files, and rebuilds only what changed. It parallelises with `-j4`. It is
+your output files, and rebuilds only what changed. It parallelizes with `-j4`. It is
 self-documenting: the Makefile *is* the build specification.
 
 Most web developers reach for npm scripts, gulp, or a framework CLI. These are wrappers around
