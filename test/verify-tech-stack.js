@@ -1,6 +1,7 @@
 const fs = require('fs');
+const path = require('path');
 
-const text = fs.readFileSync('TECH-STACK.md', 'utf8');
+const text = fs.readFileSync(path.join(__dirname, '..', 'TECH-STACK.md'), 'utf8');
 
 [
   '# Handcrafted Personal Site Tech Stack',
@@ -8,9 +9,9 @@ const text = fs.readFileSync('TECH-STACK.md', 'utf8');
   'Pandoc',
   'Plain CSS',
   'Vanilla JavaScript',
-].forEach((snippet) => {
-  if (!text.includes(snippet)) {
-    throw new Error(`Missing required content: ${snippet}`);
+].forEach((requiredContent) => {
+  if (!text.includes(requiredContent)) {
+    throw new Error(`Missing required content: ${requiredContent}`);
   }
 });
 
