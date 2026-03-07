@@ -13,16 +13,16 @@ const errors = [];
 
 const sections = [
   'The Big Idea',
-  'Button Copy Ideas',
-  'What Happens First',
-  'What the Alternate Mode Becomes',
-  'Why This Idea Works',
-  'How to Make It Convincing Instead of Gimmicky',
-  'Other Completely Different Surprise Ideas',
-  'Strong Concepts That Balance Surprise and Craft',
-  'Rules for Any Surprise Layer',
-  'Anti-Ideas',
-  'Recommended Next Move'
+  'Discovery and Trigger',
+  'The Fake Loading Intro',
+  'What Happens After the Intro',
+  'Site-Wide Behavior in Full Experience Mode',
+  'Motion Language and Visual Material',
+  'The Experience Arc After Entry',
+  'Guardrails',
+  'Reduced-Motion and Accessibility Version',
+  'Why This Idea Wins',
+  'Recommended Build Order'
 ];
 
 for (const section of sections) {
@@ -32,16 +32,16 @@ for (const section of sections) {
 }
 
 const concepts = [
-  'Load Full Experience',
+  'load full experience',
   'prefers-reduced-motion',
   'footer',
   'Flash',
-  'view source',
-  'print',
+  'gooooo',
   'CV',
-  '404',
-  'performance',
-  'readability'
+  'homepage',
+  'Return to reality',
+  'readability',
+  'cursor trail'
 ];
 
 for (const concept of concepts) {
