@@ -24,7 +24,7 @@ There is no watch mode. Rebuilding is fast enough that it doesn't matter.
 
 The visual design is raw CSS — no preprocessor, no utility framework, no CSS-in-JS. A single stylesheet with an 8px baseline grid keeps vertical rhythm consistent across type sizes. Custom properties handle the colour tokens and spacing scale. The type is set in a system font stack that resolves to something sensible on every platform.
 
-There is a small vanilla JS file for four progressive enhancements: updating the fixed running header as you scroll through sections, shifting the body font weight subtly as you scroll down, revealing footnotes into the right margin (or inline on narrow screens), and a one-time page-arrival fade on first visit. Everything works without JavaScript — these are additions, not requirements.
+There is a small Vanilla JS file for four progressive enhancements: updating the fixed running header as you scroll through sections, shifting the body font weight subtly as you scroll down, revealing footnotes into the right margin (or inline on narrow screens), and a one-time page-arrival fade on first visit. Everything works without JavaScript — these are additions, not requirements.
 
 ## Principles
 
