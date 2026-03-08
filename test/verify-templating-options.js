@@ -13,12 +13,13 @@ const errors = [];
 
 const sections = [
   'Philosophy',
-  'What Good Looks Like for This Site',
-  'Option 1',
+  'The Assumption',
+  'Why This Fits the Site',
   'What It Would Take',
   'Islands Without Betraying the Default',
-  'Deliberately Nerdy Shortlist',
-  'Recommended Direction',
+  'Take It Up a Notch',
+  'Feature Set for the Custom Framework',
+  'Boundaries That Keep It Elegant',
   'Practical Migration Path'
 ];
 
@@ -35,10 +36,11 @@ const concepts = [
   'renderToString',
   'escape',
   'islands',
-  'hastscript',
-  'Hiccup',
-  'XSLT',
-  'Nunjucks'
+  'Astro-like',
+  'lightningcss',
+  'newsletter signup',
+  'self-contained React components',
+  'prose-heavy'
 ];
 
 for (const concept of concepts) {

@@ -2,51 +2,34 @@
 
 ## Philosophy
 
-The current tagged-template-literal approach is correct in one important sense: it ships zero
-JavaScript to the browser by default, keeps the build legible, and does not ask you to adopt a
-framework just to emit HTML. But it is also fair to admit the downside: writing large documents as
-interpolated strings gets visually noisy fast. Closing tags disappear into backticks. Conditionals
-turn into punctuation puzzles. The source starts to feel like escaped HTML rather than authored
+The real problem is not whether template literals are technically capable. They are. The problem is
+that large layouts written as interpolated strings become visually brittle. HTML stops looking like
+HTML. Conditionals become punctuation. The source starts to feel like output code instead of authored
 markup.
 
-So the question is not "should this site become React." The question is: **what authoring model gets
-you React-like composability while preserving the site's zero-runtime, build-time-only discipline?**
+So this document now assumes one direction only: **a custom JSX renderer for static output**.
 
-The non-negotiables:
+That is the path that keeps the things that matter:
 
-- static HTML output
 - zero JavaScript in the browser by default
-- islands only when explicitly requested
-- components can be plain functions
-- layouts stay easy to read in source
-- no giant framework decision hiding inside the templating choice
+- static HTML as the source of truth
+- React-like authoring ergonomics
+- explicit islands only when chosen
+- a system small enough to understand completely
 
-That narrows the field nicely.
-
----
-
-## What Good Looks Like for This Site
-
-The right templating system for this site should optimize for five things:
-
-1. **Readable source** — prose-heavy layouts should look like markup, not string assembly.
-2. **Build-time rendering** — every page should render to HTML before the browser sees it.
-3. **Composable layouts** — wrappers, partials, footnotes, figures, pull quotes, and metadata blocks
-   should all be reusable without inventing a mini DSL every time.
-4. **View-source honesty** — the output should stay boring, semantic, and inspectable.
-5. **Optional islands** — if you later want a tiny interactive component, you should opt into a
-   script tag for that island alone rather than smuggling a runtime onto every page.
-
-Any option that compromises those should be treated as suspicious, no matter how nice the syntax is.
+The goal is not to adopt React the platform. The goal is to steal React's best idea — components as
+functions returning markup-shaped code — and keep everything else radically small.
 
 ---
 
-## Option 1 — Build Your Own Tiny JSX SSG
+## The Assumption — A Custom JSX Renderer
 
-This is the most "I miss React, but I still respect static HTML" path.
+The whole document assumes this architecture:
 
-The idea is simple: write components in JSX, but do **not** ship React to the browser. Instead,
-compile JSX into function calls that build HTML strings at build time.
+1. write layouts and components in JSX
+2. compile JSX to your own `h()` function
+3. render the resulting tree to HTML at build time
+4. ship no client runtime unless a component explicitly opts into browser behavior
 
 ```jsx
 export function EssayLayout({ title, section, children }) {
@@ -67,278 +50,384 @@ export function EssayLayout({ title, section, children }) {
 }
 ```
 
-At build time, a compiler turns that into calls like `h('header', props, child1, child2)`. Your
-own renderer turns that tree into escaped HTML. The browser receives plain HTML. No hydration. No
-client runtime. No virtual DOM on the client. React is reduced to its most useful idea: components
-as functions.
-
-### What It Would Take
-
-To make your own little React-flavored SSG library, you need only a few moving parts:
-
-1. **A JSX transform** — use `esbuild`, `Babel`, or TypeScript in `jsx: preserve` / custom factory
-   mode so `.jsx` files compile to your `h()` function.
-2. **A tiny element factory** — `h(tag, props, ...children)` returns a plain object like
-   `{ tag, props, children }`.
-3. **A `Fragment` implementation** — for sibling groups without wrapper elements.
-4. **A `renderToString()` function** — recursively renders elements, escapes text and attributes,
-   handles void tags, and flattens arrays.
-5. **A small escaping layer** — this is the security-critical bit: text nodes and attribute values
-   must be HTML-escaped by default.
-6. **A component convention** — components are just functions that receive props and return nodes.
-7. **A page entry contract** — each page exports a function returning a fully rendered document or a
-   body fragment to place inside a base layout.
-8. **An explicit island hook** — a component can request a script only if it opts in with metadata
-   like `Component.browser = '/assets/toggle.js'`.
-
-That is not a framework. That is a weekend.
-
-### The Architectural Shape
-
-The stack could stay almost identical:
-
-- markdown and front matter still produce structured data
-- layout components move from template literals to JSX
-- `render.mjs` imports a page component and calls `renderToString()`
-- Make still orchestrates everything
-- the browser still gets static HTML and CSS unless a page opts into an island
-
-### Islands Without Betraying the Default
-
-The important rule: **interactive code is attached to the HTML after server rendering, not required
-to produce it**.
-
-That means:
-
-- render the full component to HTML at build time
-- emit a `data-island` marker only for components that ask for one
-- include a tiny island loader only on pages that contain opted-in islands
-- mount behavior onto existing DOM nodes instead of hydrating the whole document
-
-The page stays fully readable without JavaScript. JavaScript becomes enhancement, not dependency.
-
-### Why This Fits
-
-This option gives you the React mental model you miss:
-
-- components
-- props
-- composition
-- conditional rendering that reads like JavaScript, not punctuation
-- nested layouts that look like markup
-
-But it preserves the site's deeper values:
-
-- static output
-- zero browser JS by default
-- inspectable HTML
-- no framework lock-in
-
-**Recommendation:** if you want the ergonomics of React without inheriting React-the-platform, this
-is the best fit.
-
----
-
-## Option 2 — HTML ASTs with hastscript / unified
-
-This is the "I want to manipulate document structure the way a compiler would" option.
-
-Instead of writing strings or JSX, you build HTML syntax trees directly:
+At build time, JSX compiles into calls to your own runtime. That runtime can be comically small:
 
 ```js
-import { h } from 'hastscript';
+export function h(tag, props, ...children) {
+  return { tag, props: props || {}, children: children.flat() };
+}
 
-const page = h('main', [
-  h('h1', 'On Constraints'),
-  h('p', 'The page is assembled as a syntax tree, not a string.')
-]);
+export const Fragment = ({ children }) => children;
 ```
 
-This is nerdy in the good way. It aligns with the site's content-pipeline nature because markdown is
-already an AST transformation problem. If you are already using parsers, renderers, and build
-steps, moving templating into explicit trees is conceptually clean.
-
-### Why It Fits
-
-- structural transforms are easy
-- sanitization and escaping are less error-prone
-- integrating markdown ASTs and HTML ASTs feels natural
-- plugins can manipulate headings, footnotes, figures, and metadata with precision
-
-### Why It Might Be Too Much
-
-The source is less pleasant to author than JSX. Great for compiler brains; less great for leisurely
-page layout work. If the main complaint about template literals is readability, raw AST authoring may
-solve the wrong problem.
+The browser never sees this layer. It sees plain HTML.
 
 ---
 
-## Option 3 — Hiccup-Style Arrays in JavaScript
+## Why This Fits the Site
 
-This is the "extremely small, extremely legible once you buy in" option.
+This direction fits the site better than string templates because it improves authoring without
+weakening the underlying model.
 
-Instead of angle brackets, a node is an array:
+### Better to Write
 
-```js
-['main',
-  ['h1', 'On Constraints'],
-  ['p', 'Small tuples all the way down.']
-]
-```
+- nested layouts still look like markup
+- conditional rendering reads like JavaScript, not string surgery
+- components are easy to compose
+- prose-heavy pages stay legible in source
 
-It is halfway between JSX and AST authoring. The representation is compact, serializable, and easy
-to manipulate. It also looks satisfyingly austere — a nice match for a site built from low-level
-primitives.
+### Better to Maintain
 
-### Why It Fits
+- the data shape stays explicit
+- the layout logic stays in functions
+- refactoring wrappers, figures, pull quotes, footnotes, and metadata blocks becomes routine
 
-- trivial to render to HTML
-- trivial to transform programmatically
-- no compiler required
-- easy to keep zero-runtime in the browser
+### Better for the Site's Values
 
-### Why It Might Annoy You
+- build-time rendering remains the default
+- output stays inspectable
+- there is no browser framework tax
+- JavaScript remains enhancement, not dependency
 
-If you are used to React, this does not scratch the same ergonomic itch. It is elegant, but not
-visually close to HTML. It makes you look like a nerd in the precise, home-built, "I can explain my
-tuple renderer at dinner" sense.
+This is basically the React mental model with the browser runtime removed.
 
 ---
 
-## Option 4 — XML Authoring + XSLT
+## What It Would Take
 
-This is the "make the site feel like a private research project from 2004" option.
+To make your own tiny React-flavored SSG library, you only need a few parts.
 
-Author pages or content fragments as well-formed XML. Transform them into HTML with XSLT at build
-time. Keep CSS and the browser output totally normal.
+### 1. JSX Compilation
 
-This is wildly unfashionable, which is part of the appeal. It is also deeply aligned with a
-document-heavy, semantic, mostly static site.
+Use a compiler that can target a custom JSX runtime:
 
-### Why It Fits
+- `esbuild`
+- TypeScript with a custom JSX factory
+- Babel if you really want it, though `esbuild` is the cleaner fit
 
-- ideal for structured documents
-- excellent for repeated semantic transforms
-- zero browser runtime required
-- makes content and presentation separation brutally explicit
+The job of this step is simple: convert JSX into calls to your own runtime.
 
-### Why It Is Dangerous
+### 2. A Tiny JSX Runtime
 
-XSLT is incredibly powerful, but it absolutely changes the personality of the project. You stop
-building a site and start building a publishing system. That may be a delightful kind of overkill,
-but it is still overkill.
+You need:
 
-**Verdict:** gloriously nerdy, maybe too much machinery unless the site becomes much more archival or
-book-like.
+- `h(tag, props, ...children)`
+- `Fragment`
+- child flattening
+- component invocation when `tag` is a function
 
----
+This should stay extremely small and dumb.
 
-## Option 5 — Tagged Templates, but with an HTML Builder Layer
+### 3. `renderToString()`
 
-This is the conservative option: keep template literals, but stop writing raw giant strings.
+The renderer walks the tree and returns HTML. It must:
 
-Instead of:
+- handle native tags
+- call function components
+- flatten arrays
+- ignore `false`, `null`, and `undefined`
+- support void elements
+- render attributes correctly
+- escape text content and attribute values
+
+That escaping layer is the security-critical part. HTML escaping should be the default, not a
+courtesy.
+
+### 4. A Small Build Contract
+
+Each page module should export one renderable component or one page factory. The build pipeline then:
+
+1. loads markdown and front matter
+2. converts markdown to HTML or structured nodes
+3. passes data into a JSX page component
+4. calls `renderToString()`
+5. writes static HTML to `dist/`
+
+The outer architecture barely changes. Only the templating surface changes.
+
+### 5. An Explicit Escape Hatch for Raw HTML
+
+You will occasionally need trusted HTML from markdown output. Make that opt-in and obvious:
 
 ```js
-return `<article><h1>${title}</h1><p>${body}</p></article>`;
-```
-
-you use a tiny helper:
-
-```js
-html.article(
-  html.h1(title),
-  html.p(body)
-);
+html(markedOutput)
 ```
 
 or:
 
 ```js
-html`
-  <article>
-    <h1>${title}</h1>
-    <p>${body}</p>
-  </article>
-`;
+{ __html: trustedHtml }
 ```
 
-with better escaping, indentation helpers, and component wrappers.
-
-### Why It Fits
-
-- minimal migration from the current stack
-- preserves zero client-side JavaScript
-- no big conceptual shift
-
-### Why It Probably Does Not Solve the Real Complaint
-
-If template literals already feel cumbersome, polishing them may not change the underlying fact that
-you are still editing big string-shaped documents. This is the smallest change, not the most
-meaningful one.
+Do not blur the line between escaped text and trusted raw HTML.
 
 ---
 
-## The Deliberately Nerdy Shortlist
+## Islands Without Betraying the Default
 
-If the goal is to pick something aligned with the site's nature while also signaling taste, these
-are the strongest candidates:
+The default must remain: **ship zero JavaScript in the browser unless a page explicitly asks for it**.
 
-1. **Custom JSX-to-string renderer** — the best balance of ergonomics and restraint.
-2. **hastscript / unified HTML AST pipeline** — the most architecturally pure.
-3. **Hiccup-style arrays** — tiny, elegant, severe, and very ownable.
-4. **XML + XSLT** — the most gloriously uncompromising document-engine answer.
+That means the renderer should treat browser behavior as a second layer, not the rendering engine.
 
-Notably absent on purpose:
+### The Rule
 
-- Nunjucks
-- Handlebars
-- Mustache
-- Pug
-- EJS
+- every page renders fully to HTML without client JavaScript
+- a component can opt into an island
+- only pages containing islands load island code
+- islands attach behavior to existing HTML instead of hydrating the entire document
 
-Those are normal templating libraries. They solve the basic problem, but they do not feel especially
-true to this site's "small primitives, no framework personality, static by default" character.
+### The Shape
+
+A component can declare browser needs with metadata:
+
+```js
+CodeDemo.client = {
+  entry: '/assets/islands/code-demo.js'
+};
+```
+
+During the build:
+
+- the server renderer outputs the component's HTML
+- the page gets a `data-island` marker
+- the build records which island entries that page needs
+- only those scripts are included
+
+This preserves the site's core ethic: HTML first, enhancement second.
 
 ---
 
-## Recommended Direction
+## File Structure for Version One
 
-If you want the most future-proof path, build a **tiny JSX-based static renderer** and stop there.
+The first version can stay very small:
 
-That gives you:
+```text
+scripts/
+  render.mjs
+  jsx-runtime.mjs
+  render-html.mjs
+components/
+  EssayLayout.jsx
+  HomeLayout.jsx
+  Prose.jsx
+pages/
+  index.jsx
+  essay.jsx
+```
 
-- React-like authoring
-- zero JavaScript shipped by default
-- opt-in islands only
-- a tiny amount of code you fully understand
-- an upgrade path if you later want partial hydration for a footnote widget, theme toggle, or some
-  hidden "full experience" mode
-
-The implementation can stay extremely small:
+Responsibilities:
 
 - `jsx-runtime.mjs` — `h`, `Fragment`
-- `render-html.mjs` — `renderToString`, `escapeHtml`
-- `templates/` or `components/` — layout functions in JSX
-- `scripts/render.mjs` — page loading and final document render
-- optional `islands-manifest.mjs` — maps explicit browser components to script files
+- `render-html.mjs` — `renderToString`, `escapeHtml`, void-tag handling
+- `render.mjs` — page loading, markdown data flow, final HTML output
+- `components/` — reusable layout primitives
+- `pages/` — route-level page components
 
-This keeps the site's deepest promise intact: the browser gets HTML first. JavaScript is a conscious
-extra, never the price of admission.
+That is enough to prove the idea.
+
+---
+
+## Take It Up a Notch — A Tiny Custom Framework
+
+Once the basic JSX renderer works, you can evolve it into a tiny custom framework for React-style
+authoring that gives you an Astro-like DX without inheriting Astro's generality.
+
+The key is to keep it **highly targeted for simple prose-heavy sites**.
+
+Not a universal web framework. Not a platform. A sharp tool for your own publishing model.
+
+### The Design Goal
+
+You want this feeling:
+
+- write in JSX
+- render to static HTML by default
+- drop in a self-contained interactive component when needed
+- scope CSS per component without a separate styling religion
+- keep the mental model small
+
+### What Makes It Feel Astro-Like
+
+An Astro-like DX here does not mean cloning Astro. It means adopting a few excellent ideas:
+
+1. **components are server-first by default**
+2. **client islands are explicit**
+3. **content pages stay mostly static**
+4. **interactive bits are isolated and intentional**
+5. **the build output is still plain HTML, CSS, and a few targeted scripts**
+
+That is the part worth stealing.
+
+---
+
+## Feature Set for the Custom Framework
+
+If you want to turn the renderer into a small framework, these are the features worth adding.
+
+### CSS Modules via lightningcss
+
+This is the first upgrade I would make.
+
+Let components import local styles:
+
+```jsx
+import styles from './CodeExample.module.css';
+
+export function CodeExample({ children }) {
+  return <figure class={styles.block}>{children}</figure>;
+}
+```
+
+At build time:
+
+- `lightningcss` processes `.module.css`
+- class names are scoped
+- the used CSS is emitted into page-specific or shared bundles
+- no runtime styling system is needed
+
+This gives you component-local styling without bringing in CSS-in-JS or a full framework pipeline.
+
+### Client Islands for Code Examples
+
+Code examples are a perfect island case because the default output is already static.
+
+Base behavior:
+
+- syntax-highlighted HTML is rendered at build time
+- copy button behavior is optional
+- expandable annotations or line-focus tools become an island only where used
+
+That means most code blocks stay pure HTML, while advanced code explanations can opt into a tiny
+script only on pages that need them.
+
+### Interactive Widgets for Explaining Code Concepts Visually
+
+This is where the custom framework could become genuinely special.
+
+Examples:
+
+- a small state transition visualizer
+- a DOM tree explainer
+- an event loop timeline
+- a CSS layout playground with a fixed set of controls
+- a typography axis demo for variable fonts
+
+These are not app features. They are teaching instruments embedded inside essays.
+
+That makes islands an especially good fit: they are self-contained, educational, and localized to the
+pages that need them.
+
+### Newsletter Signup
+
+A newsletter signup is another clean island:
+
+- static HTML form by default
+- progressive enhancement for validation or optimistic UI
+- easy to omit entirely from pages that do not need it
+
+The important part is that signup behavior should not force a site-wide client runtime. It should be
+just another small component with a browser entry.
+
+### Self-Contained React Components
+
+This is the more ambitious move.
+
+Once your JSX system is stable, you could allow certain islands to be authored as isolated React
+components if that improves developer speed for richer interactions.
+
+The server side would still default to your own renderer. The React usage would be constrained to
+client islands only.
+
+That gives you an interesting hybrid:
+
+- your site framework remains custom and server-first
+- the browser gets zero JavaScript by default
+- richer islands can use React when they truly benefit from local state and composition
+
+That is a much better bargain than making React the page renderer for the whole site.
+
+---
+
+## Boundaries That Keep It Elegant
+
+If you build this framework, it should stay opinionated enough to avoid turning into another general
+purpose SSG.
+
+Good constraints:
+
+- optimize for essays, notes, and a CV
+- assume mostly static pages
+- assume one author
+- assume the happy path is semantic prose, not application state
+- keep routing simple
+- keep content loading obvious
+- keep browser JavaScript opt-in only
+
+The moment it starts trying to compete with full frameworks, it loses its point.
 
 ---
 
 ## Practical Migration Path
 
-If you want to test the idea without rewriting the whole project:
+The nicest thing about this direction is that you can test it incrementally.
 
-1. keep the current markdown + front matter pipeline
-2. replace only the outer layout template with JSX
-3. render one page type through the new renderer
-4. prove that the output HTML is unchanged or better
-5. add one opt-in island as a test case, if you actually need one
+### Phase 1 — Replace Only the Outer Layout
 
-If that feels better to write, continue. If not, you can back out with almost no sunk cost.
+- keep markdown and front matter exactly as they are
+- replace the current base template with a JSX layout
+- prove that the output HTML is equal or better
 
-That is the nicest part of this direction: it is not a framework bet. It is just a better authoring
-surface for the same static site.
+### Phase 2 — Introduce Reusable Prose Components
+
+Move repeated structures into components:
+
+- running headers
+- footnotes
+- pull quotes
+- code-example wrappers
+- figure and caption blocks
+
+### Phase 3 — Add CSS Modules
+
+Use `lightningcss` to scope component styles while keeping the final CSS output small and legible.
+
+### Phase 4 — Add One Island Type
+
+A good first island would be one of these:
+
+- code-example controls
+- a visual explainer widget
+- newsletter signup
+
+Prove the island pipeline with one clear use case before generalizing it.
+
+### Phase 5 — Extract the Pattern Into Your Own Framework
+
+If the renderer keeps feeling good, then promote it from "a few helper files" to a named internal
+framework with conventions for:
+
+- pages
+- components
+- CSS modules
+- island entries
+- asset output
+
+That is the moment it starts to feel like a tiny Astro for prose-heavy React-minded work.
+
+---
+
+## Recommendation
+
+Build the custom JSX renderer first, and keep version one almost embarrassingly small.
+
+Then, if it earns the right to grow, evolve it into a tiny framework with:
+
+- server-first JSX components
+- `lightningcss`-powered CSS modules
+- explicit client islands
+- self-contained interactive teaching widgets
+- optional richer React islands where they are justified
+- a build pipeline optimized for simple prose-heavy sites
+
+That path gives you the React ergonomics you want without paying the usual framework tax in the
+browser.
