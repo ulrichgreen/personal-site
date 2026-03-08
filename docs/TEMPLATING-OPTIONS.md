@@ -197,36 +197,6 @@ This preserves the site's core ethic: HTML first, enhancement second.
 
 ---
 
-## File Structure for Version One
-
-The first version can stay very small:
-
-```text
-scripts/
-  render.mjs
-  jsx-runtime.mjs
-  render-html.mjs
-components/
-  EssayLayout.jsx
-  HomeLayout.jsx
-  Prose.jsx
-pages/
-  index.jsx
-  essay.jsx
-```
-
-Responsibilities:
-
-- `jsx-runtime.mjs` — `h`, `Fragment`
-- `render-html.mjs` — `renderToString`, `escapeHtml`, void-tag handling
-- `render.mjs` — page loading, markdown data flow, final HTML output
-- `components/` — reusable layout primitives
-- `pages/` — route-level page components
-
-That is enough to prove the idea.
-
----
-
 ## Take It Up a Notch — A Tiny Custom Framework
 
 Once the basic JSX renderer works, you can evolve it into a tiny custom framework for React-style
@@ -418,7 +388,7 @@ That is the moment it starts to feel like a tiny Astro for prose-heavy React-min
 
 ## Recommendation
 
-Build the custom JSX renderer first, and keep version one almost embarrassingly small.
+Build the custom JSX renderer first, and keep version one deliberately minimal.
 
 Then, if it earns the right to grow, evolve it into a tiny framework with:
 
@@ -431,3 +401,33 @@ Then, if it earns the right to grow, evolve it into a tiny framework with:
 
 That path gives you the React ergonomics you want without paying the usual framework tax in the
 browser.
+
+---
+
+## File Structure for Version One
+
+The first version can stay very small:
+
+```text
+scripts/
+  render.mjs
+  jsx-runtime.mjs
+  render-html.mjs
+components/
+  EssayLayout.jsx
+  HomeLayout.jsx
+  Prose.jsx
+pages/
+  index.jsx
+  essay.jsx
+```
+
+Responsibilities:
+
+- `jsx-runtime.mjs` — `h`, `Fragment`
+- `render-html.mjs` — `renderToString`, `escapeHtml`, void-tag handling
+- `render.mjs` — page loading, markdown data flow, final HTML output
+- `components/` — reusable layout primitives
+- `pages/` — route-level page components
+
+That is enough to prove the idea.
