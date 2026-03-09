@@ -40,6 +40,15 @@ assert(baseHtml.includes('<title>A &lt; Title</title>'));
 assert(baseHtml.includes('<meta name="description" content="Description &amp; more">'));
 assert(baseHtml.includes('<main class="page"><p>Rendered content</p></main>'));
 
+const noDescriptionHtml = renderToString(
+  h(BaseLayout, {
+    title: 'Untitled',
+    section: 'home',
+  }),
+);
+
+assert(noDescriptionHtml.includes('<meta name="description" content="">'));
+
 const articleHtml = `<!doctype html>\n${renderToString(
   h(ArticleLayout, {
     title: 'Essay',
