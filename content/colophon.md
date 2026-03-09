@@ -6,28 +6,28 @@ section: colophon
 
 # Colophon
 
-This site is a collection of static files. No framework, no build pipeline that requires a runtime, no node_modules folder checked into version control. Just a Makefile, a handful of Node scripts, and the conviction that the web works fine when you let it.
+This site is a collection of static files built from a small TypeScript codebase. No framework, no server-side app, no client-side hydration. Just a Makefile, a handful of scripts under `src/`, and enough tooling to keep the work clear.
 
 ## Planning
 
-The site began as a set of planning documents. TECH-STACK.md captured the tool decisions early — marked for Markdown processing, gray-matter for frontmatter parsing, Make as the build orchestrator. SITE-PLANNING.md laid out the page structure, the URL scheme, and the rough content plan before a single template was written. CODE-EXAMPLES.md served as a scratchpad for snippet patterns — how to wire up a template function, how to walk the content directory, how to pass frontmatter data into layout partials. SURPRISE-IDEAS.md collected the ideas that arrived uninvited: small interactions, typographic experiments, things worth trying without committing to them.
+The docs folder stays small on purpose. `MANIFESTO.md` says what the site is trying to do. `ARCHITECTURE.md` explains the build and rendering path. `STRUCTURE.md` is the map of the repo. `STACK.md` records the tool choices. `ROADMAP.md` keeps the next useful ideas in one place. `EXPERIMENTS.md` is where the stranger ideas live.
 
-Working from documents before code kept the scope honest.
+That split keeps the documents short enough to stay useful.
 
 ## Build
 
-`make` drives the whole thing. Source Markdown files in `content/` are processed by a Node script that uses gray-matter to extract frontmatter and marked to render the body to HTML. The output lands in `docs/` as plain HTML files. A second pass copies `static/` assets — fonts, CSS, images — into `docs/static/`. Running `make clean && make` rebuilds everything from scratch in under two seconds.
+`make` still drives the whole thing. Markdown from `content/` goes through a TypeScript pipeline: frontmatter parsing, markdown to HTML, then template rendering through a small JSX runtime. CSS is bundled from partials in `src/styles/`. The browser script is compiled from `src/client/site.ts`. The output lands in `dist/`.
 
-There is no watch mode. Rebuilding is fast enough that it doesn't matter.
+There is a watch mode now. `make watch` runs a tiny dev server with rebuilds and live reload. The setup is still small enough that the build path fits in your head.
 
 ## Design
 
-The visual design is raw CSS — no preprocessor, no utility framework, no CSS-in-JS. A single stylesheet with an 8px baseline grid keeps vertical rhythm consistent across type sizes. Custom properties handle the colour tokens and spacing scale. The type is set in a system font stack that resolves to something sensible on every platform.
+The visual design is still raw CSS. The source is now split into partials under `src/styles/`, but it still compiles to one stylesheet. The 8px baseline grid is still the backbone. Custom properties still carry the spacing scale, type scale, and palette. The site still leans on typography before graphics.
 
-There is a small Vanilla JS file for four progressive enhancements: updating the fixed running header as you scroll through sections, shifting the body font weight subtly as you scroll down, revealing footnotes into the right margin (or inline on narrow screens), and a one-time page-arrival fade on first visit. Everything works without JavaScript — these are additions, not requirements.
+There is a small browser script for four progressive enhancements: updating the running header, shifting font weight with scroll, revealing footnotes into the margin, and a one-time page-arrival fade. Everything still works without JavaScript. The script is there to sharpen the reading, not to carry the page.
 
 ## Principles
 
-This site has zero external dependencies at runtime. No CDN fonts, no analytics script, no third-party anything. Every byte served is a byte I wrote or explicitly chose to include. The tradeoff is manual work when something needs updating. The benefit is a site that loads instantly, works offline once cached, and will still render correctly in ten years.
+This site has zero external services at runtime. No CDN fonts, no analytics script, no third-party widgets. Every byte served is a byte I wrote or explicitly chose to include. TypeScript makes the build code clearer, but the site itself is still plain HTML, raw CSS, and a tiny bit of Vanilla JS.
 
-Constraints, as it turns out, are generative. The absence of a framework forced considered decisions. The absence of external dependencies forced self-sufficiency. The result is a site I understand completely — which means I can fix it, extend it, and trust it.
+Constraints are still the point. The result should be a site I understand completely, which means I can fix it, extend it, and trust it.

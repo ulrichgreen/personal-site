@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node test/verify-jsx-rendering.mjs && node test/verify-tech-stack.js && node test/verify-code-examples.js && node test/verify-site-planning.js && node test/verify-surprise-ideas.js && node test/verify-templating-options.js && node test/verify-typography.js && node test/verify-colophon.js"
+    "test": "pnpm exec tsx test/verify-jsx-rendering.ts && pnpm exec tsx test/verify-manifesto.ts && pnpm exec tsx test/verify-architecture.ts && pnpm exec tsx test/verify-structure.ts && pnpm exec tsx test/verify-stack.ts && pnpm exec tsx test/verify-roadmap.ts && pnpm exec tsx test/verify-experiments.ts && pnpm exec tsx test/verify-typography.ts && pnpm exec tsx test/verify-colophon.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +17,11 @@
     "lightningcss": "^1.31.1",
     "marked": "^17.0.4",
     "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }
