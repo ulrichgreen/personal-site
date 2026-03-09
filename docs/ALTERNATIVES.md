@@ -134,7 +134,7 @@ A new dependency. Zod is well-maintained and small, but it is another thing in t
 
 The validation is clearly needed. Whether to use Zod or a hand-written function depends on how much you value the manifesto's dependency austerity versus Zod's ergonomics. Either way, frontmatter validation is a high-value improvement.
 
-## MDX Component Authoring With Hot Boundaries
+## Faster MDX Dev Feedback Loop
 
 The current dev experience requires a full page rebuild and browser reload on every change. A more sophisticated approach would use esbuild's incremental compilation or a persistent MDX compilation process to deliver sub-second updates.
 
