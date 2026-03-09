@@ -24,6 +24,8 @@ All code that produces the site.
 
 `src/styles/` contains the stylesheet partials.
 
+`src/types/` contains TypeScript interfaces for the content model and layout props.
+
 `docs/`
 
 Short project documents. Each file should answer one question and stop.
@@ -47,6 +49,8 @@ Changing the build means `src/build/` or `src/runtime/`.
 Changing the look means `src/styles/`.
 
 Changing a progressive enhancement means `src/client/site.ts`.
+
+Changing the content model or layout interfaces means `src/types/content.ts`.
 
 ## Why It Is Shaped This Way
 

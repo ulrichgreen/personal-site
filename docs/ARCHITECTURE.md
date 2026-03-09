@@ -38,6 +38,16 @@ Markdown in `content/` is the source of truth for pages.
 
 The home page is generated from `content/writing/*.md` files with valid `published` dates.
 
+TypeScript interfaces in `src/types/content.ts` define the shapes that flow through the pipeline: `PageMeta`, `FrontmatterPayload`, `HtmlPayload`, `WritingIndexEntry`, and the layout props.
+
+## CSS And Client JS
+
+`src/build/css.ts` bundles the stylesheet partials in `src/styles/` into `dist/style.css` using `lightningcss`. The partials are organized into CSS layers: reset, tokens, base, layout, components, utilities, motion, and print.
+
+`src/build/client.ts` bundles `src/client/site.ts` into `dist/site.js` using `esbuild` as a single IIFE.
+
+Both target recent browsers (Chrome 120+, Firefox 121+, Safari 17+).
+
 ## Client Code
 
 The browser code is in `src/client/site.ts` and compiles to one small file in `dist/site.js`.
@@ -53,6 +63,10 @@ footnote reveals,
 page arrival fade.
 
 The page should still work without it.
+
+## Dev Server
+
+`make watch` starts a dev server on port 3000 through `src/build/dev.ts`. It serves `dist/`, watches `content/` and `src/` with `chokidar`, rebuilds on change, and pushes a reload over WebSocket.
 
 ## What Not To Change Casually
 

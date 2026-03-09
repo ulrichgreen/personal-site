@@ -6,12 +6,13 @@
 - Content source lives in `content/` and `content/writing/`. Generated output lives in `dist/`; do not edit generated files directly.
 - The prose build pipeline is fixed: `src/build/frontmatter.ts` parses YAML frontmatter, `src/build/md2html.ts` turns markdown into HTML, and `src/build/template.ts` selects the TSX layout and renders the final page.
 - TSX templates in `src/templates/*.tsx` are rendered at build time through the custom runtime in `src/runtime/jsx-runtime.ts`, `src/runtime/load-jsx.ts`, and `src/runtime/render-html.ts`. Preserve that architecture; do not introduce React, client-side hydration, or a heavier framework unless explicitly requested.
+- TypeScript interfaces in `src/types/content.ts` define the content model and layout props that flow through the pipeline. Keep those types in sync with the templates and build scripts.
 - `section: writing` routes content through `src/templates/article.tsx`; other pages use `src/templates/base.tsx`. `src/build/index.ts` builds the home page from `content/writing/*.md` files with valid `published` dates.
 
 ## Build And Test
 
 - Install dependencies with `pnpm install`.
-- Run `make build` to generate the site into `dist/`.
+- Run `make build` to generate the site into `dist/`. This runs the prose pipeline, bundles CSS with `lightningcss` via `src/build/css.ts`, and bundles client JS with `esbuild` via `src/build/client.ts`.
 - Run `make watch` to start the local dev server with rebuilds and live reload.
 - Run `npm test` after changes to templates, render scripts, planning docs, or typography/content files covered by the verifier scripts.
 - Run `npm run typecheck` after changing TypeScript build, runtime, template, or test files.
