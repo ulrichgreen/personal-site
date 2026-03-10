@@ -78,7 +78,7 @@ function extractDescriptionFromMdx(
 function stripDuplicateArticleTitle(
     input: FrontmatterPayload,
 ): FrontmatterPayload {
-    if (input.meta.section !== "writing" || !input.meta.title) {
+    if (input.meta.layout !== "article" || !input.meta.title) {
         return input;
     }
 
@@ -124,6 +124,14 @@ export async function buildContent(filePath: string): Promise<BuiltContent> {
     const meta = description
         ? { ...stripped.meta, description }
         : { ...stripped.meta };
+
+    if (!meta.section) {
+        const segments = filePath.split("/");
+        const contentIdx = segments.indexOf("content");
+        if (contentIdx >= 0 && segments.length > contentIdx + 2) {
+            meta.section = segments[contentIdx + 1];
+        }
+    }
 
     return {
         meta,

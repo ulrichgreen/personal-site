@@ -8,7 +8,7 @@ Static-first, one person's build. Content in as MDX, out as HTML. React renders 
 
 Templates and shared components are standard React TSX. MDX content renders through the same tree, but only components exposed through `src/content-components.tsx` are available to authors. That boundary is deliberate.
 
-`section: writing` in frontmatter routes a page through the article template. Everything else gets the base layout. Islands — the only parts that hydrate — use `hydrateRoot` through a dedicated client entry. The rest of the page stays static.
+`layout: article` in frontmatter routes a page through the article template. Everything else gets the base layout. The `section` field is purely presentational — it controls the running header breadcrumb and is inferred from the content directory path when not set explicitly. Islands — the only parts that hydrate — use `hydrateRoot` through a dedicated client entry. The rest of the page stays static.
 
 ## The Stack
 
@@ -24,7 +24,7 @@ The component gate for MDX authors is `src/content-components.tsx`. Only what's 
 
 ## Authoring Content
 
-MDX is the content format. Frontmatter stays YAML. Writing pages carry `title`, `section`, `published`, and `description`. Most prose should stay prose — components in content earn their place by being genuinely necessary.
+MDX is the content format. Frontmatter stays YAML. Every page shares the same frontmatter schema — `title`, `description`, `layout`, `published`, `revised`, `words`, `note`, `print`. Set `layout: article` for essay-style pages; the default is the base layout. Files and folders dictate URLs. Most prose should stay prose — components in content earn their place by being genuinely necessary.
 
 Progressive enhancement handles document-level behavior: running headers, scroll effects, footnote reveals. Islands handle interactive state. The two stay separate.
 

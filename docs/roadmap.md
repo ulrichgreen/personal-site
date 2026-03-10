@@ -22,7 +22,7 @@ Enable parallel page builds. Pages are independent Make targets. `make -j` build
 
 Generate a sitemap.xml from the writing index and top-level content files. Helps search engines, costs nothing.
 
-Add frontmatter validation — a build-time schema check that catches missing `title`, `section`, or `published` with file-specific errors. Fail loud, fail early.
+Add frontmatter validation — a build-time schema check that catches missing `title` or `layout` with file-specific errors. Fail loud, fail early.
 
 Generate a full-text feed at `dist/feed.xml` with complete article content. Readers who use RSS deserve the full text, not a teaser.
 
@@ -54,7 +54,7 @@ Add performance budget enforcement — a post-build check measuring total HTML, 
 
 Add an image pipeline. Optimize, resize, convert to AVIF/WebP, generate `<picture>` elements. Worth it once image content grows.
 
-Add type-safe frontmatter. Replace the `[key: string]: unknown` escape hatch in `PageMeta` with a discriminated union on `section`. Writing pages require `published` and `description`; others don't. Catches misuse at compile time.
+Add type-safe frontmatter. Replace the `[key: string]: unknown` escape hatch in `PageMeta` with a discriminated union on `layout`. Article pages require `published` and `description`; others don't. Catches misuse at compile time.
 
 Inline critical CSS — inline above-the-fold styles in `<head>`, async-load the rest. Worth doing once the design settles.
 

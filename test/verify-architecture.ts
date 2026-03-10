@@ -12,7 +12,7 @@ const required = [
     "make build",
     "renderToStaticMarkup",
     "hydrateRoot",
-    "section: writing",
+    "layout: article",
     "progressive enhancement",
     "content-components.tsx",
     "Make",
