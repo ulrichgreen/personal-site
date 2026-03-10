@@ -1,65 +1,41 @@
 # Structure
 
-This repo has a simple split.
+Everything has a place. If it doesn't, it doesn't belong yet.
 
-## Where Things Live
+## The Map
 
-`content/`
+**`content/`** — MDX source files. Pages, essays, everything the reader sees. This is the material.
 
-The MDX source for pages and essays.
+**`src/`** — All code that builds the site:
 
-`src/`
+- `src/build/` — CLI build steps and render pipeline.
+- `src/content-components.tsx` — the approved component surface for MDX. The only door in.
+- `src/templates/` — page-level React templates (article, base).
+- `src/components/` — shared TSX pieces used across templates.
+- `src/client/` — browser-only code (progressive enhancement + island hydration).
+- `src/islands/` — explicitly hydratable React components and the island wrapper.
+- `src/styles/` — CSS partials, layered and authored by hand.
+- `src/types/` — TypeScript interfaces for the content model and layout props.
 
-All code that produces the site.
+**`docs/`** — These files. Project constraints and directions, not aspirational prose.
 
-`src/build/` contains command-line build steps and render helpers.
+**`test/`** — Small verifiers that keep docs, rendering, typography, and content honest.
 
-`src/content-components.tsx` is the approved component surface for MDX authors.
+**`dist/`** — Generated output. Read it, serve it, never edit it.
 
-`src/templates/` contains page-level templates.
+## Common Moves
 
-`src/components/` contains reusable TSX pieces.
+| What you're doing | Where you go |
+|---|---|
+| Writing a new essay | `content/writing/*.mdx` |
+| Changing page chrome | `src/templates/` or `src/components/` |
+| Touching the build | `src/build/` |
+| Changing the look | `src/styles/` |
+| Adding a progressive enhancement | `src/client/` |
+| Exposing a component to content | `src/content-components.tsx` |
+| Building an interactive island | `src/islands/` + `src/client/islands.ts` |
+| Updating content model types | `src/types/content.ts` |
 
-`src/client/` contains browser-only code.
+## Why This Shape
 
-`src/islands/` contains explicitly hydratable React components and the island wrapper.
-
-`src/styles/` contains the stylesheet partials.
-
-`src/types/` contains TypeScript interfaces for the content model and layout props.
-
-`docs/`
-
-Short project documents. Each file should answer one question and stop.
-
-`test/`
-
-Small verifiers for rendering, docs, typography, and content expectations.
-
-`dist/`
-
-Generated output. Never edit it by hand.
-
-## Typical Changes
-
-Adding an essay means editing `content/writing/` and using `.mdx`.
-
-Changing the page chrome usually means `src/templates/` or `src/components/`.
-
-Changing the build means `src/build/`.
-
-Changing the look means `src/styles/`.
-
-Changing a progressive enhancement means `src/client/`.
-
-Adding a new content-safe component means editing `src/content-components.tsx`.
-
-Adding a new interactive island means editing `src/islands/` and `src/client/islands.ts`.
-
-Changing the content model or layout interfaces means `src/types/content.ts`.
-
-## Why It Is Shaped This Way
-
-The repo now looks closer to a normal React project because MDX and islands are easiest to express that way. The difference is that the output is still static HTML and only explicit islands pay the hydration cost.
-
-That is the trade: a more capable authoring model without turning the site into a client-heavy app.
+The repo borrows React's component model because MDX and islands are easiest to express that way. But the output is still static HTML. Only explicit islands pay any hydration cost. That's the deal — a capable authoring surface without the client-side weight.

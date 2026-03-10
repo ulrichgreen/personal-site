@@ -1,51 +1,45 @@
 # Stack
 
-These are the tools that matter.
+Every tool here was chosen on purpose. If something isn't on this list, I either removed it or never needed it.
 
 ## Make
 
-Make is the top-level build graph. It is still the clearest way to say what produces what.
+The top-level build graph. Make still says "what produces what" more clearly than any task runner. It's old, it's boring, it works.
 
 ## TypeScript
 
-TypeScript now covers the build, templates, client code, and tests.
+TypeScript covers the build, the templates, the client code, and the tests. Not because this is an app — because the dangerous parts of the codebase are the seams: the content model, the rendering path, the file boundaries. Types catch the mistakes that matter.
 
-The reason is simple: the risky parts of this repo are the content model, the rendering path, and the file boundaries. Types help there.
+## React + `react-dom/server`
 
-## React And react-dom/server
+React is the rendering engine for templates, MDX content, and interactive islands. One component model, three uses.
 
-React is the single rendering runtime for templates, MDX content, and explicit interactive islands.
+`react-dom/server` renders the full document at build time. The browser never sees React unless an island explicitly opts in.
 
-`react-dom/server` renders the static document at build time.
+## MDX + `gray-matter`
 
-## MDX And gray-matter
+`gray-matter` handles YAML frontmatter parsing. `@mdx-js/mdx` compiles MDX into React components at build time.
 
-`gray-matter` parses frontmatter.
+This gives me an expressive content format — components in prose where they earn it — without resorting to string-template spaghetti or runtime compilation.
 
-`@mdx-js/mdx` turns MDX into React components at build time.
+## `lightningcss` + `esbuild`
 
-That keeps content authoring expressive without moving layout concerns into string manipulation.
+`lightningcss` bundles and minifies the CSS. `esbuild` bundles the two client-side entry points (progressive enhancement and island hydration).
 
-## lightningcss And esbuild
+Both are fast, single-purpose, and require almost no configuration. That's the whole point.
 
-`lightningcss` bundles and minifies the stylesheet.
+## `chokidar` + `ws`
 
-`esbuild` handles the browser bundles for progressive enhancement and island hydration.
-
-That keeps the toolchain short.
-
-## chokidar And ws
-
-The dev server watches files, rebuilds, and reloads the browser. Nothing more.
+File watching and WebSocket-based live reload for the dev server. It watches, rebuilds, and tells the browser. Nothing more.
 
 ## What This Stack Avoids
 
-No full-page hydration.
+No full-page hydration. The document is static. Islands are the exception, not the rule.
 
-No client-side routing.
+No client-side routing. Pages are URLs. Navigation is an `<a>` tag.
 
-No arbitrary imports from MDX content.
+No arbitrary imports from MDX content. Components go through one gate.
 
-No CSS framework.
+No CSS framework. The design system is the CSS itself.
 
-No tool added just because other projects use it.
+No tool added because it's popular. Every dependency answers to the question: does this make the site better for the reader?

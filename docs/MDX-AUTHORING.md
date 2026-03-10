@@ -1,29 +1,25 @@
 # MDX Authoring
 
-This site now treats MDX as the default content format.
+MDX is the content format. It's Markdown with the option to drop in React components where plain prose isn't enough — and only where it isn't enough.
 
-## Rules
+## The Rules
 
-Frontmatter stays separate from the body.
+1. **Frontmatter goes at the top, stays YAML.** Writing pages need `title`, `section`, `published`, and `description`. Other pages need at least `title` and `section`.
+2. **All content files are `.mdx`** and live under `content/`.
+3. **No `import` or `export` inside MDX files.** Ever. Components are provided by the build, not by the author.
+4. **Only components exposed through `src/content-components.tsx` are available.** That file is the single gate between the authoring surface and the component library.
 
-Writing pages should include `title`, `section`, `published`, and `description`.
+## Available Components
 
-Pages and essays should use `.mdx` under `content/`.
+| Component | What it does |
+|---|---|
+| `<ArticleList />` | Renders the current writing index |
+| `<DemoWidget />` | A hydratable example island |
 
-Do not use `import` or `export` inside MDX files.
+## Writing Well in MDX
 
-Only approved components exposed through `src/content-components.tsx` are available in content.
+Most prose should stay prose. A component in content should feel like a deliberate choice, not a shortcut.
 
-## Approved Components
+Hydrate only when the component genuinely needs client-side state. If it can render once and be done, it should.
 
-`<ArticleList />` renders the current writing index.
-
-`<DemoWidget />` is a hydratable example island.
-
-## Guidance
-
-Use components sparingly. Most prose should stay prose.
-
-Hydrate only when the component needs real client-side state.
-
-Prefer explicit `description` frontmatter for articles instead of relying on automatic fallback.
+Always write an explicit `description` in frontmatter. The automatic fallback exists as a safety net, not a feature.

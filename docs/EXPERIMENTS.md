@@ -1,37 +1,36 @@
 # Experiments
 
-The quiet version of the site should stay the real version.
+The calm version of the site is the real version. But a craftsperson should be allowed a secret drawer.
 
-This file is for the second layer. Things that might be fun, sharp, or revealing, but are not required for the site to work.
+This file holds the ideas that are too fun to forget and too risky to ship by default. They live here until they earn a place — or stay here because staying here is the right call.
 
 ## Load Full Experience
 
-The main experiment is still a hidden footer action: `Load full experience`.
+A hidden footer trigger: `Load full experience`.
 
-The idea is simple. The default site stays calm. The hidden mode proves that the calmness is a choice by briefly turning the whole thing into an overbuilt, Flash-adjacent alternate cut.
+The quiet site stays quiet. One click, and the whole thing briefly becomes something else — an overbuilt, Flash-era, "what if I had no restraint" alternate cut. Motion, color, weight, surprise. A love letter to the era when personal sites were loud and strange and proud of it.
 
-The page structure stays intact. The writing stays readable. The mode only changes the presentation layer.
+The rules:
 
-## Guardrails
+- The page structure stays intact. The writing stays readable.
+- Only the presentation layer changes. No content swap, no navigation change.
+- It respects `prefers-reduced-motion` — the experience scales down gracefully.
+- There's always a clean exit: `Return to reality`.
+- It should feel crafted and deliberate, not chaotic.
+- It must never become the reason the rest of the site gets harder to maintain.
 
-It has to stay readable.
+The point isn't the mode itself. The point is proving that the calm version is a *choice* — that the restraint comes from taste, not from inability.
 
-It has to respect `prefers-reduced-motion`.
+## More Ideas Worth Exploring
 
-It has to exit cleanly with something like `Return to reality`.
+**SVG social cards** generated at build time — every shared link gets a bespoke card instead of a generic fallback.
 
-It should feel deliberate, not random.
+**A 404 page that feels authored** — not an apology, a small piece of content. Something that makes getting lost feel intentional.
 
-It should not become the reason the rest of the site gets harder to maintain.
+**Scroll-driven animations** — CSS-only, using `animation-timeline: scroll()`. Subtle weight shifts, reveals, parallax-lite effects. No JS, no library, just the platform.
 
-## Other Good Experiments
+**A colophon page** that documents the typographic and design decisions in detail — the kind of page other developers would bookmark.
 
-SVG social cards generated at build time.
+## Why This File Exists
 
-Gentle revision notes for updated essays.
-
-A 404 page that feels authored instead of apologetic.
-
-## Why Keep This File
-
-Some ideas are good precisely because they are optional. Keeping them in one place stops them from leaking into the core build before they have earned it.
+Some ideas are good *because* they're optional. Corralling them here keeps them from leaking into the core build before they're ready. If an experiment proves itself, it graduates to the roadmap. If not, it stays here — alive, contained, and harmless.

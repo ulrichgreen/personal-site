@@ -1,93 +1,91 @@
 # Roadmap
 
-This is the short list of work that still feels worth doing. Items are grouped by urgency and ordered roughly by impact.
+What's worth building next, in order of effort and payoff. The top items are small moves that punch above their weight. The bottom is the "not happening" list — useful for saying no quickly.
 
 ## Quick Wins
 
-Add a Speculation Rules script block to the base template. The browser prerenders internal links on hover, navigation feels instant, no JavaScript framework involved, falls back silently in browsers that do not support it.
+Add Speculation Rules — a `<script type="speculationrules">` block in the base template. The browser prerenders internal links on hover. Navigation feels instant. No framework, no JavaScript logic, silent fallback in unsupported browsers.
 
-Add View Transitions with a single CSS rule (`@view-transition { navigation: auto; }`) and a meta tag. Cross-document fades without any JavaScript. Respects `prefers-reduced-motion`. Named transitions on article titles could animate between the writing index and the article page.
+Add View Transitions with a single CSS rule (`@view-transition { navigation: auto; }`) and a meta tag. Cross-document fades without a single line of JS. Respects `prefers-reduced-motion`. Named transitions on article titles would let the writing index and article page animate between each other — the kind of detail that separates a crafted site from a generated one.
 
-Add Open Graph and social meta tags. `site-head.tsx` currently emits only `<title>` and `<meta name="description">`. Adding `og:title`, `og:description`, `og:type`, `og:url`, and `twitter:card` makes shared links look intentional. The data already exists in frontmatter.
+Add Open Graph and social meta tags. `site-head.tsx` already has the data in frontmatter. Adding `og:title`, `og:description`, `og:type`, `og:url`, and `twitter:card` makes shared links look deliberate instead of bare.
 
-Add canonical URLs using the final deployed URL. Requires knowing the site base URL, which could live in a small config file or a frontmatter default.
+Add canonical URLs for every page. Needs a site base URL in config or frontmatter defaults. Small change, permanent benefit.
 
-Add a favicon reference to the templates. Even a minimal SVG favicon in an inline `data:` URI prevents the 404 request browsers make by default.
+Add a favicon. Even a minimal inline SVG `data:` URI prevents the default 404 and shows intention in the browser tab.
 
-Debounce rebuilds in `dev.ts`. Rapid saves currently queue overlapping builds. A small debounce of 100 to 200 milliseconds would collapse rapid changes into a single rebuild.
+Debounce dev rebuilds. Rapid saves currently queue overlapping builds in `dev.ts`. A 100–200ms debounce collapses them into one.
 
-Enable parallel page builds in the Makefile. Pages are independent targets. Running `make -j` would let Make build them in parallel.
-
-Archive `MDX-REACT-ISLANDS-PLAN.md`. It is fully completed. It could move to `docs/archive/` or be consolidated into a short retrospective note.
+Enable parallel page builds. Pages are independent Make targets. `make -j` builds them concurrently. Free speedup.
 
 ## Next
 
-Generate a `sitemap.xml` from the writing index and the list of top-level content files.
+Generate a sitemap.xml from the writing index and top-level content files. Helps search engines, costs nothing.
 
-Add frontmatter validation with clear build errors. A small schema check could catch missing `title`, `section`, or `published` fields at build time with file-specific error messages.
+Add frontmatter validation — a build-time schema check that catches missing `title`, `section`, or `published` with file-specific errors. Fail loud, fail early.
 
-Generate a full-text feed at `dist/feed.xml` with full article content.
+Generate a full-text feed at `dist/feed.xml` with complete article content. Readers who use RSS deserve the full text, not a teaser.
 
-Add a broken-link check. A post-build step that scans all `dist/*.html` files for internal `href` values and verifies that the targets exist.
+Add a broken-link check — a post-build step scanning `dist/*.html` for internal `href` values, verifying targets exist. Catches rot before it ships.
 
-Add lazy island hydration. Islands currently hydrate immediately on `DOMContentLoaded`. The `data-island` root could carry an optional `data-hydrate` attribute with values like `visible`, `idle`, or `interaction`, and `islands.ts` could defer `hydrateRoot` accordingly. This reduces Time to Interactive.
+Add lazy island hydration. Islands currently hydrate on `DOMContentLoaded`. A `data-hydrate` attribute (`visible`, `idle`, `interaction`) on each `data-island` root would let `islands.ts` defer `hydrateRoot`. Lower Time to Interactive, smarter resource use.
 
-Add remark and rehype plugins for MDX. `compile-mdx.ts` currently runs with no plugins. `remark-gfm` adds tables and task lists. `rehype-autolink-headings` adds shareable deep links. `rehype-pretty-code` with `shiki` adds build-time syntax highlighting with CSS custom properties. All build-time only, no runtime cost.
+Add MDX plugins. `compile-mdx.ts` runs with zero plugins today. `remark-gfm` for tables and task lists, `rehype-autolink-headings` for deep links, `rehype-pretty-code` with `shiki` for build-time syntax highlighting with CSS custom properties. All build-time, no runtime cost. These make the content richer without adding client weight.
 
-Add content-hashed filenames for CSS and JS. Both esbuild and lightningcss support this natively. The template would receive hashed filenames from a small manifest written during the asset build. Enables aggressive `Cache-Control: immutable` headers.
+Add content-hashed filenames for CSS and JS. Both `esbuild` and `lightningcss` support this natively. Write a small manifest during the asset build, pass hashed filenames to the template. Enables `Cache-Control: immutable`.
 
-Add structured data for articles. A JSON-LD block with `Article` schema using `title`, `published`, `revised`, and `description` from frontmatter. A small addition to `site-head.tsx`.
+Add structured data — JSON-LD `Article` schema using `title`, `published`, `revised`, and `description` from frontmatter. A small addition to `site-head.tsx` that makes the site legible to machines.
 
-Add a custom 404 page. Author `content/404.mdx` and configure the hosting platform to serve it.
+Author a custom 404 page at `content/404.mdx` and configure hosting to serve it. A 404 page is content, not infrastructure.
 
-Add reading time to articles. Compute automatically from the MDX body at build time instead of requiring manual word counts in frontmatter.
+Compute reading time from the MDX body at build time. No manual word counts in frontmatter.
 
 ## Later
 
-Year-based archives for the writing.
+Year-based archives for the writing — once there's enough to group.
 
-Article summaries on the home page.
+Article summaries on the home page — pull descriptions and dates into a richer landing.
 
-Revision notes for essays that change meaningfully over time.
+Revision notes for essays that change meaningfully. Show the thinking, not just the result.
 
-Consolidate the build into a single process. Currently Make spawns a separate `tsx` process for each page. A single Node process that reads all content files, builds the writing index once, compiles all MDX in parallel, and writes all output would eliminate per-page startup cost.
+Consolidate the build into a single process. Currently Make spawns a separate `tsx` process per page. One Node process that reads everything, builds the index once, compiles MDX in parallel, writes all output. Eliminates per-page startup overhead.
 
-Add performance budget enforcement. A post-build check that measures total HTML, CSS, JS size and fails the build or warns if any metric exceeds a defined budget.
+Add performance budget enforcement — a post-build check measuring total HTML, CSS, JS size. Warn or fail if anything crosses a defined threshold.
 
-Add an image pipeline. A build step to optimize images, generate multiple sizes, convert to AVIF and WebP, and produce `<picture>` elements.
+Add an image pipeline. Optimize, resize, convert to AVIF/WebP, generate `<picture>` elements. Worth it once image content grows.
 
-Add type-safe frontmatter. Replace the `[key: string]: unknown` escape hatch in `PageMeta` with a discriminated union based on `section`. Writing pages would require `published` and `description`, other pages would not.
+Add type-safe frontmatter. Replace the `[key: string]: unknown` escape hatch in `PageMeta` with a discriminated union on `section`. Writing pages require `published` and `description`; others don't. Catches misuse at compile time.
 
-Inline critical CSS. The CSS needed for above-the-fold rendering could be inlined into `<head>` as a `<style>` block. The rest would load asynchronously. Worth doing once the design stabilizes.
+Inline critical CSS — inline above-the-fold styles in `<head>`, async-load the rest. Worth doing once the design settles.
 
-Add build caching for incremental rebuilds. A manifest file that stores file hashes and frontmatter would let the build skip unchanged files.
+Add build caching — a manifest of file hashes and frontmatter to skip unchanged pages on incremental rebuilds.
 
 ## Keep An Eye On
 
-Performance budgets for generated HTML, CSS, JS, and fonts.
+Performance budgets for HTML, CSS, JS, and fonts as the site grows.
 
-Whether the running header and margin-note behavior still earns its place.
+Whether the running header and margin-note behavior still earns its place or becomes a distraction.
 
-Whether the docs stay in step with the implementation.
+Whether these docs stay in step with the implementation. (The tests enforce this, but attention still matters.)
 
-Whether CSS `@layer` would make the cascade more predictable. The migration would be mechanical and all target browsers support it.
+Whether CSS `@layer` would clean up the cascade. Migration would be mechanical and every target browser supports it.
 
-Whether container queries would help island layout as the number of islands grows.
+Whether container queries become useful as the number of islands grows.
 
 ## Not The Goal
 
-Turning the site into an app.
+Turning this into an app. It's a document.
 
-Adding more features than the writing can support.
+Adding features faster than the writing can absorb them.
 
-Building infrastructure for ideas that still fit better as a note in this file.
+Building infrastructure for ideas that still fit better as a line in this file.
 
-Adding a CMS. The authoring model is a text editor and a file system.
+A CMS. The authoring model is a text editor and `git push`.
 
-Adding client-side search. A static site this small does not need it.
+Client-side search. The site is small. Use Ctrl+F.
 
-Adding a comment system. If engagement matters, email works.
+A comment system. Email exists.
 
-Adding a CSS framework. The design system is intentional.
+A CSS framework. The design system is the CSS.
 
-Adding server-side rendering at request time. The site is static on purpose.
+Server-side rendering at request time. The site is static because static is better for this.

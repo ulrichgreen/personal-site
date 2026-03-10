@@ -1,91 +1,67 @@
 # Architecture
 
-This site is a static build with a React-rendered content path and explicit client-side islands.
+The whole thing is a static build. Content goes in as MDX, comes out as HTML. React runs at build time. The browser gets clean documents with a thin progressive enhancement layer and a few interactive islands where they've earned it.
 
-## Build Path
+## Build Pipeline
 
-`make build` generates everything in `dist/`.
+`make build` produces everything in `dist/`. Each page follows one path:
 
-For prose pages, the path is:
+```
+content/*.mdx → frontmatter.ts → build-content.ts → compile-mdx.ts → render-react-page.tsx → dist/*.html
+```
 
-`content/*.mdx` -> `src/build/frontmatter.ts` -> `src/build/build-content.ts` -> `src/build/compile-mdx.ts` -> `src/build/render-react-page.tsx` -> `dist/*.html`
+Every step does one thing:
 
-`src/build/page.ts` is the CLI entry that loads one content file, builds the writing index, and renders the final page.
+- **`frontmatter.ts`** — parses YAML frontmatter, emits structured data.
+- **`build-content.ts`** — resolves metadata, strips duplicate titles, prepares the MDX body.
+- **`compile-mdx.ts`** — turns MDX into a React component. Build-time only.
+- **`render-react-page.tsx`** — picks the template, calls `renderToStaticMarkup`, writes the final HTML.
 
-`frontmatter.ts` reads YAML frontmatter and emits JSON.
+The CLI entry is `src/build/page.ts`. It loads one content file, builds the writing index, and renders the page. Make calls it once per target.
 
-`build-content.ts` resolves metadata, strips duplicate article titles when needed, and prepares the MDX source.
+## Rendering
 
-`compile-mdx.ts` evaluates MDX into a React component.
+Templates live in `src/templates/`. Shared pieces live in `src/components/`. Both are standard React TSX — nothing exotic.
 
-`render-react-page.tsx` picks the right template and renders the final page with `renderToStaticMarkup`.
+MDX content renders through the same React tree. The only components available inside content come from `src/content-components.tsx`. That boundary exists on purpose and it stays.
 
-## Rendering Model
+`section: writing` in frontmatter routes a page through the article template. Everything else gets the base layout.
 
-Templates live in `src/templates/` and shared pieces live in `src/components/`.
+Islands are the exception to the static rule. Each one uses the `Island` wrapper from `src/islands/island.tsx`, gets server-rendered into its own root, then hydrated on the client with `hydrateRoot` via `src/client/islands.ts`. The rest of the page never hydrates.
 
-The TSX files are standard React components.
+## Content
 
-Content also renders through React. Approved MDX components are exposed through `src/content-components.tsx`, which is the only authoring surface for embedded components.
+MDX files in `content/` are the source of truth.
 
-`section: writing` routes a page through the article template.
+- `content/index.mdx` is the home page.
+- `content/writing/*.mdx` holds articles.
+- `section: writing` triggers the article template and index inclusion.
 
-Interactive islands use the `Island` wrapper in `src/islands/island.tsx`. Each island is server-rendered for its own root and then hydrated with `hydrateRoot` from `src/client/islands.ts`.
+Articles get explicit `description` frontmatter. There's a fallback, but I treat it as a bug when I rely on it.
 
-The rest of the document remains static HTML.
+The TypeScript interfaces in `src/types/content.ts` define every shape in the pipeline: `PageMeta`, `FrontmatterPayload`, `HtmlPayload`, `WritingIndexEntry`, and the layout props. If the types and the templates disagree, the build breaks.
 
-## Content Model
+## Styles and Scripts
 
-MDX in `content/` is the source of truth for pages.
+CSS is authored in `src/styles/` as layered partials (reset → tokens → base → layout → components → utilities → motion → print) and bundled by `lightningcss` into `dist/style.css`.
 
-`section: writing` routes a page through the article template.
+Client JS has two bundles, both built by `esbuild` as single IIFEs:
 
-`content/index.mdx` is the authored home page.
+- **`dist/site.js`** — progressive enhancement: running header, scroll-linked weight shift, footnote reveals, page arrival fade.
+- **`dist/islands.js`** — island hydration only.
 
-`content/writing/*.mdx` holds the article pages themselves.
-
-Articles should prefer explicit `description` frontmatter. Automatic fallback still exists, but only as a safety net.
-
-TypeScript interfaces in `src/types/content.ts` define the shapes that flow through the pipeline: `PageMeta`, `FrontmatterPayload`, `HtmlPayload`, `WritingIndexEntry`, and the layout props.
-
-## CSS And Client JS
-
-`src/build/css.ts` bundles the stylesheet partials in `src/styles/` into `dist/style.css` using `lightningcss`. The partials are organized into CSS layers: reset, tokens, base, layout, components, utilities, motion, and print.
-
-`src/build/client.ts` bundles two browser entry points using `esbuild`: `src/client/site.ts` into `dist/site.js` for progressive enhancement, and `src/client/islands.ts` into `dist/islands.js` for island hydration. Both are single IIFEs.
-
-Both target recent browsers (Chrome 120+, Firefox 121+, Safari 17+).
-
-## Client Code
-
-The browser code is split in two:
-
-`src/client/site.ts` boots document-level progressive enhancement.
-
-`src/client/islands.ts` hydrates explicit islands.
-
-The progressive enhancement layer still handles:
-
-running header updates,
-
-scroll-linked weight shift,
-
-footnote reveals,
-
-page arrival fade.
-
-The page should still work without it.
+Both target modern browsers (Chrome 120+, Firefox 121+, Safari 17+). The page works without either.
 
 ## Dev Server
 
-`make watch` starts a dev server on port 3000 through `src/build/dev.ts`. It serves `dist/`, watches `content/` and `src/` with `chokidar`, rebuilds on change, and pushes a reload over WebSocket.
+`make watch` starts a local server on port 3000 via `src/build/dev.ts`. It watches `content/` and `src/`, rebuilds on change, pushes a reload over WebSocket. Nothing more.
 
-## What Not To Change Casually
+## Lines Not To Cross
 
-Do not reintroduce arbitrary MDX imports.
+Don't reintroduce arbitrary MDX imports. `content-components.tsx` is the gate and it stays closed.
 
-Do not hydrate the full page when only a small component needs state.
+Don't hydrate the full page. If a component needs client state, it becomes an island.
 
-Do not let the global progressive enhancement code mutate island-owned DOM.
+Don't let the progressive enhancement layer touch island-owned DOM. They're separate worlds.
 
-Do not change output paths casually. The site still depends on stable static URLs.
+Don't change output paths casually. URLs are permanent.
