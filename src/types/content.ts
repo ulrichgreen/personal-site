@@ -3,6 +3,7 @@ import type { ComponentType, ReactNode } from "react";
 export interface PageMeta {
     title?: string;
     description?: string;
+    layout?: "article" | "base";
     section?: string;
     published?: string;
     revised?: string;

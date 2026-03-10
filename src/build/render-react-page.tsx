@@ -22,7 +22,7 @@ export function renderPage(
     });
 
     const page =
-        content.meta.section === "writing" ? (
+        content.meta.layout === "article" ? (
             <ArticleLayout {...content.meta}>{body}</ArticleLayout>
         ) : (
             <BaseLayout

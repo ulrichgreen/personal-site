@@ -40,7 +40,7 @@ async function main() {
     const fallbackDescription = resolveMetaDescription({
         meta: {
             title: "Essay",
-            section: "writing",
+            layout: "article",
         },
         body: "<DemoWidget />\n\n# Essay\n\nA paragraph that should become the fallback description.",
     });
