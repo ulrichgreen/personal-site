@@ -20,11 +20,10 @@ const index = readFileSync(indexFile, "utf8");
 
 const requiredColophonContent = [
     "# Colophon",
-    "MANIFESTO.md",
-    "ARCHITECTURE.md",
-    "STRUCTURE.md",
-    "ROADMAP.md",
-    "EXPERIMENTS.md",
+    "manifesto.md",
+    "architecture.md",
+    "roadmap.md",
+    "experiments.md",
     "static files",
     "raw CSS",
     "Vanilla JS",
