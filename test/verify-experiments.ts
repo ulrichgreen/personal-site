@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 
-const file = new URL("../docs/EXPERIMENTS.md", import.meta.url).pathname;
+const file = new URL("../docs/experiments.md", import.meta.url).pathname;
 
 if (!existsSync(file)) {
-    console.error("EXPERIMENTS.md not found");
+    console.error("experiments.md not found");
     process.exit(1);
 }
 
@@ -21,11 +21,11 @@ const required = [
 const errors = required.filter((item) => !content.includes(item));
 
 if (errors.length > 0) {
-    console.error("EXPERIMENTS.md verification failed:");
+    console.error("experiments.md verification failed:");
     errors.forEach((item) => console.error(`  - Missing: ${item}`));
     process.exit(1);
 }
 
 console.log(
-    `EXPERIMENTS.md verified: ${required.length} experiment anchors present.`,
+    `experiments.md verified: ${required.length} experiment anchors present.`,
 );
