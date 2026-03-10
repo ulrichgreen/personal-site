@@ -22,6 +22,7 @@ const requiredColophonContent = [
     "# Colophon",
     "manifesto.md",
     "architecture.md",
+    "mdx-react-direction.md",
     "roadmap.md",
     "experiments.md",
     "static files",
