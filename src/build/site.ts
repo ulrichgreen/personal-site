@@ -5,7 +5,9 @@ import { buildContent } from "./build-content.ts";
 import { renderPage } from "./render-react-page.tsx";
 import { listWritingEntries } from "./writing-index.ts";
 
-const contentDirectory = fileURLToPath(new URL("../../content", import.meta.url));
+const contentDirectory = fileURLToPath(
+    new URL("../../content", import.meta.url),
+);
 const distDirectory = fileURLToPath(new URL("../../dist", import.meta.url));
 const writingDirectory = join(contentDirectory, "writing");
 
@@ -52,7 +54,9 @@ export async function buildSite(): Promise<void> {
     }
 }
 
-buildSite().catch((error) => {
-    process.stderr.write(`${String(error)}\n`);
-    process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    buildSite().catch((error) => {
+        process.stderr.write(`${String(error)}\n`);
+        process.exit(1);
+    });
+}

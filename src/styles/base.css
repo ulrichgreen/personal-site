@@ -13,7 +13,6 @@
         color: var(--c-text);
         background-color: var(--c-bg);
         font-feature-settings: "liga" 1, "kern" 1;
-        font-variation-settings: "wght" var(--wght, 400), "opsz" var(--opsz, 16);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
@@ -41,7 +40,6 @@
         font-weight: 700;
         letter-spacing: -0.02em;
         font-feature-settings: "liga" 1, "kern" 1, "swsh" 1;
-        font-variation-settings: "opsz" 40;
         margin-block-end: var(--space-3);
     }
 
@@ -51,7 +49,6 @@
         line-height: var(--lh-5u);
         font-weight: 600;
         letter-spacing: -0.01em;
-        font-variation-settings: "opsz" 28;
         margin-block-start: var(--space-6);
         margin-block-end: var(--space-2);
     }

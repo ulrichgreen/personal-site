@@ -20,7 +20,7 @@ async function main() {
     assert(homeHtml.includes('src="/islands.js"'));
     assert(homeHtml.includes('<ul class="writing-list">'));
     assert(homeHtml.includes("On Constraints"));
-    assert(homeHtml.includes('class="running-header__section">home</span>'));
+    assert(homeHtml.includes('class="page-header__section">home</span>'));
 
     const articlePath = new URL(
         "../content/writing/on-tools.mdx",
@@ -51,7 +51,9 @@ async function main() {
         "A paragraph that should become the fallback description.",
     );
 
-    const baseFrontmatter = parseFrontmatter("---\ntitle: Test Page\n---\nBody");
+    const baseFrontmatter = parseFrontmatter(
+        "---\ntitle: Test Page\n---\nBody",
+    );
     assert.equal(baseFrontmatter.meta.layout, "base");
 
     assert.throws(

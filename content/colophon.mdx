@@ -10,21 +10,21 @@ This site is still a collection of static files. The difference is that the auth
 
 ## Planning
 
-The docs folder stays small on purpose. `manifesto.md` says what the site is trying to do. `architecture.md` covers the build, the stack, the repo layout, and how content works. `mdx-react-direction.md` is the architecture rethink for a tighter MDX and React authoring model. `roadmap.md` keeps the next useful ideas in one place. `experiments.md` is where the stranger ideas live.
+The docs folder stays small on purpose. `manifesto.md` says what the site is trying to do. `architecture.md` covers the build, the stack, the repo layout, and how content works. `roadmap.md` keeps the next useful ideas in one place. `experiments.md` is where the stranger ideas live.
 
 That split keeps the documents short enough to stay useful.
 
 ## Build
 
-`make` still drives the whole thing. Content from `content/` goes through a TypeScript pipeline: frontmatter parsing, MDX evaluation, then React server rendering. CSS is bundled from partials in `src/styles/`. The browser code is split between `src/client/site.ts` for progressive enhancement and `src/client/islands.ts` for island hydration. The output still lands in `dist/`.
+`pnpm build` drives the whole thing. Content from `content/` goes through a TypeScript pipeline: frontmatter parsing, MDX evaluation, then React server rendering. CSS is bundled from partials in `src/styles/`. The browser code is split between `src/client/site.ts` for progressive enhancement and `src/client/islands.ts` for island hydration. The output still lands in `dist/`.
 
-There is still a watch mode. `make watch` runs a tiny dev server with rebuilds and live reload. The build is larger than it used to be, but it still fits in your head.
+There is still a watch mode. `pnpm dev` runs a tiny dev server with rebuilds and live reload. The build is larger than it used to be, but it still fits in your head.
 
 ## Design
 
 The visual design is still raw CSS. The source is still split into partials under `src/styles/`, and it still compiles to one stylesheet. The 8px baseline grid is still the backbone. Custom properties still carry the spacing scale, type scale, and palette. The site still leans on typography before graphics.
 
-There is still a small browser layer for progressive enhancement: updating the running header, shifting font weight with scroll, revealing footnotes into the margin, and a one-time page-arrival fade. Interactive islands use React where state is warranted, but document-level behavior stays as plain Vanilla JS.
+There is still a small browser layer for progressive enhancement: revealing footnotes into the margin. Interactive islands use React where state is warranted, but document-level behavior stays as plain Vanilla JS.
 
 ## Principles
 

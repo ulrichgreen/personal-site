@@ -11,9 +11,7 @@ function extractBlock(source: string, pattern: RegExp, label: string) {
 }
 
 function extractColor(block: string, name: string) {
-    const match = block.match(
-        new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6});`),
-    );
+    const match = block.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6});`));
     assert(match?.[1], `Could not find color token --${name}.`);
     return match[1];
 }
@@ -48,7 +46,11 @@ async function main() {
     const tokensPath = new URL("../src/styles/tokens.css", import.meta.url)
         .pathname;
     const tokens = readFileSync(tokensPath, "utf8");
-    const rootBlock = extractBlock(tokens, /:root\s*\{([\s\S]*?)\n\s*\}/, "root");
+    const rootBlock = extractBlock(
+        tokens,
+        /:root\s*\{([\s\S]*?)\n\s*\}/,
+        "root",
+    );
     const darkBlock = extractBlock(
         tokens,
         /@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{([\s\S]*?)\n\s*\}\s*\}/,
@@ -89,8 +91,10 @@ async function main() {
         "Accent dark-mode text should meet WCAG AA contrast.",
     );
 
-    const componentsPath = new URL("../src/styles/components.css", import.meta.url)
-        .pathname;
+    const componentsPath = new URL(
+        "../src/styles/components.css",
+        import.meta.url,
+    ).pathname;
     const componentsCss = readFileSync(componentsPath, "utf8");
     const mobileBlock = extractBlock(
         componentsCss,
@@ -99,7 +103,7 @@ async function main() {
     );
 
     const mobileNavMatch = mobileBlock.match(
-        /\.running-header__nav\s*\{([\s\S]*?)\n\s*\}/,
+        /\.page-header__nav\s*\{([\s\S]*?)\n\s*\}/,
     );
     assert(mobileNavMatch?.[1], "Could not find small-screen nav styles.");
     assert(
@@ -107,7 +111,8 @@ async function main() {
         "Primary navigation should stay visible on small screens.",
     );
 
-    const basePath = new URL("../src/styles/base.css", import.meta.url).pathname;
+    const basePath = new URL("../src/styles/base.css", import.meta.url)
+        .pathname;
     const baseCss = readFileSync(basePath, "utf8");
 
     assert(
@@ -135,10 +140,7 @@ async function main() {
         skipLinkTag.includes('href="#main-content"'),
         "The skip link should point at the main landmark ID.",
     );
-    assert(
-        mainTag,
-        "The main landmark should expose the skip-link target.",
-    );
+    assert(mainTag, "The main landmark should expose the skip-link target.");
 
     console.log(
         "Accessibility verified: text colors meet WCAG AA contrast, skip link exists, and small-screen navigation stays available.",

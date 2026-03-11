@@ -1,4 +1,5 @@
 import { build } from "esbuild";
+import { fileURLToPath } from "node:url";
 
 const targets = [
     {
@@ -11,7 +12,7 @@ const targets = [
     },
 ];
 
-async function main() {
+export async function buildClient(): Promise<void> {
     await Promise.all(
         targets.map(({ entryPoint, outfile }) =>
             build({
@@ -29,7 +30,9 @@ async function main() {
     process.stdout.write("client.ts: wrote dist/site.js and dist/islands.js\n");
 }
 
-main().catch((error) => {
-    process.stderr.write(`${String(error)}\n`);
-    process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    buildClient().catch((error) => {
+        process.stderr.write(`${String(error)}\n`);
+        process.exit(1);
+    });
+}

@@ -14,15 +14,11 @@ Add canonical URLs for every page. Needs a site base URL in config or frontmatte
 
 Add a favicon. Even a minimal inline SVG `data:` URI prevents the default 404 and shows intention in the browser tab.
 
-Debounce dev rebuilds. Rapid saves currently queue overlapping builds in `dev.ts`. A 100–200ms debounce collapses them into one.
-
-Enable parallel page builds. Pages are independent Make targets. `make -j` builds them concurrently. Free speedup.
+Debounce dev rebuilds further if needed. `dev.ts` now coalesces overlapping builds into a single queued rerun, but a short delay on rapid saves may still reduce unnecessary work.
 
 ## Next
 
 Generate a sitemap.xml from the writing index and top-level content files. Helps search engines, costs nothing.
-
-Add frontmatter validation — a build-time schema check that catches missing `title` or `layout` with file-specific errors. Fail loud, fail early.
 
 Generate a full-text feed at `dist/feed.xml` with complete article content. Readers who use RSS deserve the full text, not a teaser.
 
@@ -30,7 +26,7 @@ Add a broken-link check — a post-build step scanning `dist/*.html` for interna
 
 Add lazy island hydration. Islands currently hydrate on `DOMContentLoaded`. A `data-hydrate` attribute (`visible`, `idle`, `interaction`) on each `data-island` root would let `islands.ts` defer `hydrateRoot`. Lower Time to Interactive, smarter resource use.
 
-Add MDX plugins. `compile-mdx.ts` runs with zero plugins today. `remark-gfm` for tables and task lists, `rehype-autolink-headings` for deep links, `rehype-pretty-code` with `shiki` for build-time syntax highlighting with CSS custom properties. All build-time, no runtime cost. These make the content richer without adding client weight.
+Add a small MDX plugin preset beyond syntax highlighting. `compile-mdx.ts` already handles build-time code highlighting with `rehype-pretty-code`; the next useful additions are `remark-gfm` for tables and task lists plus `rehype-autolink-headings` for deep links. All build-time, no runtime cost.
 
 Add content-hashed filenames for CSS and JS. Both `esbuild` and `lightningcss` support this natively. Write a small manifest during the asset build, pass hashed filenames to the template. Enables `Cache-Control: immutable`.
 
@@ -48,23 +44,23 @@ Article summaries on the home page — pull descriptions and dates into a richer
 
 Revision notes for essays that change meaningfully. Show the thinking, not just the result.
 
-Consolidate the build into a single process. Currently Make spawns a separate `tsx` process per page. One Node process that reads everything, builds the index once, compiles MDX in parallel, writes all output. Eliminates per-page startup overhead.
-
 Add performance budget enforcement — a post-build check measuring total HTML, CSS, JS size. Warn or fail if anything crosses a defined threshold.
 
 Add an image pipeline. Optimize, resize, convert to AVIF/WebP, generate `<picture>` elements. Worth it once image content grows.
 
-Add type-safe frontmatter. Replace the `[key: string]: unknown` escape hatch in `PageMeta` with a discriminated union on `layout`. Article pages require `published` and `description`; others don't. Catches misuse at compile time.
+Tighten frontmatter types further. The build already validates frontmatter with `zod`; the next step is a stronger TypeScript model, likely a discriminated union on `layout`, so article-only fields stay explicit at compile time too.
 
 Inline critical CSS — inline above-the-fold styles in `<head>`, async-load the rest. Worth doing once the design settles.
 
 Add build caching — a manifest of file hashes and frontmatter to skip unchanged pages on incremental rebuilds.
 
+Parallelize page rendering inside the TypeScript build entry. The site build now runs in one process; the next speed win would be parallel work in `site.ts` rather than shell-level target fanout.
+
 ## Keep An Eye On
 
 Performance budgets for HTML, CSS, JS, and fonts as the site grows.
 
-Whether the running header and margin-note behavior still earns its place or becomes a distraction.
+Whether the fixed page header and margin-note behavior still earns its place or becomes a distraction.
 
 Whether these docs stay in step with the implementation. (The tests enforce this, but attention still matters.)
 

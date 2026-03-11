@@ -19,7 +19,7 @@ The rules:
 - It should feel crafted and deliberate, not chaotic.
 - It must never become the reason the rest of the site gets harder to maintain.
 
-The point isn't the mode itself. The point is proving that the calm version is a *choice* — that the restraint comes from taste, not from inability.
+The point isn't the mode itself. The point is proving that the calm version is a _choice_ — that the restraint comes from taste, not from inability.
 
 ## More Ideas Worth Exploring
 
@@ -27,10 +27,10 @@ The point isn't the mode itself. The point is proving that the calm version is a
 
 **A 404 page that feels authored** — not an apology, a small piece of content. Something that makes getting lost feel intentional.
 
-**Scroll-driven animations** — CSS-only, using `animation-timeline: scroll()`. Subtle weight shifts, reveals, parallax-lite effects. No JS, no library, just the platform.
+**Scroll-driven animations** — CSS-only, using `animation-timeline: scroll()`. Subtle reveals and parallax-lite effects. No JS, no library, just the platform.
 
 **A colophon page** that documents the typographic and design decisions in detail — the kind of page other developers would bookmark.
 
 ## Why This File Exists
 
-Some ideas are good *because* they're optional. Corralling them here keeps them from leaking into the core build before they're ready. If an experiment proves itself, it graduates to the roadmap. If not, it stays here — alive, contained, and harmless.
+Some ideas are good _because_ they're optional. Corralling them here keeps them from leaking into the core build before they're ready. If an experiment proves itself, it graduates to the roadmap. If not, it stays here — alive, contained, and harmless.

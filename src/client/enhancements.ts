@@ -5,54 +5,6 @@ function isInsideIsland(node: Element | null): boolean {
 export function bootEnhancements() {
     if (!document.body) return;
 
-    const headerSection = document.querySelector<HTMLElement>(
-        ".running-header__section",
-    );
-    if (headerSection) {
-        const sections = Array.from(
-            document.querySelectorAll<HTMLElement>(
-                "article section[data-title], article h2[id]",
-            ),
-        ).filter((element) => !isInsideIsland(element));
-
-        if (sections.length) {
-            const observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            const element = entry.target as HTMLElement;
-                            headerSection.textContent =
-                                element.dataset.title ||
-                                element.textContent?.trim().slice(0, 60) ||
-                                "";
-                        }
-                    });
-                },
-                { rootMargin: "-10% 0px -80% 0px" },
-            );
-
-            sections.forEach((section) => observer.observe(section));
-        }
-    }
-
-    let ticking = false;
-    function onScroll() {
-        if (!ticking) {
-            requestAnimationFrame(() => {
-                const progress = Math.min(scrollY / 1000, 1);
-                const weight = Math.round(300 + progress * 100);
-                document.documentElement.style.setProperty(
-                    "--wght",
-                    String(weight),
-                );
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-
     const hasWideMargin = window.matchMedia("(min-width: 900px)");
 
     document.addEventListener("click", (event) => {
@@ -110,22 +62,4 @@ export function bootEnhancements() {
 
         inline.classList.toggle("is-open");
     });
-
-    const seenKey = "ps_arrived";
-    const arrival = document.querySelector(".page-arrival");
-    if (!(arrival instanceof HTMLElement)) {
-        return;
-    }
-
-    if (!sessionStorage.getItem(seenKey)) {
-        sessionStorage.setItem(seenKey, "1");
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                arrival.classList.add("is-visible");
-            });
-        });
-        return;
-    }
-
-    arrival.classList.add("is-visible");
 }

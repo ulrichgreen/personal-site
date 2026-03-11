@@ -1,9 +1,9 @@
 import chokidar from "chokidar";
-import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import http from "node:http";
 import { extname, join } from "node:path";
 import { WebSocketServer } from "ws";
+import { buildAll } from "./build.ts";
 
 const PORT = 3000;
 const DIST = new URL("../../dist", import.meta.url).pathname;
@@ -44,20 +44,41 @@ const server = http.createServer((req, res) => {
 
 const wss = new WebSocketServer({ server });
 
-function rebuild() {
-    const proc = spawn("make", ["build"], { stdio: "inherit" });
-    proc.on("close", (code) => {
-        if (code === 0) {
-            wss.clients.forEach((client) => {
-                if (client.readyState === 1) {
-                    client.send("reload");
-                }
-            });
+let buildQueued = false;
+let buildRunning = false;
+
+async function runBuild() {
+    if (buildRunning) {
+        buildQueued = true;
+        return;
+    }
+
+    buildRunning = true;
+
+    try {
+        await buildAll();
+        wss.clients.forEach((client) => {
+            if (client.readyState === 1) {
+                client.send("reload");
+            }
+        });
+    } catch (error) {
+        process.stderr.write(`${String(error)}\n`);
+    } finally {
+        buildRunning = false;
+
+        if (buildQueued) {
+            buildQueued = false;
+            void runBuild();
         }
-    });
+    }
 }
 
-chokidar.watch(["content", "src"], { ignoreInitial: true }).on("all", rebuild);
+chokidar.watch(["content", "src"], { ignoreInitial: true }).on("all", () => {
+    void runBuild();
+});
+
+void runBuild();
 
 server.listen(PORT, () =>
     process.stdout.write(`dev server: http://localhost:${PORT}\n`),

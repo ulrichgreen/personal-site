@@ -1,4 +1,4 @@
-export function RunningHeader({
+export function PageHeader({
     section = "",
     title = "",
 }: {
@@ -6,15 +6,15 @@ export function RunningHeader({
     title?: string;
 }) {
     return (
-        <header className="running-header">
-            <div className="running-header__title">
+        <header className="page-header">
+            <div className="page-header__title">
                 <span>ULRICH</span> /{" "}
-                <span className="running-header__section">
+                <span className="page-header__section">
                     {section || "home"}
                 </span>{" "}
                 / <span>{title}</span>
             </div>
-            <nav className="running-header__nav" aria-label="Primary">
+            <nav className="page-header__nav" aria-label="Primary">
                 <a href="/index.html">Home</a>
                 <a href="/cv.html">CV</a>
                 <a href="/colophon.html">Colophon</a>

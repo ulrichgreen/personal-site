@@ -4,8 +4,13 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "build": "pnpm exec tsx src/build/build.ts",
+        "clean": "pnpm exec tsx src/build/clean.ts",
+        "dev": "pnpm exec tsx src/build/dev.ts",
         "test": "pnpm exec tsx test/verify-jsx-rendering.ts && pnpm exec tsx test/verify-accessibility.ts",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "verify": "pnpm run typecheck && pnpm run test && pnpm run build",
+        "watch": "pnpm run dev"
     },
     "keywords": [],
     "author": "",
@@ -30,5 +35,6 @@
         "@types/ws": "^8.18.1",
         "tsx": "^4.20.5",
         "typescript": "^5.9.2"
-    }
+    },
+    "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39"
 }

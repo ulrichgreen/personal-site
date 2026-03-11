@@ -2,7 +2,7 @@
 
 ## Architecture
 
-- This repository is a static site built with GNU Make plus small TypeScript modules under `src/`. Treat `src/`, `content/`, and `test/` as the source of truth when docs and implementation diverge.
+- This repository is a static site built with small TypeScript modules under `src/` and package-manager scripts in `package.json`. Treat `src/`, `content/`, and `test/` as the source of truth when docs and implementation diverge.
 - Content source lives in `content/` and `content/writing/` as `.mdx` files. Generated output lives in `dist/`; do not edit generated files directly.
 - The prose build pipeline is: `src/build/frontmatter.ts` parses YAML frontmatter, `src/build/compile-mdx.ts` evaluates MDX into a React component, `src/build/build-content.ts` resolves metadata, and `src/build/render-react-page.tsx` renders the final page with `renderToStaticMarkup`. The CLI entry is `src/build/page.ts`.
 - TSX templates in `src/templates/*.tsx` are standard React components rendered at build time through `react-dom/server`. Do not hydrate the full page; only explicit islands get client-side React.
@@ -14,10 +14,10 @@
 ## Build And Test
 
 - Install dependencies with `pnpm install`.
-- Run `make build` to generate the site into `dist/`. This runs the MDX pipeline, bundles CSS with `lightningcss` via `src/build/css.ts`, and bundles client JS with `esbuild` via `src/build/client.ts`.
-- Run `make watch` to start the local dev server with rebuilds and live reload.
-- Run `npm test` after changes to templates, render scripts, planning docs, or typography/content files covered by the verifier scripts.
-- Run `npm run typecheck` after changing TypeScript build, runtime, template, or test files.
+- Run `pnpm build` to generate the site into `dist/`. This runs the MDX pipeline, bundles CSS with `lightningcss` via `src/build/css.ts`, and bundles client JS with `esbuild` via `src/build/client.ts`.
+- Run `pnpm dev` to start the local dev server with rebuilds and live reload.
+- Run `pnpm test` after changes to templates, render scripts, planning docs, or typography/content files covered by the verifier scripts.
+- Run `pnpm run typecheck` after changing TypeScript build, runtime, template, or test files.
 - Prefer targeted verification when possible: renderer behavior is guarded by `test/verify-jsx-rendering.ts`, and docs/content expectations are guarded by the small TypeScript scripts in `test/`.
 
 ## Conventions

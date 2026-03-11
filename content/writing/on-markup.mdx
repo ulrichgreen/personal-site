@@ -16,11 +16,11 @@ I notice the difference most clearly in navigation. A nav element with a list of
 
 ```html
 <nav aria-label="Main">
-  <ul role="list">
-    <li><a href="/" aria-current="page">Home</a></li>
-    <li><a href="/writing">Writing</a></li>
-    <li><a href="/projects">Projects</a></li>
-  </ul>
+    <ul role="list">
+        <li><a href="/" aria-current="page">Home</a></li>
+        <li><a href="/writing">Writing</a></li>
+        <li><a href="/projects">Projects</a></li>
+    </ul>
 </nav>
 ```
 
@@ -30,16 +30,18 @@ The same principle applies to document structure. An article is not a div with a
 
 ```html
 <article>
-  <header>
-    <h1>On Markup</h1>
-    <time datetime="2025-04-01">April 2025</time>
-  </header>
-  <p>HTML is not a formality. It is the material the web is made of.</p>
-  <footer>
-    <p>Filed under <a href="/topics/craft" rel="tag">craft</a>.</p>
-  </footer>
+    <header>
+        <h1>On Markup</h1>
+        <time datetime="2025-04-01">April 2025</time>
+    </header>
+    <p>HTML is not a formality. It is the material the web is made of.</p>
+    <footer>
+        <p>Filed under <a href="/topics/craft" rel="tag">craft</a>.</p>
+    </footer>
 </article>
 ```
+
+## This is a header
 
 This is more markup than a div with some spans inside it. It is also more meaningful. Every element carries semantic weight that downstream systems can use. The browser uses it for accessibility. Search engines use it for understanding. Reader modes use it to extract the article from the surrounding page. None of that works if the structure is a flat pile of divs.
 
@@ -47,17 +49,17 @@ Forms are where this matters most acutely, because forms are where users transmi
 
 ```html
 <form action="/subscribe" method="post">
-  <div>
-    <label for="email">Email address</label>
-    <input
-      id="email"
-      name="email"
-      type="email"
-      autocomplete="email"
-      required
-    />
-  </div>
-  <button type="submit">Subscribe</button>
+    <div>
+        <label for="email">Email address</label>
+        <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+        />
+    </div>
+    <button type="submit">Subscribe</button>
 </form>
 ```
 
