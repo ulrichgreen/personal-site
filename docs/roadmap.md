@@ -4,23 +4,19 @@ What's worth building next, in order of effort and payoff. The top items are sma
 
 ## Next
 
-Generate a sitemap.xml from the writing index and top-level content files. Helps search engines, costs nothing.
+Style the heading autolink anchors. `rehype-autolink-headings` now appends `<a>` elements after each heading; they need a subtle visual treatment (e.g. a `#` glyph on hover) so deep links are discoverable without cluttering the reading flow.
 
-Generate a full-text feed at `dist/feed.xml` with complete article content. Readers who use RSS deserve the full text, not a teaser.
+Add `Cache-Control: immutable` headers for content-hashed assets. The hashed filenames are in place; the remaining step is the hosting configuration — a `_headers` file for GitHub Pages or equivalent.
 
-Add a broken-link check — a post-build step scanning `dist/*.html` for internal `href` values, verifying targets exist. Catches rot before it ships.
+Add `woff2` MIME type to the dev server. `dev.ts` currently maps only `.html`, `.css`, and `.js`; font and XML requests fall back to `text/plain`.
 
-Add lazy island hydration. Islands currently hydrate on `DOMContentLoaded`. A `data-hydrate` attribute (`visible`, `idle`, `interaction`) on each `data-island` root would let `islands.ts` defer `hydrateRoot`. Lower Time to Interactive, smarter resource use.
+Generate a `robots.txt` at build time pointing to `sitemap.xml`. Trivial complement to the sitemap, helps crawlers find it without a search-console submission.
 
-Add a small MDX plugin preset beyond syntax highlighting. `compile-mdx.ts` already handles build-time code highlighting with `rehype-pretty-code`; the next useful additions are `remark-gfm` for tables and task lists plus `rehype-autolink-headings` for deep links. All build-time, no runtime cost.
+Remove the manual `words` field from article frontmatter. Reading time is now computed automatically from the MDX body at build time; the six articles still carry a hand-written `words` value that the build overrides. Clean up the redundancy.
 
-Add content-hashed filenames for CSS and JS. Both `esbuild` and `lightningcss` support this natively. Write a small manifest during the asset build, pass hashed filenames to the template. Enables `Cache-Control: immutable`.
+Add `og:image` meta tags. A default sharing image (or per-article generated card) would improve link previews on social platforms. The `site-head.tsx` component already emits `og:title` and `og:description`; `og:image` is the remaining gap.
 
-Add structured data — JSON-LD `Article` schema using `title`, `published`, `revised`, and `description` from frontmatter. A small addition to `site-head.tsx` that makes the site legible to machines.
-
-Author a custom 404 page at `content/404.mdx` and configure hosting to serve it. A 404 page is content, not infrastructure.
-
-Compute reading time from the MDX body at build time. No manual word counts in frontmatter.
+Validate the Atom feed as a post-build check. Ensure `feed.xml` is well-formed XML with the required Atom elements (`<feed>`, `<title>`, `<id>`, `<updated>`, `<entry>`). Catches structural regressions before they reach readers.
 
 ## Later
 
@@ -53,6 +49,8 @@ Whether these docs stay in step with the implementation. (The tests enforce this
 Whether CSS `@layer` would clean up the cascade. Migration would be mechanical and every target browser supports it.
 
 Whether container queries become useful as the number of islands grows.
+
+Whether `remark-gfm` table styling needs dedicated CSS as content starts using tables and task lists.
 
 ## Not The Goal
 

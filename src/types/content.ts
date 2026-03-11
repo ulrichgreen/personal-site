@@ -10,6 +10,7 @@ export interface PageMeta {
     published?: string;
     revised?: string;
     words?: number | string;
+    readingTime?: string;
     note?: string;
     summary?: string;
     print?: boolean;
@@ -47,6 +48,8 @@ export interface BaseLayoutProps {
     description?: string;
     section?: string;
     pagePath?: string;
+    published?: string;
+    revised?: string;
     children?: ReactNode;
 }
 
@@ -54,5 +57,6 @@ export interface ArticleLayoutProps extends BaseLayoutProps {
     published?: string;
     revised?: string;
     words?: number | string;
+    readingTime?: string;
     note?: string;
 }

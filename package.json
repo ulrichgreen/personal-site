@@ -7,9 +7,10 @@
         "build": "pnpm exec tsx src/build/build.ts",
         "clean": "pnpm exec tsx src/build/clean.ts",
         "dev": "pnpm exec tsx src/build/dev.ts",
+        "check-links": "pnpm exec tsx test/verify-links.ts",
         "test": "pnpm exec tsx test/verify-jsx-rendering.ts && pnpm exec tsx test/verify-accessibility.ts",
         "typecheck": "tsc --noEmit",
-        "verify": "pnpm run typecheck && pnpm run test && pnpm run build",
+        "verify": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run check-links",
         "watch": "pnpm run dev"
     },
     "keywords": [],
@@ -23,7 +24,10 @@
         "lightningcss": "^1.31.1",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
+        "rehype-autolink-headings": "^7.1.0",
         "rehype-pretty-code": "^0.14.3",
+        "rehype-slug": "^6.0.0",
+        "remark-gfm": "^4.0.1",
         "shiki": "^4.0.2",
         "ws": "^8.19.0",
         "zod": "^4.3.6"

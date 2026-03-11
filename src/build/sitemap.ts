@@ -1,0 +1,47 @@
+import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import type { WritingIndexEntry } from "../types/content.ts";
+
+const SITE_URL = "https://ulrich.green";
+const distDirectory = fileURLToPath(new URL("../../dist", import.meta.url));
+
+function toISODate(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toISOString().slice(0, 10);
+}
+
+export function buildSitemap(
+    contentDir: string,
+    writingIndex: WritingIndexEntry[],
+): void {
+    const topLevelPages = readdirSync(contentDir)
+        .filter((file) => file.endsWith(".mdx") && file !== "404.mdx")
+        .map((file) => file.replace(/\.mdx$/, ".html"));
+
+    const urls: string[] = [];
+
+    for (const page of topLevelPages) {
+        urls.push(`  <url>\n    <loc>${SITE_URL}/${page}</loc>\n  </url>`);
+    }
+
+    for (const entry of writingIndex) {
+        const lastmod = toISODate(entry.revised || entry.published);
+        const lastmodTag = lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : "";
+        urls.push(
+            `  <url>\n    <loc>${SITE_URL}${entry.href}</loc>${lastmodTag}\n  </url>`,
+        );
+    }
+
+    const xml = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        ...urls,
+        "</urlset>",
+        "",
+    ].join("\n");
+
+    mkdirSync(distDirectory, { recursive: true });
+    writeFileSync(join(distDirectory, "sitemap.xml"), xml);
+}

@@ -99,6 +99,77 @@ async function main() {
         "Article page should have og:type article.",
     );
 
+    assert(
+        articleHtml.includes('data-hydrate="load"'),
+        "Islands should include the data-hydrate attribute.",
+    );
+
+    assert(
+        article.meta.readingTime && /\d+ min read/.test(article.meta.readingTime),
+        "Article should have a computed reading time.",
+    );
+    assert(
+        typeof article.meta.words === "number" && article.meta.words > 0,
+        "Article should have a computed word count.",
+    );
+    assert(
+        articleHtml.includes('class="reading-time"'),
+        "Article should render the reading time.",
+    );
+
+    assert(
+        articleHtml.includes('type="application/ld+json"'),
+        "Article page should include JSON-LD structured data.",
+    );
+    assert(
+        articleHtml.includes('"@type":"Article"'),
+        "JSON-LD should have Article type.",
+    );
+    assert(
+        articleHtml.includes('"headline":"On Tools"'),
+        "JSON-LD should include the article headline.",
+    );
+
+    assert(
+        articleHtml.includes('type="application/atom+xml"'),
+        "Pages should include RSS feed autodiscovery link.",
+    );
+
+    assert(
+        !homeHtml.includes('type="application/ld+json"'),
+        "Non-article pages should not include JSON-LD.",
+    );
+    assert(
+        homeHtml.includes('type="application/atom+xml"'),
+        "Home page should include RSS feed autodiscovery link.",
+    );
+
+    const colophonPath = new URL("../content/colophon.mdx", import.meta.url).pathname;
+    const colophon = await buildContent(colophonPath);
+    const colophonHtml = renderPage(colophon, writingIndex);
+
+    assert(
+        /id="[a-z-]+"/.test(colophonHtml),
+        "Headings should have auto-generated IDs from rehype-slug.",
+    );
+    assert(
+        colophonHtml.includes('aria-hidden="true"'),
+        "Headings should have autolink anchors from rehype-autolink-headings.",
+    );
+
+    const notFoundPath = new URL("../content/404.mdx", import.meta.url).pathname;
+    const notFound = await buildContent(notFoundPath);
+    const notFoundHtml = renderPage(notFound, writingIndex);
+
+    assert(
+        notFoundHtml.includes("<title>Page Not Found</title>"),
+        "404 page should render with correct title.",
+    );
+    assert(
+        notFoundHtml.includes('href="/index.html"'),
+        "404 page should link back to home.",
+    );
+
     const fallbackDescription = resolveMetaDescription({
         meta: {
             title: "Essay",
