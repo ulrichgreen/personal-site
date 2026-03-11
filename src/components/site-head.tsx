@@ -67,6 +67,7 @@ export function SiteHead({
                 crossOrigin="anonymous"
             />
             <link rel="stylesheet" href="/style.css" />
+            <link rel="alternate" type="application/atom+xml" title="Ulrich Green" href="/feed.xml" />
             {pagePath?.startsWith("/writing/") && (
                 <script
                     type="application/ld+json"

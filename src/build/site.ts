@@ -2,7 +2,9 @@ import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildContent } from "./build-content.ts";
+import { buildFeed } from "./feed.ts";
 import { renderPage } from "./render-react-page.tsx";
+import { buildSitemap } from "./sitemap.ts";
 import { listWritingEntries } from "./writing-index.ts";
 
 const contentDirectory = fileURLToPath(
@@ -52,6 +54,9 @@ export async function buildSite(): Promise<void> {
         mkdirSync(dirname(outputPath), { recursive: true });
         writeFileSync(outputPath, renderPage(page, writingIndex));
     }
+
+    buildSitemap(contentDirectory, writingIndex);
+    await buildFeed(writingDirectory, writingIndex);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
