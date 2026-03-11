@@ -48,13 +48,21 @@ export async function buildSite(assetManifest?: AssetManifest): Promise<void> {
     cleanGeneratedPages();
 
     const sourceFiles = listSourceFiles();
-    const pages = await Promise.all(
+    const results = await Promise.allSettled(
         sourceFiles.map((sourcePath) => buildContent(sourcePath)),
     );
 
+    const failed: { file: string; error: unknown }[] = [];
     const compiledWriting: BuiltContent[] = [];
+
     for (let i = 0; i < sourceFiles.length; i++) {
-        const page = pages[i];
+        const result = results[i];
+        if (result.status === "rejected") {
+            failed.push({ file: sourceFiles[i], error: result.reason });
+            continue;
+        }
+
+        const page = result.value;
         const outputPath = resolveOutputPath(sourceFiles[i]);
 
         mkdirSync(dirname(outputPath), { recursive: true });
@@ -63,6 +71,13 @@ export async function buildSite(assetManifest?: AssetManifest): Promise<void> {
         if (sourceFiles[i].includes("/writing/")) {
             compiledWriting.push(page);
         }
+    }
+
+    if (failed.length > 0) {
+        for (const { file, error } of failed) {
+            process.stderr.write(`Failed to build ${file}: ${String(error)}\n`);
+        }
+        throw new Error(`Build failed: ${failed.length} page(s) had errors`);
     }
 
     buildSitemap(contentDirectory, writingIndex);

@@ -18,6 +18,10 @@ function escapeXml(text: string): string {
         .replace(/'/g, "&apos;");
 }
 
+function escapeCdata(text: string): string {
+    return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
 export async function buildFeed(
     writingIndex: WritingIndexEntry[],
     compiledWriting: BuiltContent[],
@@ -39,7 +43,12 @@ export async function buildFeed(
 
     for (const entry of writingIndex) {
         const content = contentBySlug.get(entry.slug);
-        if (!content) continue;
+        if (!content) {
+            process.stderr.write(
+                `feed.ts: no compiled content for "${entry.slug}", skipping feed entry\n`,
+            );
+            continue;
+        }
 
         const bodyHtml = renderContentBody(content, writingIndex);
 
@@ -56,7 +65,7 @@ export async function buildFeed(
                 entry.description
                     ? `    <summary>${escapeXml(entry.description)}</summary>`
                     : undefined,
-                `    <content type="html"><![CDATA[${bodyHtml}]]></content>`,
+                `    <content type="html"><![CDATA[${escapeCdata(bodyHtml)}]]></content>`,
                 "  </entry>",
             ]
                 .filter(Boolean)

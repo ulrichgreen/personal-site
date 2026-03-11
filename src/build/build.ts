@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { applyHashedFilenames, generateAssetManifest } from "./asset-manifest.ts";
 import { buildClient } from "./client.ts";
 import { buildCss } from "./css.ts";
@@ -10,7 +11,9 @@ export async function buildAll(): Promise<void> {
     applyHashedFilenames(manifest);
 }
 
-buildAll().catch((error) => {
-    process.stderr.write(`${String(error)}\n`);
-    process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    buildAll().catch((error) => {
+        process.stderr.write(`${String(error)}\n`);
+        process.exit(1);
+    });
+}

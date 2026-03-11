@@ -80,7 +80,9 @@ async function runBuild() {
                 } catch { /* ignore stale connections */ }
             });
         } catch (error) {
-            process.stderr.write(`${String(error)}\n`);
+            process.stderr.write(
+                `Build error:\n${error instanceof Error ? error.stack || error.message : String(error)}\n`,
+            );
         }
 
         if (buildQueued) {
