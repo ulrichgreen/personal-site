@@ -43,7 +43,7 @@ function cleanGeneratedPages() {
     rmSync(join(distDirectory, "writing"), { recursive: true, force: true });
 }
 
-export async function buildSite(assetManifest?: AssetManifest): Promise<void> {
+export async function buildSite(assetManifest?: AssetManifest): Promise<number> {
     const writingIndex = listWritingEntries(writingDirectory);
     cleanGeneratedPages();
 
@@ -85,6 +85,8 @@ export async function buildSite(assetManifest?: AssetManifest): Promise<void> {
     buildHeaders();
     buildOgImage();
     await buildFeed(writingIndex, compiledWriting);
+
+    return sourceFiles.length - failed.length;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

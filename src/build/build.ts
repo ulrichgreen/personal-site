@@ -5,10 +5,15 @@ import { buildCss } from "./css.ts";
 import { buildSite } from "./site.ts";
 
 export async function buildAll(): Promise<void> {
+    const start = performance.now();
+
     await Promise.all([buildCss(), buildClient()]);
     const manifest = generateAssetManifest();
-    await buildSite(manifest);
+    const pageCount = await buildSite(manifest);
     applyHashedFilenames(manifest);
+
+    const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+    process.stdout.write(`build: ${pageCount} pages in ${elapsed}s\n`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
