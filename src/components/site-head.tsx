@@ -2,14 +2,24 @@ const SITE_URL = "https://ulrich.green";
 const LIGHT_THEME_COLOR = "#f8f7f5";
 const DARK_THEME_COLOR = "#1a1917";
 
+function safeISODate(value: string): string | undefined {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return undefined;
+    return date.toISOString().slice(0, 10);
+}
+
 export function SiteHead({
     title,
     description,
     pagePath,
+    published,
+    revised,
 }: {
     title?: string;
     description?: string;
     pagePath?: string;
+    published?: string;
+    revised?: string;
 }) {
     const canonicalUrl = pagePath ? `${SITE_URL}${pagePath}` : undefined;
     const ogType = pagePath?.startsWith("/writing/") ? "article" : "website";
@@ -57,6 +67,26 @@ export function SiteHead({
                 crossOrigin="anonymous"
             />
             <link rel="stylesheet" href="/style.css" />
+            {pagePath?.startsWith("/writing/") && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "Article",
+                            headline: title || "",
+                            ...(description ? { description } : {}),
+                            ...(published && safeISODate(published) ? { datePublished: safeISODate(published) } : {}),
+                            ...(revised && safeISODate(revised) ? { dateModified: safeISODate(revised) } : {}),
+                            author: {
+                                "@type": "Person",
+                                name: "Ulrich Green",
+                                url: "https://ulrich.green",
+                            },
+                        }),
+                    }}
+                />
+            )}
         </head>
     );
 }

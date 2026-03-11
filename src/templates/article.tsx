@@ -13,6 +13,7 @@ export default function ArticleLayout({
     published,
     revised,
     words,
+    readingTime,
     note,
     children,
 }: ArticleLayoutProps) {
@@ -22,6 +23,8 @@ export default function ArticleLayout({
             description={description}
             section={section}
             pagePath={pagePath}
+            published={published}
+            revised={revised}
         >
             <article>
                 <ArticleHeader
@@ -29,6 +32,7 @@ export default function ArticleLayout({
                     published={published}
                     revised={revised}
                     words={words}
+                    readingTime={readingTime}
                     note={note}
                     titleTransitionName={getArticleTitleTransitionName(pagePath)}
                 />

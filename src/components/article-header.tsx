@@ -50,6 +50,7 @@ export function ArticleHeader({
     published,
     revised,
     words,
+    readingTime,
     note,
     titleTransitionName,
 }: {
@@ -57,6 +58,7 @@ export function ArticleHeader({
     published?: string;
     revised?: string;
     words?: number | string;
+    readingTime?: string;
     note?: string;
     titleTransitionName?: string;
 }) {
@@ -86,6 +88,7 @@ export function ArticleHeader({
                 {words && (
                     <span className="word-count">{String(words)} words</span>
                 )}
+                {readingTime && <span className="reading-time">{readingTime}</span>}
             </div>
             {note && <p className="author-note">{note}</p>}
         </header>

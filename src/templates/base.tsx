@@ -11,6 +11,8 @@ export default function BaseLayout({
     description,
     section = "",
     pagePath,
+    published,
+    revised,
     children,
 }: BaseLayoutProps) {
     return (
@@ -19,6 +21,8 @@ export default function BaseLayout({
                 title={title}
                 description={description}
                 pagePath={pagePath}
+                published={published}
+                revised={revised}
             />
             <body>
                 <a className="skip-link" href="#main-content">

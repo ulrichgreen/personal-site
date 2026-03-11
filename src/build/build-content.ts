@@ -117,6 +117,14 @@ export function resolveMetaDescription(
     );
 }
 
+function computeReadingTime(body: string): { wordCount: number; readingTime: string } {
+    const text = stripMdxSyntax(body);
+    const words = text.split(/\s+/).filter(Boolean);
+    const count = words.length;
+    const minutes = Math.max(1, Math.round(count / 238));
+    return { wordCount: count, readingTime: `${minutes} min read` };
+}
+
 export async function buildContent(filePath: string): Promise<BuiltContent> {
     const raw = readFileSync(filePath, "utf8");
     const stripped = stripDuplicateArticleTitle(parseFrontmatter(raw, filePath));
@@ -132,6 +140,10 @@ export async function buildContent(filePath: string): Promise<BuiltContent> {
             meta.section = segments[contentIdx + 1];
         }
     }
+
+    const { wordCount, readingTime } = computeReadingTime(stripped.body);
+    meta.words = wordCount;
+    meta.readingTime = readingTime;
 
     return {
         meta,
