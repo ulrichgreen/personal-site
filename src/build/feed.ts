@@ -7,8 +7,7 @@ import { buildContent } from "./build-content.ts";
 import { RenderContext } from "./render-context.tsx";
 import { getContentComponents } from "../content-components.tsx";
 import type { WritingIndexEntry } from "../types/content.ts";
-
-const SITE_URL = "https://ulrich.green";
+import { SITE_URL } from "../config.ts";
 const distDirectory = fileURLToPath(new URL("../../dist", import.meta.url));
 
 function toISOTimestamp(value: string): string {
