@@ -13,7 +13,6 @@ export interface PageMeta {
     readingTime?: string;
     note?: string;
     summary?: string;
-    print?: boolean;
     pagePath?: string;
 }
 
