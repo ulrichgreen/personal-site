@@ -26,6 +26,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+
     .page > h1:first-child,
     .writing-list,
     .article-header__kicker,
@@ -51,6 +52,20 @@
     .article-meta,
     .writing-list {
         animation-delay: 0.42s;
+    }
+
+    .scroll-reveal-heading {
+        opacity: 0;
+        transform: translateY(1rem);
+        transition:
+            opacity 0.7s var(--ease-out),
+            transform 0.7s var(--ease-out);
+        will-change: opacity, transform;
+    }
+
+    .scroll-reveal-heading.is-visible {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 

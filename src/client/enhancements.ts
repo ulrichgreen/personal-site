@@ -29,12 +29,62 @@ function bootReadingProgress() {
     window.addEventListener("resize", requestSync);
 }
 
+function bootHeadingReveal() {
+    const headings = Array.from(
+        document.querySelectorAll<HTMLElement>(
+            "#main-content h2, #main-content h3",
+        ),
+    ).filter((heading) => !isInsideIsland(heading));
+
+    if (headings.length === 0) return;
+
+    const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+    );
+
+    if (prefersReducedMotion.matches) return;
+
+    for (const heading of headings) {
+        heading.classList.add("scroll-reveal-heading");
+    }
+
+    if (!("IntersectionObserver" in window)) {
+        for (const heading of headings) {
+            heading.classList.add("is-visible");
+        }
+        return;
+    }
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+
+                const heading = entry.target;
+                if (!(heading instanceof HTMLElement)) continue;
+
+                heading.classList.add("is-visible");
+                observer.unobserve(heading);
+            }
+        },
+        {
+            threshold: 0.18,
+            rootMargin: "0px 0px -8% 0px",
+        },
+    );
+
+    for (const heading of headings) {
+        observer.observe(heading);
+    }
+}
+
 export function bootEnhancements() {
     if (!document.body) return;
     if (document.body.dataset.enhancementsBooted === "true") return;
     document.body.dataset.enhancementsBooted = "true";
 
     bootReadingProgress();
+    bootHeadingReveal();
 
     const hasWideMargin = window.matchMedia("(min-width: 900px)");
 
