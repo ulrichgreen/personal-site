@@ -25,10 +25,12 @@ export default function ArticleLayout({
             pagePath={pagePath}
             published={published}
             revised={revised}
+            mainClassName="page page--article"
         >
             <article>
                 <ArticleHeader
                     title={title}
+                    description={description}
                     published={published}
                     revised={revised}
                     words={words}

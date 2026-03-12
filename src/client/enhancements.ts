@@ -2,8 +2,30 @@ function isInsideIsland(node: Element | null): boolean {
     return Boolean(node?.closest("[data-island]"));
 }
 
+function bootReadingProgress() {
+    const progress = document.getElementById("progress");
+    if (!(progress instanceof HTMLElement)) return;
+
+    const syncProgress = () => {
+        const { documentElement, body } = document;
+        const scrollTop = documentElement.scrollTop || body.scrollTop;
+        const scrollHeight =
+            documentElement.scrollHeight || body.scrollHeight || 0;
+        const clientHeight = documentElement.clientHeight || window.innerHeight;
+        const maxScroll = Math.max(scrollHeight - clientHeight, 0);
+        const ratio = maxScroll === 0 ? 0 : scrollTop / maxScroll;
+        progress.style.width = `${Math.min(Math.max(ratio, 0), 1) * 100}%`;
+    };
+
+    syncProgress();
+    window.addEventListener("scroll", syncProgress, { passive: true });
+    window.addEventListener("resize", syncProgress);
+}
+
 export function bootEnhancements() {
     if (!document.body) return;
+
+    bootReadingProgress();
 
     const hasWideMargin = window.matchMedia("(min-width: 900px)");
 

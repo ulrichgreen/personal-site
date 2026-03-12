@@ -47,6 +47,7 @@ export function getArticleTitleTransitionName(
 
 export function ArticleHeader({
     title,
+    description,
     published,
     revised,
     words,
@@ -55,6 +56,7 @@ export function ArticleHeader({
     titleTransitionName,
 }: {
     title?: string;
+    description?: string;
     published?: string;
     revised?: string;
     words?: number | string;
@@ -69,6 +71,10 @@ export function ArticleHeader({
 
     return (
         <header className="article-header">
+            <p className="article-header__kicker">
+                <span>Writing</span>
+                <span>Essay</span>
+            </p>
             <h1
                 style={
                     titleTransitionName
@@ -78,17 +84,36 @@ export function ArticleHeader({
             >
                 {title || ""}
             </h1>
+            <div className="article-header__rule" aria-hidden="true"></div>
             <div className="article-meta">
-                <time dateTime={publishedIso}>{publishedDate}</time>
+                {publishedDate && (
+                    <p className="article-header__byline">
+                        Published
+                        <strong>
+                            <time dateTime={publishedIso}>{publishedDate}</time>
+                        </strong>
+                    </p>
+                )}
                 {revisedDate && (
-                    <span className="revised">
-                        Revised <time dateTime={revisedIso}>{revisedDate}</time>
-                    </span>
+                    <p className="article-header__byline revised">
+                        Revised
+                        <strong>
+                            <time dateTime={revisedIso}>{revisedDate}</time>
+                        </strong>
+                    </p>
                 )}
-                {words && (
-                    <span className="word-count">{String(words)} words</span>
+                {(readingTime || words) && (
+                    <p className="article-header__byline">
+                        Length
+                        <strong>
+                            {readingTime || `${String(words)} words`}
+                            {readingTime && words ? ` · ${String(words)} words` : ""}
+                        </strong>
+                    </p>
                 )}
-                {readingTime && <span className="reading-time">{readingTime}</span>}
+                {description && (
+                    <p className="article-header__abstract">{description}</p>
+                )}
             </div>
             {note && <p className="author-note">{note}</p>}
         </header>
