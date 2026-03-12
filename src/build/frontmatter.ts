@@ -20,7 +20,6 @@ const contentMetaSchema = z
         words: z.union([z.number().positive(), z.string().trim().min(1)]).optional(),
         note: z.string().trim().min(1).optional(),
         summary: z.string().trim().min(1).optional(),
-        print: z.boolean().optional(),
     })
     .transform((meta) => ({
         ...meta,

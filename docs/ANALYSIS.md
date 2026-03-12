@@ -52,33 +52,37 @@ Baseline state: typecheck passes, `pnpm test` passes (JSX rendering, accessibili
 
 **Rename `INJECT` → `LIVE_RELOAD_SCRIPT`.** Self-documenting name in `dev.ts`.
 
+### Types
+
+**Remove unused `print` field.** `print` was declared in `PageMeta` and accepted by the Zod schema but never consumed by any template or build logic. Removed from `PageMeta`, the frontmatter validator, and `cv.mdx`.
+
+**Remove `stripDuplicateArticleTitle()`.** The function stripped a leading H1 from article bodies when it exactly matched the frontmatter title. No current article exhibits this pattern, making the function dead code. Removed from `build-content.ts`.
+
+### Tests
+
+**SEO artifact tests.** Added `test/verify-seo-artifacts.ts` to verify the structure and content of `robots.txt`, `sitemap.xml`, `_headers`, and `og-image.svg`. Integrated into the `test` script in `package.json`.
+
 ---
 
 ## Remaining Findings
 
 ### Types and Templates
 
-`PageMeta` declares `words`, `readingTime`, `note`, `summary`, and `print`, but layout prop types only forward a subset. The `summary` frontmatter field is accepted by the schema but no content file uses it. The `print` field is set by `cv.mdx` but not consumed by any template or build logic. These are harmless but add noise.
+`PageMeta` declares `words`, `readingTime`, `note`, and `summary`, but layout prop types only forward a subset. The `summary` frontmatter field is accepted by the schema and used as a description fallback in `resolveMetaDescription()`. The `print` field was previously set by `cv.mdx` but was never consumed by any template or build logic — it has been removed from `PageMeta`, the frontmatter schema, and `cv.mdx`.
 
 ### Client Code
 
-Footnote enhancement (`enhancements.ts`) creates margin notes and inline footnotes entirely in JavaScript. Without JS, footnote reference links don't reveal content — a minor progressive-enhancement gap.
+Footnote enhancement (`enhancements.ts`) creates margin notes and inline footnotes entirely in JavaScript. Without JS, footnote reference links still navigate to the footnote section at the bottom of the page via standard HTML anchor behavior — a reasonable baseline. The margin note and inline reveal behavior is a JS-only enhancement.
 
 The four hydration strategies (`load`, `visible`, `idle`, `interaction`) in `islands.ts` serve one widget that uses the default `load`. The other three strategies are shipped but never executed. Worth simplifying when the architecture stabilizes.
 
 ### Dead Code
 
-`page.ts` is a standalone CLI for building a single page. It's referenced in documentation but not in any script or CI workflow. `frontmatter.ts` has a `main()` function for stdin/stdout usage that's similarly unreferenced. `stripDuplicateArticleTitle()` in `build-content.ts` handles a pattern that no current article exhibits.
-
-### Tests
-
-No tests exist for SEO artifacts (`robots.txt`, `sitemap.xml`, `_headers`, `og-image.svg`), client-side behavior (`enhancements.ts`, `islands.ts`), or the CSS build and asset manifest pipeline.
+`page.ts` is a standalone CLI for building a single page. It's referenced in documentation but not in any script or CI workflow. `frontmatter.ts` has a `main()` function for stdin/stdout usage that's similarly unreferenced. Both are guarded by `import.meta.url` checks and remain available as development utilities.
 
 ### Security
 
 `dangerouslySetInnerHTML` in `src/islands/island.tsx` injects `renderToString` output. Safe today because props come from static MDX at build time and `renderToString` escapes React output. Fragile if a component ever renders unescaped user content.
-
-All 13 production dependencies are actively imported. Dev dependencies are correctly classified. No hardcoded secrets. `.gitignore` is correct.
 
 ---
 
@@ -102,8 +106,8 @@ All 13 production dependencies are actively imported. Dev dependencies are corre
 | DX | Build summary output | ✅ Applied |
 | DX | Fix `verify` script ordering | ✅ Applied |
 | DX | Dev server change logging | ✅ Applied |
-| Types | Unused `summary`/`print` fields | Noted |
+| Types | Unused `summary`/`print` fields | ✅ Applied |
 | Client | Unused hydration strategies | Noted |
 | Client | Footnote enhancement requires JS | Noted |
-| Tests | Missing SEO artifact tests | Noted |
+| Tests | Missing SEO artifact tests | ✅ Applied |
 | Dead | `page.ts` CLI, `frontmatter.ts` stdin | Noted |

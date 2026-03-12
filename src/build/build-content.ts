@@ -73,30 +73,6 @@ function extractDescriptionFromMdx(
     return undefined;
 }
 
-function stripDuplicateArticleTitle(
-    input: FrontmatterPayload,
-): FrontmatterPayload {
-    if (input.meta.layout !== "article" || !input.meta.title) {
-        return input;
-    }
-
-    const match = input.body.match(/^(\s*#\s+([^\n]+)\n+)/);
-    if (!match) {
-        return input;
-    }
-
-    if (
-        normalizeTitle(stripMdxSyntax(match[2])) !==
-        normalizeTitle(String(input.meta.title))
-    ) {
-        return input;
-    }
-
-    return {
-        ...input,
-        body: input.body.slice(match[0].length),
-    };
-}
 
 export function resolveMetaDescription(
     input: FrontmatterPayload,
@@ -125,11 +101,11 @@ function computeReadingTime(body: string): { wordCount: number; readingTime: str
 
 export async function buildContent(filePath: string): Promise<BuiltContent> {
     const raw = readFileSync(filePath, "utf8");
-    const stripped = stripDuplicateArticleTitle(parseFrontmatter(raw, filePath));
-    const description = resolveMetaDescription(stripped);
+    const parsed = parseFrontmatter(raw, filePath);
+    const description = resolveMetaDescription(parsed);
     const meta = description
-        ? { ...stripped.meta, description }
-        : { ...stripped.meta };
+        ? { ...parsed.meta, description }
+        : { ...parsed.meta };
 
     if (!meta.section) {
         const segments = filePath.split("/");
@@ -139,13 +115,13 @@ export async function buildContent(filePath: string): Promise<BuiltContent> {
         }
     }
 
-    const { wordCount, readingTime } = computeReadingTime(stripped.body);
+    const { wordCount, readingTime } = computeReadingTime(parsed.body);
     meta.words = wordCount;
     meta.readingTime = readingTime;
 
     return {
         meta,
-        Content: await compileMdx(stripped.body, filePath),
+        Content: await compileMdx(parsed.body, filePath),
         sourcePath: filePath,
     };
 }
