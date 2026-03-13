@@ -53,6 +53,7 @@ export function PageHeader() {
                 </a>
                 <div className="site-nav__group site-nav__group--right">
                     <a href="/cv.html">CV</a>
+                    <a href="/colophon.html">Colophon</a>
                 </div>
             </nav>
         </header>
