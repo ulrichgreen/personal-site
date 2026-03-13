@@ -19,6 +19,7 @@ const unitTestFiles = [
     "src/build/content/frontmatter.test.ts",
     "src/build/content/build-content.test.ts",
     "src/build/content/discover.test.ts",
+    "src/build/content/series-index.test.ts",
 ];
 
 function runScript(file: string): Promise<{ ok: boolean; output: string }> {
