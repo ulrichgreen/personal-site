@@ -58,6 +58,31 @@ Paragraph one.`);
             assert.ok(result.body.includes("Paragraph one."));
             assert.ok(!result.body.includes("title:"));
         });
+
+        it("parses series and seriesOrder fields", () => {
+            const result = parseFrontmatter(`---
+title: Series Part
+layout: article
+published: "2025-07-01"
+series: Building a Design System
+seriesOrder: 2
+---
+Content`);
+            assert.equal(result.meta.series, "Building a Design System");
+            assert.equal(result.meta.seriesOrder, 2);
+        });
+
+        it("allows series without seriesOrder", () => {
+            const result = parseFrontmatter(`---
+title: Series Part
+layout: article
+published: "2025-07-01"
+series: My Series
+---
+Content`);
+            assert.equal(result.meta.series, "My Series");
+            assert.equal(result.meta.seriesOrder, undefined);
+        });
     });
 
     describe("validation errors", () => {
