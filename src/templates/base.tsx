@@ -1,4 +1,4 @@
-import { useRenderContext } from "../build/render-context.tsx";
+import { useRenderContext } from "../context/render-context.tsx";
 import { PageHeader } from "../components/page-header.tsx";
 import { SiteHead } from "../components/site-head.tsx";
 import type { BaseLayoutProps } from "../types/content.ts";

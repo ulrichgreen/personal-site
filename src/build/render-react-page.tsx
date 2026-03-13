@@ -5,7 +5,7 @@ import type { BuiltContent, WritingIndexEntry } from "../types/content.ts";
 import type { RegisterIslandInput } from "../types/islands.ts";
 import type { AssetManifest } from "./asset-manifest.ts";
 import { renderLayout } from "./layouts.tsx";
-import { defaultAssetManifest, RenderContext, type RenderContextValue } from "./render-context.tsx";
+import { defaultAssetManifest, RenderContext, type RenderContextValue } from "../context/render-context.tsx";
 
 function derivePagePath(sourcePath: string): string {
     const marker = "/content/";

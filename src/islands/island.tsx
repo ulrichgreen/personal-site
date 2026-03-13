@@ -1,6 +1,6 @@
 import { createElement, type ComponentType } from "react";
 import { renderToString } from "react-dom/server";
-import { useRenderContext } from "../build/render-context.tsx";
+import { useRenderContext } from "../context/render-context.tsx";
 import type { IslandName } from "./registry.ts";
 
 export type HydrationStrategy = "load" | "visible" | "idle" | "interaction";

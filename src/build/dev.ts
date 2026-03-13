@@ -2,6 +2,7 @@ import chokidar from "chokidar";
 import { existsSync, readFileSync } from "node:fs";
 import http from "node:http";
 import { extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
 import { buildAll } from "./build.ts";
 import { distDirectory } from "./paths.ts";
@@ -27,86 +28,92 @@ const MIME: Record<string, string> = {
 const LIVE_RELOAD_SCRIPT =
     "<script>new WebSocket(`ws://${location.host}`).onmessage=()=>location.reload()</script>";
 
-const server = http.createServer((req, res) => {
-    if (!req.url) {
-        res.writeHead(400);
-        res.end("Bad request");
-        return;
-    }
+export function startDevServer(): void {
+    const server = http.createServer((req, res) => {
+        if (!req.url) {
+            res.writeHead(400);
+            res.end("Bad request");
+            return;
+        }
 
-    let filePath = join(DIST, req.url === "/" ? "index.html" : req.url);
-    if (!existsSync(filePath)) filePath = join(DIST, req.url, "index.html");
-    if (!existsSync(filePath)) {
-        res.writeHead(404);
-        res.end("Not found");
-        return;
-    }
+        let filePath = join(DIST, req.url === "/" ? "index.html" : req.url);
+        if (!existsSync(filePath)) filePath = join(DIST, req.url, "index.html");
+        if (!existsSync(filePath)) {
+            res.writeHead(404);
+            res.end("Not found");
+            return;
+        }
 
-    const mime = MIME[extname(filePath)] || "text/plain";
-    let body = readFileSync(filePath);
-    if (extname(filePath) === ".html") {
-        body = Buffer.from(
-            body.toString().replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`),
-        );
-    }
-
-    res.writeHead(200, { "Content-Type": mime });
-    res.end(body);
-});
-
-const wss = new WebSocketServer({ server });
-
-let buildQueued = false;
-let buildRunning = false;
-let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-const DEBOUNCE_MS = 80;
-
-async function runBuild() {
-    if (buildRunning) {
-        buildQueued = true;
-        return;
-    }
-
-    buildRunning = true;
-
-    while (true) {
-        try {
-            await buildAll();
-            wss.clients.forEach((client) => {
-                try {
-                    if (client.readyState === 1) {
-                        client.send("reload");
-                    }
-                } catch { /* ignore stale connections */ }
-            });
-        } catch (error) {
-            process.stderr.write(
-                `Build error:\n${error instanceof Error ? error.stack || error.message : String(error)}\n`,
+        const mime = MIME[extname(filePath)] || "text/plain";
+        let body = readFileSync(filePath);
+        if (extname(filePath) === ".html") {
+            body = Buffer.from(
+                body.toString().replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`),
             );
         }
 
-        if (buildQueued) {
-            buildQueued = false;
-            continue;
+        res.writeHead(200, { "Content-Type": mime });
+        res.end(body);
+    });
+
+    const wss = new WebSocketServer({ server });
+
+    let buildQueued = false;
+    let buildRunning = false;
+    let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+    const DEBOUNCE_MS = 80;
+
+    async function runBuild() {
+        if (buildRunning) {
+            buildQueued = true;
+            return;
         }
 
-        buildRunning = false;
-        break;
+        buildRunning = true;
+
+        while (true) {
+            try {
+                await buildAll();
+                wss.clients.forEach((client) => {
+                    try {
+                        if (client.readyState === 1) {
+                            client.send("reload");
+                        }
+                    } catch { /* ignore stale connections */ }
+                });
+            } catch (error) {
+                process.stderr.write(
+                    `Build error:\n${error instanceof Error ? error.stack || error.message : String(error)}\n`,
+                );
+            }
+
+            if (buildQueued) {
+                buildQueued = false;
+                continue;
+            }
+
+            buildRunning = false;
+            break;
+        }
     }
+
+    function debouncedBuild() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => void runBuild(), DEBOUNCE_MS);
+    }
+
+    chokidar.watch(["content", "src"], { ignoreInitial: true }).on("all", (_event, path) => {
+        process.stdout.write(`changed: ${path}\n`);
+        debouncedBuild();
+    });
+
+    void runBuild();
+
+    server.listen(PORT, () =>
+        process.stdout.write(`dev server: http://localhost:${PORT}\n`),
+    );
 }
 
-function debouncedBuild() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => void runBuild(), DEBOUNCE_MS);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    startDevServer();
 }
-
-chokidar.watch(["content", "src"], { ignoreInitial: true }).on("all", (_event, path) => {
-    process.stdout.write(`changed: ${path}\n`);
-    debouncedBuild();
-});
-
-void runBuild();
-
-server.listen(PORT, () =>
-    process.stdout.write(`dev server: http://localhost:${PORT}\n`),
-);

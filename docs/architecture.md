@@ -20,7 +20,7 @@ No full-page hydration. No client-side routing. No CSS framework. No tool added 
 
 ## Where Things Live
 
-`content/` holds MDX source — pages, essays, everything the reader sees. `src/` holds all code that builds the site: build steps in `src/build/`, templates in `src/templates/`, shared pieces in `src/components/`, browser code in `src/client/`, islands in `src/islands/`, styles in `src/styles/`, and type definitions in `src/types/`. `docs/` is these files. `dist/` is generated output — never edited by hand.
+`content/` holds MDX source — pages, essays, everything the reader sees. `src/` holds all code that builds the site: build steps in `src/build/`, templates in `src/templates/`, shared pieces in `src/components/`, browser code in `src/client/`, islands in `src/islands/`, styles in `src/styles/`, shared React context in `src/context/`, and type definitions in `src/types/`. `docs/` is these files. `dist/` is generated output — never edited by hand.
 
 The component gate for MDX authors is `src/content-components.tsx`. Only what's exposed there is available in content. No `import` or `export` inside MDX files.
 

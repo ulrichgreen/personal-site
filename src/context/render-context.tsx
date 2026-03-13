@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { AssetManifest } from "./asset-manifest.ts";
+import type { AssetManifest } from "../build/asset-manifest.ts";
 import type { WritingIndexEntry } from "../types/content.ts";
 import type { RegisterIslandInput } from "../types/islands.ts";
 

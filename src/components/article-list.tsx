@@ -1,5 +1,5 @@
 import { getArticleTitleTransitionName } from "./article-header.tsx";
-import { useRenderContext } from "../build/render-context.tsx";
+import { useRenderContext } from "../context/render-context.tsx";
 import type { WritingIndexEntry } from "../types/content.ts";
 
 function formatDate(value: string): string {
