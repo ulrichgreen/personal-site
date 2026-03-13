@@ -106,7 +106,7 @@ async function main() {
     );
 
     const mobileNavMatch = mobileBlock.match(
-        /\.page-header__nav\s*\{([\s\S]*?)\n\s*\}/,
+        /\.site-nav\s*\{([\s\S]*?)\n\s*\}/,
     );
     assert(mobileNavMatch?.[1], "Could not find small-screen nav styles.");
     assert(
