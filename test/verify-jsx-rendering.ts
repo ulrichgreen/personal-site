@@ -6,6 +6,10 @@ import {
 } from "../src/build/content/build-content.ts";
 import { renderPage } from "../src/build/render/render-react-page.tsx";
 import { listWritingEntries } from "../src/build/content/writing-index.ts";
+import {
+    buildSeriesMap,
+    resolveSeriesInfo,
+} from "../src/build/content/series-index.ts";
 
 async function main() {
     const writingDir = new URL("../content/writing", import.meta.url).pathname;
@@ -218,6 +222,82 @@ async function main() {
                 "/tmp/missing-published.mdx",
             ),
         /published is required when layout is article/,
+    );
+
+    // --- Series rendering tests ---
+    const seriesMap = buildSeriesMap(writingIndex);
+
+    assert(
+        seriesMap.size > 0,
+        "Writing index should contain at least one series.",
+    );
+    assert(
+        seriesMap.has("The Web Trilogy"),
+        'Series map should contain "The Web Trilogy".',
+    );
+
+    const webTrilogy = seriesMap.get("The Web Trilogy");
+    assert.ok(webTrilogy);
+    assert.equal(webTrilogy.length, 3, "The Web Trilogy should have 3 entries.");
+    assert.equal(
+        webTrilogy[0].title,
+        "On Markup",
+        "First entry in series should be On Markup (order 1).",
+    );
+
+    const markupPath = new URL(
+        "../content/writing/on-markup.mdx",
+        import.meta.url,
+    ).pathname;
+    const markup = await buildContent(markupPath);
+    const markupSeriesInfo = resolveSeriesInfo(
+        markup.meta.series,
+        markup.meta.seriesOrder,
+        seriesMap,
+    );
+    const markupHtml = renderPage(markup, writingIndex, undefined, markupSeriesInfo);
+
+    assert(
+        markupHtml.includes('class="series-nav"'),
+        "Series article should render the series-nav component.",
+    );
+    assert(
+        markupHtml.includes('aria-label="The Web Trilogy series navigation"'),
+        "Series nav should have an accessible label.",
+    );
+    assert(
+        markupHtml.includes("Part 1 of 3"),
+        "Series nav should show progress (Part 1 of 3).",
+    );
+    assert(
+        markupHtml.includes('role="progressbar"'),
+        "Series nav should include a progress bar.",
+    );
+    assert(
+        markupHtml.includes('aria-current="page"'),
+        "Current series entry should have aria-current=page.",
+    );
+    assert(
+        markupHtml.includes('class="series-nav__next"'),
+        "First series article should have a next link.",
+    );
+    assert(
+        !markupHtml.includes('class="series-nav__prev"'),
+        "First series article should not have a prev link.",
+    );
+    assert(
+        markupHtml.includes("CreativeWorkSeries"),
+        "Series article JSON-LD should include CreativeWorkSeries.",
+    );
+
+    assert(
+        !articleHtml.includes('class="series-nav"'),
+        "Non-series article should not render series-nav.",
+    );
+
+    assert(
+        homeHtml.includes("writing-list__series-label"),
+        "Home page should render series labels in the writing list.",
     );
 
     console.log(
