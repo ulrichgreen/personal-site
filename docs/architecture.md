@@ -30,7 +30,7 @@ The component gate for MDX authors is `src/content-components.tsx`. Only what's 
 
 MDX is the content format. Frontmatter stays YAML, but it now passes through a typed validation step before the page enters the rest of the pipeline. The current author-facing frontmatter fields are `title`, `description`, `layout`, `section`, `published`, `revised`, `note`, `summary`, `series`, and `seriesOrder`. Set `layout: article` for essay-style pages; the default is the base layout, and article pages must include `published`.
 
-Some metadata is computed during the build rather than authored by hand. `words` and `readingTime` are derived from the body content and fed into the article layout. `summary` is optional frontmatter; when `description` is absent, the build uses it as the fallback source for the page description. `section` remains presentational — it controls the header breadcrumb and is inferred from the content directory path when not set explicitly.
+Some metadata is computed during the build rather than authored by hand. `words` and `readingTime` are derived from the body content and fed into the article layout. `summary` is optional frontmatter that authors can provide; when `description` is absent, the build promotes `summary` into the page description. `section` remains presentational — it controls the header breadcrumb and is inferred from the content directory path when not set explicitly.
 
 Series are opt-in. `series` names the sequence and `seriesOrder` gives the article's order inside it. When a page belongs to a series, the article footer renders the series navigation automatically.
 
