@@ -12,6 +12,8 @@ Templates and shared components are standard React TSX. MDX content renders thro
 
 The browser receives two separate scripts. `site.js` handles progressive enhancement — scroll effects, footnote reveals, and other document-level behavior. `islands.js` bundles React and hydrates interactive islands; it loads only on pages that contain islands. Islands support four hydration strategies — `load` (immediate), `visible` (IntersectionObserver), `idle` (requestIdleCallback), and `interaction` (on first user event) — configured via the `hydrate` prop in the island wrapper.
 
+`pnpm test` runs two layers of checks: co-located unit tests for the content pipeline and standalone verifiers for the rendered output. The current verifier set checks JSX rendering, accessibility, internal links, the Atom feed, and the generated SEO artifacts (`robots.txt`, `sitemap.xml`, `_headers`, `og-image.svg`). CI runs `typecheck → build → test` before deployment.
+
 ## The Stack
 
 Every tool was chosen on purpose. Package scripts provide the command surface. TypeScript guards the seams — the content model, the rendering path, the template contracts. React and `react-dom/server` render everything at build time. MDX with `gray-matter` keeps content expressive without runtime compilation. `lightningcss` bundles the CSS. `esbuild` bundles the browser code. `chokidar` and `ws` power the dev server. That's it.
@@ -26,7 +28,13 @@ The component gate for MDX authors is `src/content-components.tsx`. Only what's 
 
 ## Authoring Content
 
-MDX is the content format. Frontmatter stays YAML, but it now passes through a typed validation step before the page enters the rest of the pipeline. Every page shares the same frontmatter schema — `title`, `description`, `layout`, `section`, `published`, `revised`, `words`, `note`, `summary`, `print`. Set `layout: article` for essay-style pages; the default is the base layout. Files and folders dictate URLs. Most prose should stay prose — components in content earn their place by being genuinely necessary.
+MDX is the content format. Frontmatter stays YAML, but it now passes through a typed validation step before the page enters the rest of the pipeline. The current author-facing frontmatter fields are `title`, `description`, `layout`, `section`, `published`, `revised`, `note`, `summary`, `series`, and `seriesOrder`. Set `layout: article` for essay-style pages; the default is the base layout, and article pages must include `published`.
+
+Some metadata is computed during the build rather than authored by hand. `words` and `readingTime` are derived from the body content and fed into the article layout. `summary` is optional frontmatter that authors can provide; when `description` is absent, the build promotes `summary` into the page description. `section` remains presentational — it controls the header breadcrumb and is inferred from the content directory path when not set explicitly.
+
+Series are opt-in. `series` names the sequence and `seriesOrder` gives the article's order inside it. When a page belongs to a series, the article footer renders the series navigation automatically.
+
+Only approved components from `src/content-components.tsx` are available inside MDX: `ArticleList`, `Code`, `Hero`, and `DemoWidget`. `DemoWidget` is an island; the rest are static build-time components. Most prose should stay prose — components in content earn their place by being genuinely necessary.
 
 Progressive enhancement handles document-level behavior such as scroll effects and footnote reveals. The fixed header itself stays static. Islands handle interactive state. The two stay separate.
 

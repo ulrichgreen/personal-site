@@ -24,15 +24,13 @@ Inline critical CSS — inline above-the-fold styles in `<head>`, async-load the
 
 Add build caching — asset hashing is in place; the next step is skipping unchanged pages on incremental rebuilds.
 
-Parallelize page rendering inside the TypeScript build entry. The site build now runs in one process; the next speed win would be parallel work in `site.ts` rather than shell-level target fanout.
-
 ## Keep An Eye On
 
 Performance budgets for HTML, CSS, JS, and fonts as the site grows.
 
 Whether the fixed page header and margin-note behavior still earns its place or becomes a distraction.
 
-Whether these docs stay in step with the implementation. (The tests enforce this, but attention still matters.)
+Whether these docs stay in step with the implementation. The tests catch output regressions, but attention still matters.
 
 Whether container queries become useful as the number of islands grows.
 
