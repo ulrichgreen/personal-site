@@ -13,7 +13,7 @@
         gap: 1rem;
         margin-block-end: clamp(1.5rem, 4vw, 2.5rem);
         font-family: var(--type-family-mono);
-        font-size: 0.65rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
@@ -39,9 +39,9 @@
     .hero__name {
         flex: 1;
         margin: 0;
-        font-size: clamp(3.5rem, 11vw, 7.5rem);
+        font-size: var(--type-size-display);
         font-weight: 400;
-        line-height: 0.93;
+        line-height: var(--type-leading-display);
         letter-spacing: -0.025em;
     }
 
@@ -106,7 +106,7 @@
         max-width: 44ch;
         margin: 0;
         font-size: 1.05rem;
-        line-height: 1.65;
+        line-height: var(--type-leading-relaxed);
         color: var(--color-text-secondary);
         font-style: italic;
     }
@@ -120,7 +120,7 @@
         margin-block-start: clamp(1.25rem, 3vw, 2rem);
         margin-block-end: 0;
         font-family: var(--type-family-mono);
-        font-size: 0.62rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.14em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
@@ -155,7 +155,7 @@
         background-color: var(--color-surface-base);
         border-block-end: 1px solid var(--color-border);
         font-family: var(--type-family-mono);
-        font-size: 0.62rem;
+        font-size: var(--type-size-2xs);
         text-transform: uppercase;
         letter-spacing: 0.18em;
         color: var(--color-text-secondary);
@@ -209,7 +209,7 @@
         gap: 1rem;
         margin-block-end: 1.8rem;
         font-family: var(--type-family-mono);
-        font-size: 0.65rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
@@ -226,8 +226,8 @@
     .article-header h1 {
         max-width: 20ch;
         margin-block-end: 2.5rem;
-        font-size: clamp(3rem, 10vw, 7.5rem);
-        line-height: 0.95;
+        font-size: var(--type-size-display);
+        line-height: var(--type-leading-display);
         font-weight: 400;
         letter-spacing: -0.02em;
     }
@@ -249,7 +249,7 @@
         gap: 2rem;
         align-items: flex-start;
         font-family: var(--type-family-mono);
-        font-size: 0.65rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.1em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
@@ -275,7 +275,7 @@
         max-width: 42ch;
         margin-inline-start: auto;
         font-size: 1.05rem;
-        line-height: 1.65;
+        line-height: var(--type-leading-relaxed);
         letter-spacing: 0;
         text-transform: none;
         color: var(--color-text-secondary);
@@ -297,7 +297,7 @@
         padding-block-start: clamp(2rem, 5vw, 4rem);
         border-block-start: 1px solid var(--color-border);
         font-family: var(--type-family-mono);
-        font-size: 0.62rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.14em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
@@ -311,14 +311,14 @@
         max-width: 18ch;
         margin-block: clamp(3rem, 10vw, 8rem) 2rem;
         font-size: clamp(3rem, 10vw, 7rem);
-        line-height: 0.95;
+        line-height: var(--type-leading-display);
     }
 
     .page > h1:first-child + p {
         max-width: 42ch;
         margin-block-end: 2rem;
         font-size: 1.05rem;
-        line-height: 1.65;
+        line-height: var(--type-leading-relaxed);
         color: var(--color-text-secondary);
         font-style: italic;
     }
@@ -369,7 +369,7 @@
         flex-shrink: 0;
         color: var(--color-text-secondary);
         font-family: var(--type-family-mono);
-        font-size: 0.6rem;
+        font-size: var(--type-size-2xs);
         font-style: normal;
         letter-spacing: 0.1em;
         text-transform: uppercase;
@@ -386,7 +386,7 @@
 
     .page--article .article-body blockquote p {
         max-width: 38ch;
-        font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+        font-size: var(--type-size-fluid-lg);
         line-height: 1.4;
         letter-spacing: -0.01em;
     }
@@ -410,13 +410,13 @@
     .writing-list a {
         color: var(--color-text-primary);
         text-decoration: none;
-        font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+        font-size: var(--type-size-fluid-lg);
         line-height: 1.25;
     }
 
     .writing-list time {
         font-family: var(--type-family-mono);
-        font-size: 0.62rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.12em;
         text-transform: uppercase;
     }
@@ -632,14 +632,14 @@
 
     .series-nav__label {
         font-family: var(--type-family-mono);
-        font-size: 0.6rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
     }
 
     .series-nav__title {
-        font-size: clamp(1.1rem, 2vw, 1.35rem);
+        font-size: var(--type-size-fluid-md);
         line-height: 1.3;
         font-weight: 400;
         color: var(--color-text-primary);
@@ -649,7 +649,7 @@
     .series-nav__progress {
         margin-inline-start: auto;
         font-family: var(--type-family-mono);
-        font-size: 0.6rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.15em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
@@ -691,7 +691,7 @@
     .series-nav__ordinal {
         flex-shrink: 0;
         font-family: var(--type-family-mono);
-        font-size: 0.6rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.1em;
         color: var(--color-text-secondary);
     }
@@ -730,7 +730,7 @@
     .series-nav__prev,
     .series-nav__next {
         font-family: var(--type-family-mono);
-        font-size: 0.6rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--color-text-secondary);
@@ -756,7 +756,7 @@
         padding-block-end: 0.5rem;
         border-block-end: 1px solid var(--color-border);
         font-family: var(--type-family-mono);
-        font-size: 0.6rem;
+        font-size: var(--type-size-2xs);
         letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--color-text-secondary);

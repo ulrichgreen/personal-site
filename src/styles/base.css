@@ -36,8 +36,8 @@
 
     h1 {
         font-family: var(--type-family-serif);
-        font-size: clamp(2.6rem, 7vw, 5rem);
-        line-height: 0.98;
+        font-size: var(--type-size-display-sm);
+        line-height: var(--type-leading-display);
         font-weight: 400;
         letter-spacing: -0.02em;
         font-feature-settings: "liga" 1, "kern" 1, "swsh" 1;
@@ -89,7 +89,7 @@
 
     p {
         font-size: var(--type-size-md);
-        line-height: 1.75;
+        line-height: var(--type-leading-body);
         max-width: var(--layout-content-width);
         hanging-punctuation: first last;
         hyphens: auto;

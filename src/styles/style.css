@@ -1,4 +1,4 @@
-@layer reset, tokens, base, typography, layout, components, utilities;
+@layer reset, tokens, base, typography, layout, components;
 
 @import "./reset.css";
 @import "./tokens.css";
@@ -7,7 +7,6 @@
 @import "./layout.css";
 @import "./components.css";
 @import "./site-header.css";
-@import "./utilities.css";
 @import "./motion.css";
 @import "./print.css";
 @import "./code.css";
