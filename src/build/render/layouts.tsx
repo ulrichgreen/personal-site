@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from "preact/compat";
 import ArticleLayout from "../../templates/article.tsx";
 import BaseLayout from "../../templates/base.tsx";
 import type { PageMeta, SeriesInfo } from "../../types/content.ts";

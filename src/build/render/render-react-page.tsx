@@ -1,5 +1,5 @@
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "preact/compat";
+import { renderToStaticMarkup } from "preact-render-to-string";
 import { getContentComponents } from "../../content-components.tsx";
 import type { BuiltContent, SeriesInfo, WritingIndexEntry } from "../../types/content.ts";
 import type { RegisterIslandInput } from "../../types/islands.ts";

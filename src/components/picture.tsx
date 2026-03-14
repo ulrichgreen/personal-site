@@ -1,4 +1,3 @@
-import type React from "react";
 
 /**
  * Optimized picture component following best practices:

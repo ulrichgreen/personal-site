@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from "react";
+import type { ComponentType, ReactNode } from "preact/compat";
 
 export type LayoutName = "article" | "base";
 
@@ -37,7 +37,9 @@ export interface FrontmatterPayload {
     body: string;
 }
 
-export type ContentComponentMap = Record<string, ComponentType<Record<string, unknown>>>;
+// ComponentType<any> is required here because Preact's stricter contravariance
+// means specific-prop components can't satisfy ComponentType<Record<string, unknown>>.
+export type ContentComponentMap = Record<string, ComponentType<any>>;
 
 export interface MdxContentProps {
     components?: ContentComponentMap;

@@ -1,5 +1,5 @@
-import { createElement } from "react";
-import { hydrateRoot } from "react-dom/client";
+import { createElement, type ComponentType } from "preact/compat";
+import { hydrate } from "preact";
 import { islandRegistry } from "../islands/registry.ts";
 
 function hydrateIsland(root: HTMLElement): void {
@@ -8,7 +8,7 @@ function hydrateIsland(root: HTMLElement): void {
     const name = root.dataset.island;
     if (!name || !(name in islandRegistry)) return;
 
-    const Component = islandRegistry[name as keyof typeof islandRegistry];
+    const Component = islandRegistry[name as keyof typeof islandRegistry] as ComponentType<any>;
     const rawProps = root.getAttribute("data-island-props") || "{}";
 
     let props: Record<string, unknown>;
@@ -18,9 +18,7 @@ function hydrateIsland(root: HTMLElement): void {
         return;
     }
 
-    const identifierPrefix = `${root.dataset.islandId || name}-`;
-
-    hydrateRoot(root, createElement(Component, props), { identifierPrefix });
+    hydrate(createElement(Component, props), root);
     root.dataset.hydrated = "true";
 }
 
