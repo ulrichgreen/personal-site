@@ -10,9 +10,9 @@
         "isolatedModules": true,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
-        "types": ["node", "react", "react-dom"],
+        "types": ["node"],
         "jsx": "react-jsx",
-        "jsxImportSource": "react"
+        "jsxImportSource": "preact"
     },
     "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
 }

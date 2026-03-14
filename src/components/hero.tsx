@@ -1,4 +1,3 @@
-import type React from "react";
 import { Picture } from "./picture.tsx";
 
 interface HeroPortrait {

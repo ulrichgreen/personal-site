@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext } from "preact/compat";
 import type { AssetManifest } from "../build/assets/asset-manifest.ts";
 import type { WritingIndexEntry } from "../types/content.ts";
 import type { RegisterIslandInput } from "../types/islands.ts";

@@ -1,5 +1,5 @@
 import { pathToFileURL } from "node:url";
-import * as runtime from "react/jsx-runtime";
+import * as runtime from "preact/jsx-runtime";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";

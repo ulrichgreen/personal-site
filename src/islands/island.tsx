@@ -1,5 +1,5 @@
-import { createElement, type ComponentType } from "react";
-import { renderToString } from "react-dom/server";
+import { createElement, type ComponentType } from "preact/compat";
+import { renderToString } from "preact-render-to-string";
 import { useRenderContext } from "../context/render-context.tsx";
 import type { IslandName } from "./registry.ts";
 
@@ -31,7 +31,6 @@ export function Island<Props extends object>({
             data-island-id={id}
             data-island-props={JSON.stringify(props)}
             data-hydrate={hydrate || "load"}
-            suppressHydrationWarning
             dangerouslySetInnerHTML={{
                 __html: renderToString(createElement(component, props)),
             }}

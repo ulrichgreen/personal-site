@@ -83,7 +83,7 @@ async function main() {
         "Home page should include the dark theme-color meta tag.",
     );
     assert(
-        /style="view-transition-name:article-title-[a-z0-9_-]+"/.test(homeHtml),
+        /style="view-transition-name:article-title-[a-z0-9_-]+;?"/.test(homeHtml),
         "Writing index links should have named view transitions.",
     );
 
@@ -99,9 +99,8 @@ async function main() {
         "Tools are not neutral. They carry assumptions about your work, and those assumptions shape the systems you build.",
     );
     assert(
-        articleHtml.includes(
-            '<h1 class="title heading-display" style="view-transition-name:article-title-on-tools"',
-        ),
+        articleHtml.includes('class="title heading-display"') &&
+            /style="view-transition-name:article-title-on-tools/.test(articleHtml),
         "Article title should have a named view transition.",
     );
     assert(articleHtml.includes('class="page page--article"'));

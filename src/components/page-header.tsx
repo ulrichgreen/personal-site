@@ -1,4 +1,4 @@
-import type React from "react";
+import type { CSSProperties } from "preact/compat";
 
 const LOGO_EXPAND_CHARS = [
     "l",
@@ -40,7 +40,7 @@ export function PageHeader() {
                                 style={
                                     {
                                         "--logo-i": i + 1,
-                                    } as React.CSSProperties
+                                    } as CSSProperties
                                 }
                             >
                                 {char}
