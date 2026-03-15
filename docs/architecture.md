@@ -1,161 +1,235 @@
 # Architecture
 
-This site is built on a simple idea: author content as files, run them through a small build pipeline, and ship plain HTML.
+This site is built around a static-first pipeline:
 
-The implementation uses a few modern tools, but the goal is not modernity for its own sake. The goal is to keep the system understandable, maintainable, and close to the shape of the web itself.
+- content is authored as files
+- the build turns that content into complete HTML documents
+- CSS and a small amount of JavaScript are emitted alongside the pages
+- the browser gets a usable document before any script runs
+
+The implementation details will evolve, but the architecture is meant to stay legible: a small content system, a small render layer, and a small client runtime.
 
 ## Overview
 
-Content lives in `content/` as MDX files with YAML frontmatter.
+There are two main kinds of source material:
 
-The build reads that content, validates the frontmatter, compiles the MDX into React components, renders the pages to static HTML, and writes the final site to `dist/`.
+- authored pages in `content/`
+- site code in `src/`
 
-The browser gets documents first. JavaScript is used for progressive enhancement and a small number of interactive islands, not for making basic pages exist in the first place.
+`pnpm build` reads the content tree, compiles pages, renders layouts, bundles assets, and writes the finished site to `dist/`.
+
+The output is plain HTML, CSS, fonts, images, and a couple of focused browser bundles. The site does not depend on client-side routing or full-page hydration to exist.
 
 ## Build Pipeline
 
-`pnpm build` produces the site in `dist/`.
+The build is organized as a few clear stages.
 
-At a high level, the build does this:
+### 1. Discover source pages
 
-1. read the content graph from `content/`
-2. parse and validate frontmatter
-3. compile MDX into React component trees
-4. render those trees to static HTML with `react-dom/server`
-5. bundle CSS and browser JavaScript
-6. write additional generated artifacts such as feeds and SEO files
-7. check performance budgets for the final output
+Source pages are discovered from:
 
-The end result is plain HTML, plus CSS, plus a small amount of JavaScript where it has actually earned a job.
+- top-level `.mdx` files in `content/`
+- writing entries in `content/writing/`
 
-## Layout and Rendering
+That keeps the authored content model simple: standalone pages at the top level, and essay-like writing collected under `writing/`.
 
-Templates and shared UI are standard React TSX components.
+### 2. Parse and validate frontmatter
 
-MDX content renders through the same tree, but content authors only get access to components exposed through `src/content-components.tsx`. That boundary is intentional. It keeps content authoring controlled and prevents MDX from turning into an ungoverned import party.
+Each page is expected to provide YAML frontmatter and an MDX body.
 
-`layout: article` routes a page through the article template. Everything else uses the base layout.
+Frontmatter is validated before a page moves further through the pipeline. The build treats metadata as a contract rather than a suggestion, so invalid content fails early.
 
-The `section` field is presentational. It controls the header breadcrumb and can be inferred from the content directory path when it is not set explicitly.
+Some metadata is authored directly, while some is derived during the build:
 
-## Client-Side Code
+- `description` can come from explicit frontmatter, a summary field, or the first usable prose paragraph in the body
+- heading-only blocks and other non-content blocks are skipped when that description is derived
+- `section` can be inferred from the content path when it is not set explicitly
+- word count and reading-time metadata are computed from the body
 
-The site ships two browser entry points.
+### 3. Compile content
 
-`site.js` handles document-level progressive enhancement such as scroll effects and footnote reveals.
+MDX is compiled into component trees at build time.
 
-`islands.js` hydrates interactive islands and is only loaded on pages that actually contain islands.
+Content is intentionally constrained:
 
-Islands use `hydrateRoot` and support four hydration strategies:
+- arbitrary MDX imports and exports are not part of the authoring model
+- content can only use the components exposed through `src/content-components.tsx`
+- prose stays the default, with components used sparingly and intentionally
 
-- `load` — hydrate immediately
-- `visible` — hydrate when the island enters the viewport
-- `idle` — hydrate when the browser is idle
-- `interaction` — hydrate on first user interaction
+The content compiler also applies the site’s markdown and code-block transforms so that headings, links, tables, and fenced code are rendered consistently.
 
-The default posture is simple: if something can stay static, it stays static.
+### 4. Render full pages
+
+Compiled content is rendered into full HTML documents through shared templates.
+
+The render layer is responsible for:
+
+- choosing the correct page layout
+- composing the page shell and metadata
+- passing shared render context into templates and content components
+- serializing island placeholders when a page includes interactive components
+
+Pages are rendered at build time, not on request.
+
+### 5. Build assets
+
+The asset build runs alongside page compilation.
+
+It produces:
+
+- a single site stylesheet from the files under `src/styles/`
+- one browser bundle for document-level enhancements
+- one browser bundle for islands
+- copied font and image assets
+
+In production, emitted CSS and JavaScript filenames are fingerprinted so rendered pages can reference cache-friendly assets through a generated manifest.
+
+### 6. Generate ancillary artifacts
+
+After the pages are written, the build generates the supporting files that belong to the site as a whole:
+
+- Atom feed
+- sitemap
+- robots rules
+- hosting headers
+- default Open Graph image
+
+These artifacts are derived from the same content metadata as the pages rather than being maintained by hand.
+
+### 7. Enforce output budgets
+
+The final `dist/` output is measured against size budgets for major asset classes.
+
+That keeps the architecture honest. Static-first only matters if the shipped site actually stays small.
+
+## Rendering Model
+
+The render layer uses TSX components for both templates and approved content components.
+
+The important architectural point is not the specific UI library, but the split of responsibilities:
+
+- templates define the document shell
+- shared components handle reusable presentational pieces
+- content components are the small approved bridge between prose and UI
+- interactive islands are isolated from the rest of the page
+
+There are two primary layouts:
+
+- `base` for general pages
+- `article` for essay-like writing
+
+The article layout adds the additional structure expected for writing: publication metadata, article framing, and optional series navigation.
+
+Render context also carries shared information that templates and components need at build time, such as the writing index and the current asset manifest.
+
+## Client Runtime
+
+The browser code is intentionally split by responsibility.
+
+### Document-level enhancements
+
+`site.js` enhances already-rendered pages. It is responsible for page-wide behaviors such as:
+
+- reading progress
+- heading reveal effects
+- footnote interactions
+
+These behaviors decorate existing markup. They do not create the page or own the whole document.
+
+### Islands
+
+`islands.js` hydrates only explicit island roots.
+
+Each island is:
+
+- rendered on the server into static HTML
+- marked up with its serialized props and hydration strategy
+- hydrated later by the browser only when needed
+
+The current island system supports multiple hydration timings, including immediate, visible, idle, and interaction-driven hydration.
+
+This keeps interactivity opt-in and local. A page with no islands remains a static page with no island runtime cost.
 
 ## Content Model
 
-MDX is the content format.
+MDX is the authoring format, but the model is closer to “documents with structured metadata” than to “components all the way down.”
 
-Frontmatter is YAML and is validated before the page moves further through the pipeline.
+The important content fields are:
 
-The current author-facing fields are:
+- identity and description fields such as `title`, `description`, and `summary`
+- layout and grouping fields such as `layout`, `section`, and optional series metadata
+- article metadata such as `published`, `revised`, and `note`
 
-- `title`
-- `description`
-- `layout`
-- `section`
-- `published`
-- `revised`
-- `note`
-- `summary`
-- `series`
-- `seriesOrder`
+Not every field is required for every page type. In particular, article-style content is expected to include publication metadata.
 
-Article pages use `layout: article` and must include `published`.
+The writing index is built from the `content/writing/` directory and then reused across the site for article lists, feed generation, and series navigation.
 
-Some metadata is derived during the build instead of being authored manually:
+Series support is opt-in. When a writing entry declares a series name and order, the build groups related entries and the article template can render next/previous context automatically.
 
-- `words`
-- `readingTime`
+## Content Boundaries
 
-`summary` is optional. If `description` is absent, the build uses `summary` as the page description.
+One of the most important architectural boundaries in the repository is the line between authored prose and application code.
 
-Series support is opt-in. `series` names the sequence and `seriesOrder` determines order within it. When present, the article footer renders series navigation automatically.
+That boundary is enforced in two ways:
 
-## Approved MDX Components
+- MDX does not get free-form module imports
+- content only sees the components exported through `src/content-components.tsx`
 
-MDX content can only use the components exposed through `src/content-components.tsx`.
-
-At the moment those are:
-
-- `ArticleList`
-- `Code`
-- `Hero`
-- `DemoWidget`
-
-`DemoWidget` is an island. The others are rendered at build time.
-
-This is deliberate. Most prose should stay prose. Components in content should solve a real problem, not serve as an excuse to smuggle application behavior into documents.
+Today that approved surface includes `ArticleList`, `Code`, `Hero`, and `DemoWidget`, with `src/content-components.tsx` as the source of truth. The exact list may change, but the architectural rule should stay the same: content authors use a curated surface, not the whole codebase.
 
 ## Project Structure
 
-The main directories are:
+The repository is organized by responsibility.
 
-- `content/` — MDX source content
-- `src/build/` — build pipeline code
-- `src/templates/` — page templates
-- `src/components/` — shared React components
-- `src/client/` — browser-side scripts
-- `src/islands/` — interactive islands
-- `src/styles/` — site styles
-- `src/context/` — shared React context
-- `src/types/` — type definitions
-- `docs/` — project documentation
-- `dist/` — generated output
+- `content/` — authored pages and writing
+- `src/build/` — the build pipeline, split into content, render, asset, and artifact concerns
+- `src/templates/` — page-level templates
+- `src/components/` — shared UI components used by templates and content
+- `src/client/` — browser-side enhancement and hydration entry points
+- `src/islands/` — interactive island components and registry
+- `src/styles/` — the site stylesheet layers and component styles
+- `src/context/` — render-time shared context
+- `src/types/` — shared contracts for content and islands
+- `test/` plus co-located `*.test.ts` files — verification scripts and unit tests
+- `dist/` — generated output only
 
-`dist/` is build output. It is not edited by hand.
+`site.config.ts` is the shared configuration boundary for site URL, browser targets, and performance budgets.
 
-## Tooling
+## Tooling Posture
 
-The stack is intentionally small.
+The implementation uses a small set of libraries and build tools, but the architecture is not tied to any specific tool choice.
 
-- TypeScript for the build and contracts
-- React and `react-dom/server` for render-time composition
-- MDX and `gray-matter` for content authoring
-- `lightningcss` for CSS bundling
-- `esbuild` for browser bundles
-- `chokidar` and `ws` for the dev server
+The durable decisions are:
 
-No full-page hydration. No client-side routing. No CSS framework. No extra machinery added just to keep up appearances.
+- static output over runtime page generation
+- a typed build pipeline over ad hoc scripts
+- constrained MDX over arbitrary content imports
+- progressive enhancement and islands over full-page hydration
+- explicit performance budgets over unchecked asset growth
+
+Specific dependencies can change over time as long as they continue to support those constraints.
+
+For the current tool choices and the reasoning behind them, see `tooling.md`.
 
 ## Verification
 
-`pnpm test` runs two kinds of checks:
+The repository verifies the system in layers:
 
-- co-located unit tests for the content pipeline
-- standalone verifiers for rendered output
+- `pnpm run typecheck` checks the TypeScript contracts
+- `pnpm run build` exercises the full static build and budget enforcement
+- `pnpm run test` runs both unit tests and rendered-output verifiers
+- `pnpm run verify` runs the full validation sequence in order
 
-The current verifier set checks:
+The tests cover both implementation details and emitted artifacts. That includes:
 
-- JSX rendering
-- accessibility
-- internal links
-- Atom feed output
-- generated SEO artifacts:
-  - `robots.txt`
-  - `sitemap.xml`
-  - `_headers`
-  - `og-image.svg`
+- frontmatter and content-pipeline unit tests
+- performance-budget tests
+- render verification
+- accessibility checks
+- internal link checks
+- feed validation
+- generated SEO artifact validation
 
-`site.config.ts` holds shared site and build configuration, including the canonical site URL, browser targets, and performance budgets.
+CI follows the same basic shape: typecheck, build, then test.
 
-During `pnpm build`, the final output is checked against budgets for total HTML, CSS, JavaScript, and font weight. The build warns as the site approaches the limits and fails if it crosses them.
-
-CI runs:
-
-`typecheck → build → test`
-
-That is the system. Small enough to reason about, strict enough to catch drift, and boring in the ways that matter.
+That is the architecture: files in, static site out, with a deliberately small runtime and a few explicit guardrails to keep the system understandable over time.
