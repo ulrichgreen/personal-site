@@ -209,6 +209,8 @@ The durable decisions are:
 
 Specific dependencies can change over time as long as they continue to support those constraints.
 
+For the current tool choices and the reasoning behind them, see `tooling.md`.
+
 ## Verification
 
 The repository verifies the system in layers:
