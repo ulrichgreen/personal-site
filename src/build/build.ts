@@ -8,6 +8,7 @@ import { cleanDist } from "./clean.ts";
 import { buildAncillary } from "./artifacts/ancillary.ts";
 import { buildClient } from "./assets/client.ts";
 import { buildCss } from "./assets/css.ts";
+import { buildImages } from "./assets/images.ts";
 import { compilePages } from "./content/compile-pages.ts";
 import {
     cleanGeneratedPages,
@@ -22,7 +23,7 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     const start = performance.now();
 
     if (!options.dev) cleanDist();
-    await Promise.all([buildCss(), buildClient()]);
+    await Promise.all([buildCss(), buildClient(), buildImages()]);
     const manifest = options.dev ? devAssetManifest : generateAssetManifest();
 
     const articleIndex = listArticleEntries(articlesDirectory);

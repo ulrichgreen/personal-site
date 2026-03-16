@@ -80,7 +80,8 @@ It produces:
 - a single site stylesheet from the files under `src/styles/`
 - one browser bundle for document-level enhancements
 - one browser bundle for islands
-- copied font and image assets
+- copied font assets
+- optimised image variants (AVIF, WebP, and resized versions) from source images in `src/images/`
 
 In production, emitted CSS and JavaScript filenames are fingerprinted so rendered pages can reference cache-friendly assets through a generated manifest.
 

@@ -106,6 +106,11 @@ If a dependency stops serving those constraints, it is replaceable.
 - **Why it was chosen:** browser bundles should be fast to build and easy to understand.
 - **How it fits the architecture:** it produces the two small client entry points: one for document-level enhancement and one for islands.
 
+### sharp
+
+- **Why it was chosen:** source images need to be converted to modern formats (AVIF, WebP) and resized at build time to avoid shipping oversized assets.
+- **How it fits the architecture:** it processes raster images in `src/images/` into optimised variants that the `<Picture>` component can reference, keeping image optimisation in the static build rather than relying on a CDN or manual conversion.
+
 ## Development Server
 
 ### chokidar
@@ -138,7 +143,7 @@ At a high level, the toolchain breaks down like this:
 - **validation:** Zod + TypeScript
 - **rendering:** Preact + build-time string rendering
 - **content transforms:** remark/rehype plugins + Shiki
-- **assets:** Lightning CSS + esbuild
+- **assets:** Lightning CSS + esbuild + sharp
 - **local development:** chokidar + ws
 - **execution:** Node.js + pnpm + tsx
 
