@@ -1,22 +1,22 @@
 ---
 title: Colophon
-description: How this site was built, from MDX authoring to React-rendered islands.
+description: How this site was built, from MDX authoring to static rendering and selective islands.
 section: colophon
 ---
 
 # Colophon
 
-This site is still a collection of static files. The difference is that the authored content now lives in MDX, the page shell renders through React on the server, and only explicit islands hydrate on the client.
+This site is still a collection of static files. The difference is that the authored content now lives in MDX, the page shell renders through a small TSX layer at build time, and only explicit islands hydrate on the client.
 
 ## Planning
 
-The docs folder stays small on purpose. `manifesto.md` says what the site is trying to do. `architecture.md` covers the build, the stack, the repo layout, and how content works. `roadmap.md` keeps the next useful ideas in one place. `experiments.md` is where the stranger ideas live.
+The docs folder stays small on purpose. `manifesto.md` says what the site is trying to do. `architecture.md` covers the build, the repo layout, and how content moves through the system. `tooling.md` records the current tool choices and why they fit the architecture. `roadmap.md` keeps the next useful ideas in one place. `experiments.md` is where the stranger ideas live.
 
 That split keeps the documents short enough to stay useful.
 
 ## Build
 
-`pnpm build` drives the whole thing. Content from `content/` goes through a TypeScript pipeline: frontmatter parsing, MDX evaluation, then React server rendering. CSS is bundled from partials in `src/styles/`. The browser code is split between `src/client/site.ts` for progressive enhancement and `src/client/islands.ts` for island hydration. The output still lands in `dist/`.
+`pnpm build` drives the whole thing. Content from `content/` goes through a TypeScript pipeline: frontmatter parsing, MDX evaluation, then build-time rendering into static HTML. CSS is bundled from partials in `src/styles/`. The browser code is split between `src/client/site.ts` for progressive enhancement and `src/client/islands.ts` for island hydration. The output still lands in `dist/`.
 
 There is still a watch mode. `pnpm dev` runs a tiny dev server with rebuilds and live reload. The build is larger than it used to be, but it still fits in your head.
 
@@ -24,10 +24,10 @@ There is still a watch mode. `pnpm dev` runs a tiny dev server with rebuilds and
 
 The visual design is still raw CSS. The source is still split into partials under `src/styles/`, and it still compiles to one stylesheet. The 8px baseline grid is still the backbone. Custom properties still carry the spacing scale, type scale, and palette. The site still leans on typography before graphics.
 
-There is still a small browser layer for progressive enhancement: revealing footnotes into the margin. Interactive islands use React where state is warranted, but document-level behavior stays as plain Vanilla JS.
+There is still a small browser layer for progressive enhancement: reading progress, heading reveals, and footnotes into the margin. Interactive islands use Preact where state is warranted, but document-level behavior stays as plain JavaScript.
 
 ## Principles
 
-This site still has zero external services at runtime. No CDN fonts, no analytics script, no third-party widgets. Every byte served is a byte I wrote or explicitly chose to include. TypeScript keeps the build code legible. React makes MDX and islands coherent. The site itself still ships as plain HTML, raw CSS, and a small amount of JavaScript.
+This site still has zero external services at runtime. No CDN fonts, no analytics script, no third-party widgets. Every byte served is a byte I wrote or explicitly chose to include. TypeScript keeps the build code legible. Preact keeps templates, MDX components, and islands coherent without changing the static-first posture. The site itself still ships as plain HTML, raw CSS, and a small amount of JavaScript.
 
 Constraints are still the point. The result should be a site I understand completely, which means I can fix it, extend it, and trust it.
