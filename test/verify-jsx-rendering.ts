@@ -205,7 +205,7 @@ async function main() {
     const fallbackDescription = resolveMetaDescription({
         meta: {
             title: "Essay",
-            layout: "article",
+            layout: "base",
         },
         body: "<DemoWidget />\n\n# Essay\n\nA paragraph that should become the fallback description.",
     });
@@ -255,9 +255,10 @@ async function main() {
         import.meta.url,
     ).pathname;
     const markup = await buildContent(markupPath);
+    const markupMeta = markup.meta.layout === "article" ? markup.meta : undefined;
     const markupSeriesInfo = resolveSeriesInfo(
-        markup.meta.series,
-        markup.meta.seriesOrder,
+        markupMeta?.series,
+        markupMeta?.seriesOrder,
         seriesMap,
     );
     const markupHtml = renderPage(markup, articleIndex, undefined, markupSeriesInfo);

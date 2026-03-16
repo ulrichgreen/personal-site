@@ -4,6 +4,7 @@ import type { AssetManifest } from "../assets/asset-manifest.ts";
 import { resolveOutputPath } from "../content/discover.ts";
 import { renderPage } from "./render-react-page.tsx";
 import type { BuiltContent, ArticleIndexEntry } from "../../types/content.ts";
+import { isArticleMeta } from "../../types/content.ts";
 import {
     buildSeriesMap,
     resolveSeriesInfo,
@@ -18,11 +19,13 @@ export function writePages(
 
     for (const page of compiled) {
         const outputPath = resolveOutputPath(page.sourcePath);
-        const seriesInfo = resolveSeriesInfo(
-            page.meta.series,
-            page.meta.seriesOrder,
-            seriesMap,
-        );
+        const seriesInfo = isArticleMeta(page.meta)
+            ? resolveSeriesInfo(
+                  page.meta.series,
+                  page.meta.seriesOrder,
+                  seriesMap,
+              )
+            : undefined;
 
         mkdirSync(dirname(outputPath), { recursive: true });
         writeFileSync(

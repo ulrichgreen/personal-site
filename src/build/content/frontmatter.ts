@@ -1,7 +1,7 @@
 import matter from "gray-matter";
 import { createInterface } from "node:readline";
 import { z } from "zod";
-import type { FrontmatterPayload } from "../../types/content.ts";
+import type { PageMeta, FrontmatterPayload } from "../../types/content.ts";
 
 const yamlDateString = z.preprocess(
     (value) =>
@@ -27,7 +27,7 @@ const contentMetaSchema = z
     })
     .transform((meta) => ({
         ...meta,
-        layout: meta.layout ?? "base",
+        layout: (meta.layout ?? "base") as "article" | "base",
     }))
     .superRefine((meta, context) => {
         if (meta.layout === "article" && !meta.published) {
@@ -66,8 +66,35 @@ export function parseFrontmatter(
         throw formatFrontmatterError(filePath, meta.error);
     }
 
+    const validated = meta.data;
+    const typedMeta: PageMeta =
+        validated.layout === "article"
+            ? {
+                  title: validated.title,
+                  layout: "article" as const,
+                  description: validated.description,
+                  section: validated.section,
+                  summary: validated.summary,
+                  published: validated.published!,
+                  revised: validated.revised,
+                  words: validated.words,
+                  note: validated.note,
+                  series: validated.series,
+                  seriesOrder: validated.seriesOrder,
+              }
+            : {
+                  title: validated.title,
+                  layout: "base" as const,
+                  description: validated.description,
+                  section: validated.section,
+                  summary: validated.summary,
+                  published: validated.published,
+                  revised: validated.revised,
+                  words: validated.words,
+              };
+
     return {
-        meta: meta.data,
+        meta: typedMeta,
         body: content,
     };
 }

@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseFrontmatter } from "./frontmatter.ts";
 import type { ArticleIndexEntry } from "../../types/content.ts";
+import { isArticleMeta } from "../../types/content.ts";
 
 export function listArticleEntries(directory: string): ArticleIndexEntry[] {
     const allEntries = readdirSync(directory)
@@ -14,12 +15,13 @@ export function listArticleEntries(directory: string): ArticleIndexEntry[] {
 
             return {
                 ...meta,
+                layout: "article" as const,
                 title: String(meta.title || ""),
                 published: String(meta.published || ""),
                 slug,
                 href: `/articles/${slug}.html`,
-                series: meta.series,
-                seriesOrder: meta.seriesOrder,
+                series: isArticleMeta(meta) ? meta.series : undefined,
+                seriesOrder: isArticleMeta(meta) ? meta.seriesOrder : undefined,
             } satisfies ArticleIndexEntry;
         });
 

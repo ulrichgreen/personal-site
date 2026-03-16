@@ -68,8 +68,11 @@ series: Building a Design System
 seriesOrder: 2
 ---
 Content`);
-            assert.equal(result.meta.series, "Building a Design System");
-            assert.equal(result.meta.seriesOrder, 2);
+            assert.equal(result.meta.layout, "article");
+            if (result.meta.layout === "article") {
+                assert.equal(result.meta.series, "Building a Design System");
+                assert.equal(result.meta.seriesOrder, 2);
+            }
         });
 
         it("allows series without seriesOrder", () => {
@@ -80,8 +83,11 @@ published: "2025-07-01"
 series: My Series
 ---
 Content`);
-            assert.equal(result.meta.series, "My Series");
-            assert.equal(result.meta.seriesOrder, undefined);
+            assert.equal(result.meta.layout, "article");
+            if (result.meta.layout === "article") {
+                assert.equal(result.meta.series, "My Series");
+                assert.equal(result.meta.seriesOrder, undefined);
+            }
         });
     });
 
