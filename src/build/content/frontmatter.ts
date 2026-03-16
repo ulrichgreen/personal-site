@@ -9,6 +9,11 @@ const yamlDateString = z.preprocess(
     z.string().trim().min(1),
 );
 
+const revisionSchema = z.object({
+    date: yamlDateString,
+    note: z.string().trim().min(1),
+});
+
 const contentMetaSchema = z
     .object({
         title: z.string().trim().min(1, "title is required"),
@@ -24,6 +29,7 @@ const contentMetaSchema = z
         summary: z.string().trim().min(1).optional(),
         series: z.string().trim().min(1).optional(),
         seriesOrder: z.number().int().positive().optional(),
+        revisions: z.array(revisionSchema).optional(),
     })
     .transform((meta) => ({
         ...meta,
@@ -79,6 +85,7 @@ export function parseFrontmatter(
                   revised: validated.revised,
                   words: validated.words,
                   note: validated.note,
+                  revisions: validated.revisions,
                   series: validated.series,
                   seriesOrder: validated.seriesOrder,
               }

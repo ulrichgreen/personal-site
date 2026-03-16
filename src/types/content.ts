@@ -18,10 +18,16 @@ export interface BasePageMeta extends SharedMeta {
     layout: "base";
 }
 
+export interface Revision {
+    date: string;
+    note: string;
+}
+
 export interface ArticlePageMeta extends SharedMeta {
     layout: "article";
     published: string;
     note?: string;
+    revisions?: Revision[];
     series?: string;
     seriesOrder?: number;
 }
@@ -91,5 +97,6 @@ export interface ArticleLayoutProps extends BaseLayoutProps {
     words?: number | string;
     readingTime?: string;
     note?: string;
+    revisions?: Revision[];
     seriesInfo?: SeriesInfo;
 }

@@ -2,6 +2,7 @@ import {
     ArticleHeader,
     getArticleTitleTransitionName,
 } from "../components/article-header.tsx";
+import { RevisionHistory } from "../components/revision-history.tsx";
 import { SeriesNav } from "../components/series-nav.tsx";
 import BaseLayout from "./base.tsx";
 import type { ArticleLayoutProps } from "../types/content.ts";
@@ -16,6 +17,7 @@ export default function ArticleLayout({
     words,
     readingTime,
     note,
+    revisions,
     seriesInfo,
     children,
 }: ArticleLayoutProps) {
@@ -45,6 +47,9 @@ export default function ArticleLayout({
                     seriesName={seriesInfo?.name}
                 />
                 <div className="section article-body">{children}</div>
+                {revisions && revisions.length > 0 && (
+                    <RevisionHistory revisions={revisions} />
+                )}
                 {seriesInfo && <SeriesNav seriesInfo={seriesInfo} />}
                 <footer className="section article-footer label">
                     <a href="/index.html">← All articles</a>

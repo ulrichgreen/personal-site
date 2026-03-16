@@ -315,6 +315,37 @@ async function main() {
         "Home page should render series labels in the article list.",
     );
 
+    // --- Revision history tests ---
+    const constraintsPath = new URL(
+        "../content/articles/on-constraints.mdx",
+        import.meta.url,
+    ).pathname;
+    const constraints = await buildContent(constraintsPath);
+    const constraintsMeta = constraints.meta.layout === "article" ? constraints.meta : undefined;
+    const constraintsSeriesInfo = resolveSeriesInfo(
+        constraintsMeta?.series,
+        constraintsMeta?.seriesOrder,
+        seriesMap,
+    );
+    const constraintsHtml = renderPage(constraints, articleIndex, undefined, constraintsSeriesInfo);
+
+    assert(
+        constraintsHtml.includes('class="section revision-history"'),
+        "Article with revisions should render revision history.",
+    );
+    assert(
+        constraintsHtml.includes('aria-label="Revision history"'),
+        "Revision history should have an accessible label.",
+    );
+    assert(
+        constraintsHtml.includes("Rewrote the third section"),
+        "Revision history should include revision notes.",
+    );
+    assert(
+        !articleHtml.includes('class="revision-history"'),
+        "Article without revisions should not render revision history.",
+    );
+
     console.log(
         "React SSR and MDX rendering verified: pages build through the MDX pipeline and explicit islands serialize for hydration.",
     );
