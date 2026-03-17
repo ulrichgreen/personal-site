@@ -2,6 +2,77 @@ function isInsideIsland(node: Element | null): boolean {
     return Boolean(node?.closest("[data-island]"));
 }
 
+function bootCodeBlocks() {
+    const figures = Array.from(
+        document.querySelectorAll<HTMLElement>(
+            "[data-rehype-pretty-code-figure], .code-block",
+        ),
+    ).filter((figure) => !isInsideIsland(figure));
+
+    for (const figure of figures) {
+        if (figure.dataset.codeBlockEnhanced === "true") continue;
+
+        const pre = figure.querySelector<HTMLPreElement>("pre");
+        const code = figure.querySelector<HTMLElement>("code");
+
+        if (!pre || !code) continue;
+
+        figure.dataset.codeBlockEnhanced = "true";
+
+        const language =
+            pre.dataset.language || figure.dataset.language || "text";
+        figure.dataset.language = language;
+
+        let toolbar = figure.querySelector<HTMLElement>(".code-block__toolbar");
+        if (!toolbar) continue;
+
+        let copyButton = toolbar.querySelector<HTMLButtonElement>(
+            ".code-block__copy",
+        );
+        if (!copyButton) {
+            copyButton = document.createElement("button");
+            copyButton.type = "button";
+            copyButton.className = "code-block__copy";
+            copyButton.textContent = "Copy";
+            toolbar.append(copyButton);
+        }
+
+        copyButton.setAttribute(
+            "aria-label",
+            `Copy ${language} code to clipboard`,
+        );
+
+        if (!navigator.clipboard?.writeText) {
+            copyButton.disabled = true;
+            continue;
+        }
+
+        copyButton.addEventListener("click", async () => {
+            const source = code.textContent?.replace(/\n$/, "") || "";
+            if (!source) return;
+
+            try {
+                await navigator.clipboard.writeText(source);
+                copyButton.dataset.state = "copied";
+                copyButton.textContent = "Copied";
+
+                window.setTimeout(() => {
+                    copyButton.dataset.state = "idle";
+                    copyButton.textContent = "Copy";
+                }, 2200);
+            } catch {
+                copyButton.dataset.state = "error";
+                copyButton.textContent = "Failed";
+
+                window.setTimeout(() => {
+                    copyButton.dataset.state = "idle";
+                    copyButton.textContent = "Copy";
+                }, 2200);
+            }
+        });
+    }
+}
+
 function bootReadingProgress() {
     const progress = document.getElementById("progress");
     if (!(progress instanceof HTMLElement)) return;
@@ -83,6 +154,7 @@ export function bootEnhancements() {
     if (document.body.dataset.enhancementsBooted === "true") return;
     document.body.dataset.enhancementsBooted = "true";
 
+    bootCodeBlocks();
     bootReadingProgress();
     bootHeadingReveal();
 
