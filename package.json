@@ -5,6 +5,8 @@
     "scripts": {
         "build": "tsx src/build/build.ts",
         "clean": "tsx src/build/clean.ts",
+        "create-article": "tsx src/build/tools/create-content.ts article",
+        "create-page": "tsx src/build/tools/create-content.ts page",
         "dev": "tsx src/build/dev.ts",
         "check-links": "tsx test/verify-links.ts",
         "test": "tsx test/run-tests.ts",
