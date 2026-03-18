@@ -1,4 +1,8 @@
-import { transform, type CSSModuleExports, type CSSModuleReference } from "lightningcss";
+import {
+    transform,
+    type CSSModuleExports,
+    type CSSModuleReference,
+} from "lightningcss";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -79,7 +83,9 @@ function resolveExportClassNames(
 ): string[] {
     const visitKey = `${filePath}:${exportName}`;
     if (seen.has(visitKey)) {
-        throw new Error(`Circular CSS module composition detected for ${visitKey}`);
+        throw new Error(
+            `Circular CSS module composition detected for ${visitKey}`,
+        );
     }
 
     seen.add(visitKey);
@@ -87,7 +93,9 @@ function resolveExportClassNames(
     const compiled = compileModule(filePath);
     const exportedClass = compiled.exports[exportName];
     if (!exportedClass) {
-        throw new Error(`Unknown CSS module export \"${exportName}\" in ${filePath}`);
+        throw new Error(
+            `Unknown CSS module export \"${exportName}\" in ${filePath}`,
+        );
     }
 
     const names = [exportedClass.name];
@@ -111,8 +119,15 @@ function resolveReferenceClassNames(
         case "global":
             return [reference.name];
         case "dependency": {
-            const dependencyPath = resolve(dirname(filePath), reference.specifier);
-            return resolveExportClassNames(dependencyPath, reference.name, seen);
+            const dependencyPath = resolve(
+                dirname(filePath),
+                reference.specifier,
+            );
+            return resolveExportClassNames(
+                dependencyPath,
+                reference.name,
+                seen,
+            );
         }
     }
 }
@@ -125,9 +140,11 @@ function resolveCssModuleClasses(filePath: string): Record<string, string> {
 
     const classes: Record<string, string> = {};
     for (const exportName of Object.keys(compiled.exports)) {
-        classes[exportName] = [...new Set(
-            resolveExportClassNames(filePath, exportName, new Set()),
-        )].join(" ");
+        classes[exportName] = [
+            ...new Set(
+                resolveExportClassNames(filePath, exportName, new Set()),
+            ),
+        ].join(" ");
     }
 
     compiled.classes = classes;

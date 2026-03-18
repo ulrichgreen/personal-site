@@ -1,7 +1,10 @@
 import { isAbsolute, resolve as resolvePath } from "node:path";
 import { registerHooks } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { getCssModuleRuntimePath, isCssModuleFilePath } from "../styles/css-modules.ts";
+import {
+    getCssModuleRuntimePath,
+    isCssModuleFilePath,
+} from "../styles/css-modules.ts";
 
 function resolveCssModuleUrl(specifier: string, parentURL?: string): string {
     if (specifier.startsWith("file://")) {
@@ -26,7 +29,9 @@ registerHooks({
     resolve(specifier, context, nextResolve) {
         if (isCssModuleFilePath(specifier)) {
             const runtimePath = getCssModuleRuntimePath(
-                fileURLToPath(resolveCssModuleUrl(specifier, context.parentURL)),
+                fileURLToPath(
+                    resolveCssModuleUrl(specifier, context.parentURL),
+                ),
             );
             return {
                 url: pathToFileURL(runtimePath).href,

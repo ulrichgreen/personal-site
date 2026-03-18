@@ -47,6 +47,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+
     .page > h1:first-child,
     .article-list,
     .article-header .header__eyebrow,

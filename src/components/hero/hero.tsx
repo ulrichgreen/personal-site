@@ -43,14 +43,19 @@ export function Hero({
             className={sectionClasses.join(" ")}
             aria-labelledby="hero-name"
         >
-            <p className={`${styles.kicker} header__eyebrow label`} aria-hidden="true">
+            <p
+                className={`${styles.kicker} header__eyebrow label`}
+                aria-hidden="true"
+            >
                 Product engineer & designer
             </p>
 
             <div className={styles.body}>
-                <h1 className={`${styles.name} title heading-display`} id="hero-name">
-                    Ulrich{" "}
-                    <em>Green</em>
+                <h1
+                    className={`${styles.name} title heading-display`}
+                    id="hero-name"
+                >
+                    Ulrich <em>Green</em>
                 </h1>
 
                 {hasPortrait && portrait && (
@@ -69,15 +74,25 @@ export function Hero({
                 )}
             </div>
 
-            <div className={`${styles.rule} header__rule`} role="presentation" />
+            <div
+                className={`${styles.rule} header__rule`}
+                role="presentation"
+            />
 
             <p className={`${styles.tagline} lede`}>{tagline}</p>
 
-            <p className={`${styles.meta} header__meta label`} aria-label="About">
+            <p
+                className={`${styles.meta} header__meta label`}
+                aria-label="About"
+            >
                 <span>London</span>
-                <span className={styles.metaDot} aria-hidden="true">·</span>
+                <span className={styles.metaDot} aria-hidden="true">
+                    ·
+                </span>
                 <span>ulrich.green</span>
-                <span className={styles.metaDot} aria-hidden="true">·</span>
+                <span className={styles.metaDot} aria-hidden="true">
+                    ·
+                </span>
                 <span>
                     <a href="#articles">Articles</a>
                 </span>

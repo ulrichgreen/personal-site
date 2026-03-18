@@ -12,7 +12,8 @@ import {
 } from "../src/build/content/series-index.ts";
 
 async function main() {
-    const articlesDir = new URL("../content/articles", import.meta.url).pathname;
+    const articlesDir = new URL("../content/articles", import.meta.url)
+        .pathname;
     const articleIndex = listArticleEntries(articlesDir);
 
     const homePath = new URL("../content/index.mdx", import.meta.url).pathname;
@@ -29,7 +30,9 @@ async function main() {
     assert(homeHtml.includes('class="site-header full-bleed"'));
     assert(homeHtml.includes('class="site-nav label"'));
     assert(
-        /<section[^>]*aria-labelledby="hero-name"[^>]*class="section header [^"]+"/.test(homeHtml),
+        /<section[^>]*aria-labelledby="hero-name"[^>]*class="section header [^"]+"/.test(
+            homeHtml,
+        ),
         "Home page should render the hero section with local CSS-module classes.",
     );
     assert(homeHtml.includes('id="hero-name"'));
@@ -92,7 +95,9 @@ async function main() {
         "Home page should include the dark theme-color meta tag.",
     );
     assert(
-        /style="view-transition-name:article-title-[a-z0-9_-]+;?"/.test(homeHtml),
+        /style="view-transition-name:article-title-[a-z0-9_-]+;?"/.test(
+            homeHtml,
+        ),
         "Writing index links should have named view transitions.",
     );
 
@@ -109,12 +114,18 @@ async function main() {
     );
     assert(
         articleHtml.includes('class="title heading-display"') &&
-            /style="view-transition-name:article-title-on-tools/.test(articleHtml),
+            /style="view-transition-name:article-title-on-tools/.test(
+                articleHtml,
+            ),
         "Article title should have a named view transition.",
     );
     assert(articleHtml.includes('class="page page--article"'));
     assert(articleHtml.includes('class="section header article-header"'));
-    assert(articleHtml.includes('class="article-header__kicker header__eyebrow label"'));
+    assert(
+        articleHtml.includes(
+            'class="article-header__kicker header__eyebrow label"',
+        ),
+    );
     assert(articleHtml.includes('class="article-header__rule header__rule"'));
     assert(articleHtml.includes('class="article-header__abstract lede"'));
     assert(articleHtml.includes('class="section article-body"'));
@@ -126,10 +137,18 @@ async function main() {
     assert(articleHtml.includes('data-island="DemoWidget"'));
     assert(articleHtml.includes('data-island="TableOfContents"'));
     assert(articleHtml.includes("Count the cost before you add capability."));
-    assert(articleHtml.includes('class="callout callout--tip card semi-bleed"'));
-    assert(articleHtml.includes("Reach for tooling that leaves the underlying document"));
     assert(
-        article.headings.some((heading) => heading.text === "What the Tool Already Believes"),
+        articleHtml.includes('class="callout callout--tip card semi-bleed"'),
+    );
+    assert(
+        articleHtml.includes(
+            "Reach for tooling that leaves the underlying document",
+        ),
+    );
+    assert(
+        article.headings.some(
+            (heading) => heading.text === "What the Tool Already Believes",
+        ),
         "Article should expose extracted headings for the table of contents.",
     );
     assert(
@@ -216,7 +235,9 @@ async function main() {
         "Colophon should render the figure component.",
     );
     assert(
-        colophonHtml.includes('type="image/avif" srcset="/images/IMG_1514.avif"'),
+        colophonHtml.includes(
+            'type="image/avif" srcset="/images/IMG_1514.avif"',
+        ),
         "Figure should derive AVIF image variants from raster sources.",
     );
     assert(
@@ -279,7 +300,11 @@ async function main() {
 
     const webTrilogy = seriesMap.get("The Web Trilogy");
     assert.ok(webTrilogy);
-    assert.equal(webTrilogy.length, 3, "The Web Trilogy should have 3 entries.");
+    assert.equal(
+        webTrilogy.length,
+        3,
+        "The Web Trilogy should have 3 entries.",
+    );
     assert.equal(
         webTrilogy[0].title,
         "On Markup",
@@ -291,13 +316,19 @@ async function main() {
         import.meta.url,
     ).pathname;
     const markup = await buildContent(markupPath);
-    const markupMeta = markup.meta.layout === "article" ? markup.meta : undefined;
+    const markupMeta =
+        markup.meta.layout === "article" ? markup.meta : undefined;
     const markupSeriesInfo = resolveSeriesInfo(
         markupMeta?.series,
         markupMeta?.seriesOrder,
         seriesMap,
     );
-    const markupHtml = renderPage(markup, articleIndex, undefined, markupSeriesInfo);
+    const markupHtml = renderPage(
+        markup,
+        articleIndex,
+        undefined,
+        markupSeriesInfo,
+    );
 
     assert(
         markupHtml.includes('class="section semi-bleed card series-nav"'),
@@ -352,13 +383,19 @@ async function main() {
         import.meta.url,
     ).pathname;
     const constraints = await buildContent(constraintsPath);
-    const constraintsMeta = constraints.meta.layout === "article" ? constraints.meta : undefined;
+    const constraintsMeta =
+        constraints.meta.layout === "article" ? constraints.meta : undefined;
     const constraintsSeriesInfo = resolveSeriesInfo(
         constraintsMeta?.series,
         constraintsMeta?.seriesOrder,
         seriesMap,
     );
-    const constraintsHtml = renderPage(constraints, articleIndex, undefined, constraintsSeriesInfo);
+    const constraintsHtml = renderPage(
+        constraints,
+        articleIndex,
+        undefined,
+        constraintsSeriesInfo,
+    );
 
     assert(
         constraintsHtml.includes('class="section revision-history"'),
