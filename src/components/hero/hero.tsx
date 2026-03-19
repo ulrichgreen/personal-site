@@ -83,10 +83,7 @@ export function Hero({
                 <span className="body-lg">{tagline}</span>
             </p>
 
-            <p
-                className={`${styles.meta} header__meta label`}
-                aria-label="About"
-            >
+            <p className={`${styles.meta} label`} aria-label="About">
                 <span>London</span>
                 <span className={styles.metaDot} aria-hidden="true">
                     ·

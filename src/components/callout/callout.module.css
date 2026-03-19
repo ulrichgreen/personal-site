@@ -4,6 +4,11 @@
         border-inline-start: 3px solid var(--color-border);
     }
 
+    .tip,
+    .warning {
+        border-inline-start-color: var(--color-accent);
+    }
+
     .label {
         margin-block-end: var(--space-2);
     }

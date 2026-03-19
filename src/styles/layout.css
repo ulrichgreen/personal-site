@@ -72,6 +72,23 @@
         margin-block-start: var(--space-8);
     }
 
+    footer.site-footer nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    footer.site-footer nav a {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: color 0.2s var(--easing-default);
+    }
+
+    footer.site-footer nav a:hover,
+    footer.site-footer nav a:focus-visible {
+        color: var(--color-accent);
+    }
+
     section {
         margin-block-start: var(--space-6);
     }

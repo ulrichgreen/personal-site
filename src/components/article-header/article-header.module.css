@@ -29,6 +29,10 @@
         color: var(--color-text-primary);
     }
 
+    .byline :global(.label) {
+        color: var(--color-accent);
+    }
+
     .note {
         margin-block-start: 1rem;
     }

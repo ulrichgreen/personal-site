@@ -59,6 +59,8 @@
     }
 
     .meta {
+        display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 0.75rem 1rem;
         margin-block-start: clamp(1.25rem, 3vw, 2rem);
@@ -66,17 +68,19 @@
     }
 
     .meta a {
-        color: inherit;
+        color: var(--color-text-secondary);
         text-decoration: none;
+        transition: color 0.2s var(--easing-default);
     }
 
     .meta a:hover,
     .meta a:focus-visible {
-        color: var(--color-text-primary);
+        color: var(--color-accent);
     }
 
     .metaDot {
-        opacity: 0.4;
+        color: var(--color-accent);
+        opacity: 0.5;
         user-select: none;
     }
 }
