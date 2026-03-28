@@ -159,7 +159,7 @@ The important content fields are:
 
 - identity and description fields such as `title`, `description`, and `summary`
 - layout and grouping fields such as `layout`, `section`, and optional series metadata
-- article metadata such as `published`, `revised` (single date), `note`, and optional `revisions` history entries
+- article metadata such as `published`, `revised` (the latest update date used by page metadata and generated artifacts), `note`, and optional `revisions` history entries for a fuller change log
 
 Not every field is required for every page type. In particular, article-style content is expected to include publication metadata.
 
