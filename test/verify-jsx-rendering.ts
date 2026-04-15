@@ -28,7 +28,7 @@ async function main() {
     );
     assert(homeHtml.includes('id="progress" aria-hidden="true"'));
     assert(
-        /<header[^>]*class="[^"]*\bsite-header\b[^"]*"/.test(homeHtml),
+        /<header[^>]*class=["'][^"']*\bsite-header\b[^"']*["']/.test(homeHtml),
         "Site header should be present.",
     );
     assert(
