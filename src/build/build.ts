@@ -21,6 +21,7 @@ import {
     listArticleEntriesFromBuiltContent,
 } from "./content/article-index.ts";
 import { articlesDirectory } from "./shared/paths.ts";
+import { validateContentContracts } from "./content/contracts.ts";
 
 export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     const start = performance.now();
@@ -35,6 +36,9 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
         failed.length === 0
             ? listArticleEntriesFromBuiltContent(compiled)
             : listArticleEntries(articlesDirectory);
+    if (failed.length === 0) {
+        validateContentContracts({ articleIndex, builtContent: compiled });
+    }
 
     cleanGeneratedPages();
     writePages(compiled, articleIndex, manifest);
