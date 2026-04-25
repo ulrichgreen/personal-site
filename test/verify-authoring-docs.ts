@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { getContentComponents } from "../src/content-components.tsx";
 
-const guidePath = new URL("../docs/writing-guide.md", import.meta.url).pathname;
+const guidePath = fileURLToPath(
+    new URL("../docs/writing-guide.md", import.meta.url),
+);
 const guide = readFileSync(guidePath, "utf8");
 const documentedComponents = [
     ...guide.matchAll(/^### `([^`]+)`/gm),
