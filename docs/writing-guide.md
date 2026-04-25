@@ -45,6 +45,14 @@ Reserved for the home-page lead section.
 <Hero portrait={{ src: "/images/IMG_1514.png", width: 320, height: 400, alt: "" }} />
 ```
 
+### `Manifesto`
+
+Use for the short manifesto block on the home page. It renders the site's core principles from the shared component system.
+
+```mdx
+<Manifesto />
+```
+
 ### `DemoWidget`
 
 An explicit interactive island. Use it sparingly, only when state is the point.

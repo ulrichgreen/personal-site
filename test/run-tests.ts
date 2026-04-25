@@ -15,6 +15,7 @@ function nodeArgs(args: string[]): string[] {
 // Integration verifiers (each is a standalone script with its own output)
 const integrationFiles = [
     "test/verify-jsx-rendering.ts",
+    "test/verify-authoring-docs.ts",
     "test/verify-accessibility.ts",
     "test/verify-links.ts",
     "test/verify-feed.ts",
