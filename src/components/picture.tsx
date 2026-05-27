@@ -45,6 +45,7 @@ interface PictureProps {
      * Signals to the browser to prioritise this fetch.
      */
     fetchPriority?: "high" | "low" | "auto";
+    sizes?: string;
     className?: string;
 }
 
@@ -57,12 +58,13 @@ export function Picture({
     height,
     loading = "eager",
     fetchPriority,
+    sizes = "100vw",
     className,
 }: PictureProps) {
     return (
         <picture className={className}>
-            {srcAvif && <source type="image/avif" srcSet={srcAvif} />}
-            {srcWebp && <source type="image/webp" srcSet={srcWebp} />}
+            {srcAvif && <source type="image/avif" srcSet={srcAvif} sizes={sizes} />}
+            {srcWebp && <source type="image/webp" srcSet={srcWebp} sizes={sizes} />}
             <img
                 src={src}
                 alt={alt}
@@ -71,6 +73,7 @@ export function Picture({
                 loading={loading}
                 decoding="async"
                 fetchPriority={fetchPriority}
+                sizes={sizes}
             />
         </picture>
     );

@@ -99,6 +99,10 @@ async function main() {
         "Home page should include the view-transition meta tag.",
     );
     assert(
+        homeHtml.includes('name="color-scheme" content="light dark"'),
+        "Home page should advertise light and dark color-scheme support.",
+    );
+    assert(
         homeHtml.includes(
             'name="theme-color" media="(prefers-color-scheme: light)" content="#fffbf4"',
         ),
@@ -140,10 +144,13 @@ async function main() {
     );
     assert(
         articleHtml.includes('src="/islands.js"'),
-        "Article page with islands should include islands.js.",
+        "Article page with an interactive demo should include islands.js.",
     );
     assert(articleHtml.includes('data-island="DemoWidget"'));
-    assert(articleHtml.includes('data-island="TableOfContents"'));
+    assert(
+        !articleHtml.includes('data-island="TableOfContents"'),
+        "Table of contents should be static markup, not an island.",
+    );
     assert(articleHtml.includes("Count the cost before you add capability."));
     assert(
         articleHtml.includes('aria-label="Tip callout"'),
@@ -163,6 +170,10 @@ async function main() {
     assert(
         articleHtml.includes('aria-label="Table of contents"'),
         "Article should render the table of contents navigation.",
+    );
+    assert(
+        articleHtml.includes('class="table-of-contents card semi-bleed"'),
+        "Article should render static table of contents markup.",
     );
     assert(
         articleHtml.includes('href="#what-the-tool-already-believes"'),
@@ -248,6 +259,10 @@ async function main() {
             'type="image/avif" srcset="/images/IMG_1514.avif"',
         ),
         "Figure should derive AVIF image variants from raster sources.",
+    );
+    assert(
+        colophonHtml.includes('sizes="100vw"'),
+        "Picture output should include a default sizes attribute.",
     );
     assert(
         colophonHtml.includes("<figcaption"),

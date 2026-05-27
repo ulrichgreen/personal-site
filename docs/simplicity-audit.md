@@ -20,6 +20,8 @@ The site is already unusually restrained for a custom static site: static output
 
 This is the highest-leverage area for making the site feel like a technical marvel of restraint.
 
+**Progress:** Implemented the first browser-default quick wins: balanced heading wraps, prettier prose wraps, document color-scheme support, and default image `sizes` output.
+
 **Current strengths**
 
 - `src/styles/style.css` already uses a clean layer order.
@@ -48,6 +50,8 @@ A smaller CSS system that reads like: reset lightly, define tokens, style semant
 ### 2. Progressive enhancement: replace custom interactivity with platform primitives
 
 The site works well without a framework, but a few interactions still ask JavaScript to solve problems the browser can mostly solve.
+
+**Progress:** Table of contents no longer hydrates as an island. It now renders as sticky static markup with anchors to the extracted page headings.
 
 **Files to revisit**
 
