@@ -37,6 +37,7 @@ export function SiteHead({
                 name="viewport"
                 content="width=device-width, initial-scale=1"
             />
+            <meta name="color-scheme" content="light dark" />
             <title>{title || ""}</title>
             {description && (
                 <meta name="description" content={description} />

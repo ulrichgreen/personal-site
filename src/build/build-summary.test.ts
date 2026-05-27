@@ -45,7 +45,7 @@ describe("formatBuildSummary", () => {
             cssBytes: 1024,
             jsBytes: 2048,
             islandPages: 1,
-            islands: { DemoWidget: 1, TableOfContents: 1 },
+            islands: { DemoWidget: 1 },
             largestFiles: [
                 { label: "HTML", path: "articles/post.html", bytes: 4096 },
             ],
@@ -54,7 +54,7 @@ describe("formatBuildSummary", () => {
         assert.match(report, /pages 10 total, 6 articles, 6 feed entries/);
         assert.match(report, /assets CSS 1\.0 KiB, JS 2\.0 KiB/);
         assert.match(report, /images 2 source → 6 output files/);
-        assert.match(report, /islands 1 page, DemoWidget×1, TableOfContents×1/);
+        assert.match(report, /islands 1 page, DemoWidget×1/);
         assert.match(report, /HTML\s+4\.0 KiB\s+articles\/post\.html/);
     });
 });

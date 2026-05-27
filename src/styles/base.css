@@ -39,6 +39,7 @@
         letter-spacing: -0.02em;
         font-feature-settings: "liga" 1, "kern" 1, "swsh" 1;
         margin-block-end: var(--space-3);
+        text-wrap: balance;
     }
 
     h2 {
@@ -49,6 +50,7 @@
         letter-spacing: -0.01em;
         margin-block-start: var(--space-6);
         margin-block-end: var(--space-2);
+        text-wrap: balance;
     }
 
     h3 {
@@ -59,6 +61,7 @@
         letter-spacing: 0.04em;
         margin-block-start: var(--space-4);
         margin-block-end: var(--space-1);
+        text-wrap: balance;
     }
 
     :is(h2, h3) > a[aria-hidden="true"] {
@@ -81,6 +84,7 @@
         max-width: var(--layout-content-width);
         hanging-punctuation: first last;
         hyphens: auto;
+        text-wrap: pretty;
 
         & + p { margin-block-start: var(--space-2); }
     }

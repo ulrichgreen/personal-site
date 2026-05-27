@@ -45,6 +45,12 @@ interface PictureProps {
      * Signals to the browser to prioritise this fetch.
      */
     fetchPriority?: "high" | "low" | "auto";
+    /**
+     * Responsive image slot size. Defaults to full viewport width so future
+     * responsive srcset variants can be selected conservatively unless a
+     * narrower layout gives callers a better value.
+     */
+    sizes?: string;
     className?: string;
 }
 
@@ -57,6 +63,7 @@ export function Picture({
     height,
     loading = "eager",
     fetchPriority,
+    sizes = "100vw",
     className,
 }: PictureProps) {
     return (
@@ -71,6 +78,7 @@ export function Picture({
                 loading={loading}
                 decoding="async"
                 fetchPriority={fetchPriority}
+                sizes={sizes}
             />
         </picture>
     );

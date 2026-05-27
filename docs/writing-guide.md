@@ -75,7 +75,7 @@ Available `type` values are `note`, `warning`, and `tip`.
 
 ### `TableOfContents`
 
-Opt in on longer pages when an "On this page" jump list will help. The build extracts `h2` and `h3` headings automatically; the component renders a collapsed CTA that expands as an island on click.
+Opt in on longer pages when an "On this page" jump list will help. The build extracts `h2` and `h3` headings automatically; the component renders static sticky markup with anchors to those page headers.
 
 ```mdx
 <TableOfContents />

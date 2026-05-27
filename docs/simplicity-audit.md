@@ -20,6 +20,8 @@ The site is already unusually restrained for a custom static site: static output
 
 This is the highest-leverage area for making the site feel like a technical marvel of restraint.
 
+**Progress:** Implemented the first browser-default quick wins: balanced heading wraps, prettier prose wraps, document color-scheme support, and default image `sizes` output.
+
 **Current strengths**
 
 - `src/styles/style.css` already uses a clean layer order.
@@ -49,10 +51,11 @@ A smaller CSS system that reads like: reset lightly, define tokens, style semant
 
 The site works well without a framework, but a few interactions still ask JavaScript to solve problems the browser can mostly solve.
 
+**Progress:** Table of contents no longer hydrates as an island. It now renders as sticky static markup with anchors to the extracted page headings.
+
 **Files to revisit**
 
 - `src/components/table-of-contents/table-of-contents.tsx`
-- `src/components/table-of-contents/table-of-contents.client.tsx`
 - `src/client/enhancements.ts`
 - `src/components/code/code.tsx`
 - `src/components/demo-widget/demo-widget.tsx`
@@ -60,7 +63,7 @@ The site works well without a framework, but a few interactions still ask JavaSc
 
 **Opportunities**
 
-- Replace the hydrated table-of-contents toggle with native `<details>` and `<summary>`.
+- Continue reducing small interactive controls where static markup or browser primitives are enough.
 - Render the code-copy button in static HTML, disabled or inert by default, then enable it in `src/client/enhancements.ts` when Clipboard API support exists.
 - Use normal footnote links and CSS `:target` as the baseline; layer margin-note behavior on top only where useful.
 - Give dynamically inserted notes `aria-live="polite"` or avoid dynamic insertion where static markup can work.

@@ -1,5 +1,4 @@
 import { useRenderContext } from "../../context/render-context.tsx";
-import { Island } from "../../islands/island.tsx";
 
 export function TableOfContents() {
     const { headings } = useRenderContext();
@@ -8,10 +7,28 @@ export function TableOfContents() {
     }
 
     return (
-        <Island
-            name="TableOfContents"
-            props={{ headings }}
-            hydrate="interaction"
-        />
+        <aside className="table-of-contents card semi-bleed">
+            <h2 className="table-of-contents__heading label">On this page</h2>
+            <nav
+                className="table-of-contents__nav"
+                aria-label="Table of contents"
+            >
+                <ol className="table-of-contents__list">
+                    {headings.map((heading) => (
+                        <li
+                            key={heading.id}
+                            className={`table-of-contents__item table-of-contents__item--level-${heading.level}`}
+                        >
+                            <a
+                                className="table-of-contents__link body-sm"
+                                href={`#${heading.id}`}
+                            >
+                                {heading.text}
+                            </a>
+                        </li>
+                    ))}
+                </ol>
+            </nav>
+        </aside>
     );
 }
