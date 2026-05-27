@@ -1,5 +1,4 @@
 import type { Revision } from "../../types/content.ts";
-import styles from "./revision-history.module.css";
 
 function formatDate(value: string): string {
     const date = new Date(value);
@@ -22,20 +21,20 @@ function safeISODate(value: string): string {
 export function RevisionHistory({ revisions }: { revisions: Revision[] }) {
     return (
         <aside
-            className={`section ${styles.root}`}
+            className="section revision-history"
             aria-label="Revision history"
         >
-            <p className={`${styles.heading} label`}>Revisions</p>
-            <ol className={styles.list}>
+            <p className="revision-history__heading label">Revisions</p>
+            <ol className="revision-history__list">
                 {revisions.map((revision) => (
-                    <li key={revision.date} className={styles.entry}>
+                    <li key={revision.date} className="revision-history__entry">
                         <time
                             className="label"
                             dateTime={safeISODate(revision.date)}
                         >
                             {formatDate(revision.date)}
                         </time>
-                        <p className={`${styles.note} caption`}>
+                        <p className="revision-history__note caption">
                             {revision.note}
                         </p>
                     </li>

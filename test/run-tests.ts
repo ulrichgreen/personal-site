@@ -5,11 +5,10 @@ import { buildAll } from "../src/build/build.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const nodeBin = process.execPath;
-const cssModuleHook = resolve(root, "src/build/register-css-modules.ts");
 const skipBuild = process.argv.includes("--skip-build");
 
 function nodeArgs(args: string[]): string[] {
-    return ["--import", "tsx", "--import", cssModuleHook, ...args];
+    return ["--import", "tsx", ...args];
 }
 
 // Integration verifiers (each is a standalone script with its own output)

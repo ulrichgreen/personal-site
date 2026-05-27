@@ -91,18 +91,20 @@ async function main() {
         "Accent dark-mode text should meet WCAG AA contrast.",
     );
 
-    const siteHeaderPath = new URL(
-        "../src/components/site-header/site-header.module.css",
+    const componentsCssPath = new URL(
+        "../src/styles/components.css",
         import.meta.url,
     ).pathname;
-    const siteHeaderCss = readFileSync(siteHeaderPath, "utf8");
+    const componentsCss = readFileSync(componentsCssPath, "utf8");
     const mobileBlock = extractBlock(
-        siteHeaderCss,
-        /@media \(max-width: 820px\)\s*\{([\s\S]*)\}\s*\}\s*$/,
+        componentsCss,
+        /@media \(max-width: 820px\)\s*\{([\s\S]*?)\n\s*\}\n\n\s*@media \(prefers-reduced-motion: reduce\)/,
         "mobile site-header",
     );
 
-    const mobileNavMatch = mobileBlock.match(/\.nav\s*\{([\s\S]*?)\n\s*\}/);
+    const mobileNavMatch = mobileBlock.match(
+        /\.site-nav\s*\{([\s\S]*?)\n\s*\}/,
+    );
     assert(mobileNavMatch?.[1], "Could not find small-screen nav styles.");
     assert(
         !/display:\s*none;/.test(mobileNavMatch[1]),

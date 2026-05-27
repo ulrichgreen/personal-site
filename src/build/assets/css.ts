@@ -4,7 +4,6 @@ import { BROWSER_TARGETS } from "../../config.ts";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { distDirectory } from "../shared/paths.ts";
-import { buildCssModuleBundle } from "../../styles/css-modules.ts";
 
 const source = new URL("../../styles/style.css", import.meta.url).pathname;
 const destination = join(distDirectory, "style.css");
@@ -25,12 +24,7 @@ export async function buildCss(): Promise<void> {
         },
     });
 
-    const cssModules = buildCssModuleBundle();
-    const stylesheet = [Buffer.from(code).toString("utf8"), cssModules]
-        .filter(Boolean)
-        .join("\n");
-
-    writeFileSync(destination, stylesheet);
+    writeFileSync(destination, Buffer.from(code).toString("utf8"));
 
     for (const file of readdirSync(fontsDir).filter((f) =>
         f.endsWith(".woff2"),

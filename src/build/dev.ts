@@ -129,7 +129,6 @@ export function resolveDevServerFilePath(
 
 function classifyChange(changedPath: string): RebuildKind {
     if (changedPath.startsWith("content")) return "content";
-    if (changedPath.endsWith(".module.css")) return "full";
     if (
         changedPath.startsWith("src/styles") ||
         changedPath.startsWith("src/fonts")
@@ -173,8 +172,6 @@ function runFreshBuild(mode: FreshBuildMode): Promise<void> {
             [
                 "--import",
                 "tsx",
-                "--import",
-                "./src/build/register-css-modules.ts",
                 scriptPath,
                 ...scriptArgs,
             ],

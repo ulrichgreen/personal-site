@@ -1,5 +1,4 @@
 import type { ReactNode } from "preact/compat";
-import styles from "./callout.module.css";
 
 type CalloutType = "note" | "warning" | "tip";
 
@@ -11,8 +10,8 @@ const calloutLabels: Record<CalloutType, string> = {
 
 const variantClasses: Record<CalloutType, string> = {
     note: "",
-    warning: styles.warning,
-    tip: styles.tip,
+    warning: "callout--warning",
+    tip: "callout--tip",
 };
 
 interface CalloutProps {
@@ -24,10 +23,10 @@ export function Callout({ type = "note", children }: CalloutProps) {
     const variant = variantClasses[type];
     return (
         <aside
-            className={`${styles.root}${variant ? ` ${variant}` : ""} card semi-bleed`}
+            className={`callout${variant ? ` ${variant}` : ""} card semi-bleed`}
             aria-label={`${calloutLabels[type]} callout`}
         >
-            <p className={`${styles.label} label`}>{calloutLabels[type]}</p>
+            <p className="callout__label label">{calloutLabels[type]}</p>
             <div className="body-md">{children}</div>
         </aside>
     );

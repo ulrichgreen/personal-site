@@ -1,4 +1,3 @@
-import styles from "./hero.module.css";
 import { Picture } from "../picture.tsx";
 
 interface HeroPortrait {
@@ -32,10 +31,10 @@ export function Hero({
     portrait,
 }: HeroProps) {
     const hasPortrait = Boolean(portrait?.src);
-    const sectionClasses = ["section", "header", styles.hero];
+    const sectionClasses = ["section", "header", "hero"];
 
     if (hasPortrait) {
-        sectionClasses.push(styles.hasPortrait);
+        sectionClasses.push("hero--with-portrait");
     }
 
     return (
@@ -44,22 +43,22 @@ export function Hero({
             aria-labelledby="hero-name"
         >
             <p
-                className={`${styles.kicker} header__eyebrow label`}
+                className="hero__kicker header__eyebrow label"
                 aria-hidden="true"
             >
                 Product engineer & designer
             </p>
 
-            <div className={styles.body}>
+            <div className="hero__body">
                 <h1
-                    className={`${styles.name} title heading-display`}
+                    className="hero__name title heading-display"
                     id="hero-name"
                 >
                     Ulrich <em>Green</em>
                 </h1>
 
                 {hasPortrait && portrait && (
-                    <div className={styles.portrait} aria-hidden="true">
+                    <div className="hero__portrait" aria-hidden="true">
                         <Picture
                             src={portrait.src}
                             srcWebp={portrait.srcWebp}
@@ -75,24 +74,24 @@ export function Hero({
             </div>
 
             <div
-                className={`${styles.rule} header__rule`}
+                className="hero__rule header__rule"
                 role="presentation"
             />
 
-            <p className={`${styles.tagline} lede`}>
+            <p className="hero__tagline lede">
                 <span className="body-lg">{tagline}</span>
             </p>
 
             <p
-                className={`${styles.meta} header__meta label`}
+                className="hero__meta header__meta label"
                 aria-label="About"
             >
                 <span>London</span>
-                <span className={styles.metaDot} aria-hidden="true">
+                <span className="hero__meta-dot" aria-hidden="true">
                     ·
                 </span>
                 <span>ulrich.green</span>
-                <span className={styles.metaDot} aria-hidden="true">
+                <span className="hero__meta-dot" aria-hidden="true">
                     ·
                 </span>
                 <span>

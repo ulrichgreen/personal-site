@@ -1,4 +1,3 @@
-import styles from "./article-header.module.css";
 
 function formatDate(value?: string): string {
     if (!value) return "";
@@ -82,7 +81,7 @@ export function ArticleHeader({
         .join(" · ");
 
     return (
-        <header className={`section header ${styles.root}`}>
+        <header className="section header article-header">
             <p className="header__eyebrow label">
                 <span>{kickerSection}</span>
                 <span>{kickerType || "Article"}</span>
@@ -100,7 +99,7 @@ export function ArticleHeader({
             <div className="header__rule" aria-hidden="true"></div>
             <div className="header__meta">
                 {publishedDate && (
-                    <p className={styles.byline}>
+                    <p className="article-header__byline">
                         <span className="label">Published</span>
                         <strong className="body-sm">
                             <time dateTime={publishedIso}>{publishedDate}</time>
@@ -108,7 +107,7 @@ export function ArticleHeader({
                     </p>
                 )}
                 {revisedDate && (
-                    <p className={styles.byline}>
+                    <p className="article-header__byline">
                         <span className="label">Revised</span>
                         <strong className="body-sm">
                             <time dateTime={revisedIso}>{revisedDate}</time>
@@ -116,7 +115,7 @@ export function ArticleHeader({
                     </p>
                 )}
                 {lengthLabel && (
-                    <p className={styles.byline}>
+                    <p className="article-header__byline">
                         <span className="label">Length</span>
                         <strong className="body-sm">{lengthLabel}</strong>
                     </p>
@@ -127,7 +126,7 @@ export function ArticleHeader({
                     </p>
                 )}
             </div>
-            {note && <p className={`${styles.note} caption`}>{note}</p>}
+            {note && <p className="article-header__note caption">{note}</p>}
         </header>
     );
 }

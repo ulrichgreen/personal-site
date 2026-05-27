@@ -1,6 +1,5 @@
 import type { ReactNode } from "preact/compat";
 import { Picture } from "../picture.tsx";
-import styles from "./figure.module.css";
 
 interface FigureProps {
     src: string;
@@ -23,7 +22,7 @@ function deriveVariant(
 
 export function Figure({ src, alt, caption, width, height }: FigureProps) {
     return (
-        <figure className={`${styles.root} semi-bleed`}>
+        <figure className="figure semi-bleed">
             <Picture
                 src={src}
                 srcWebp={deriveVariant(src, ".webp")}
@@ -34,7 +33,7 @@ export function Figure({ src, alt, caption, width, height }: FigureProps) {
                 loading="lazy"
             />
             {caption && (
-                <figcaption className={`${styles.caption} caption`}>
+                <figcaption className="figure__caption caption">
                     {caption}
                 </figcaption>
             )}
