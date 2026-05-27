@@ -1,7 +1,6 @@
 import { getArticleTitleTransitionName } from "../article-header/article-header.tsx";
 import { useRenderContext } from "../../context/render-context.tsx";
 import type { ArticleIndexEntry } from "../../types/content.ts";
-import styles from "./article-list.module.css";
 
 function formatDate(value: string): string {
     return new Date(value).toLocaleDateString("en-US", {
@@ -70,9 +69,9 @@ function EntryItem({ entry }: { entry: ArticleIndexEntry }) {
     const titleTransitionName = getArticleTitleTransitionName(entry.slug);
 
     return (
-        <li className={styles.item}>
+        <li className="article-list__item">
             <a
-                className={`${styles.link} heading-md`}
+                className="article-list__link heading-md"
                 href={entry.href}
                 style={
                     titleTransitionName
@@ -83,7 +82,7 @@ function EntryItem({ entry }: { entry: ArticleIndexEntry }) {
                 {entry.title}
             </a>
             {entry.description && (
-                <p className={`${styles.summary} body-sm`}>
+                <p className="article-list__summary body-sm">
                     {entry.description}
                 </p>
             )}
@@ -100,20 +99,20 @@ export function ArticleList({ items }: { items?: ArticleIndexEntry[] }) {
     const yearGroups = groupByYear(entries);
 
     return (
-        <div className={`section ${styles.root}`}>
+        <div className="section article-list">
             {yearGroups.map((group) => (
-                <section key={group.year} className={styles.yearGroup}>
-                    <h3 className={`${styles.yearHeading} label`}>
+                <section key={group.year} className="article-list__year-group">
+                    <h3 className="article-list__year-heading label">
                         {group.year}
                     </h3>
-                    <ul className={styles.entries}>
+                    <ul className="article-list__entries">
                         {group.seriesOrder.map((seriesName) => {
                             const seriesEntries =
                                 group.series.get(seriesName) ?? [];
                             return [
                                 <li
                                     key={`series-${seriesName}`}
-                                    className={`${styles.seriesLabel} label`}
+                                    className="article-list__series-label label"
                                 >
                                     Series · {seriesName}
                                 </li>,

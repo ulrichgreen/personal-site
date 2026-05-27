@@ -1,4 +1,3 @@
-import styles from "./page-header.module.css";
 
 interface PageHeaderProps {
     title?: string;
@@ -7,12 +6,12 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, section }: PageHeaderProps) {
     return (
-        <div className={styles.pageHeader}>
+        <div className="page-header">
             {section && (
-                <span className={`${styles.section} label`}>{section}</span>
+                <span className="page-header__section label">{section}</span>
             )}
-            <span className={`${styles.title} body-sm`}>{title}</span>
-            <nav className={`${styles.nav} body-sm`} aria-label="Article">
+            <span className="page-header__title body-sm">{title}</span>
+            <nav className="page-header__nav body-sm" aria-label="Article">
                 <a href="/index.html">← All articles</a>
             </nav>
         </div>

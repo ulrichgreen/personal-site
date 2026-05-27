@@ -1,5 +1,4 @@
 import type { SeriesInfo } from "../../types/content.ts";
-import styles from "./series-nav.module.css";
 
 export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
     const { name, entries, currentOrder } = seriesInfo;
@@ -14,18 +13,18 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
 
     return (
         <nav
-            className={`section semi-bleed card ${styles.root}`}
+            className="section semi-bleed card series-nav"
             aria-label={`${name} series navigation`}
         >
-            <div className={styles.header}>
+            <div className="series-nav__header">
                 <p className="label">Series</p>
-                <p className={`${styles.seriesTitle} heading-sm`}>{name}</p>
-                <p className={`${styles.progress} label`}>
+                <p className="series-nav__title heading-sm">{name}</p>
+                <p className="series-nav__progress label">
                     Part {current} of {total}
                 </p>
             </div>
             <div
-                className={styles.track}
+                className="series-nav__track"
                 role="progressbar"
                 aria-valuenow={current}
                 aria-valuemin={1}
@@ -33,11 +32,11 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
                 aria-label={`Part ${current} of ${total}`}
             >
                 <div
-                    className={styles.fill}
+                    className="series-nav__fill"
                     style={{ width: `${(current / total) * 100}%` }}
                 />
             </div>
-            <ol className={styles.list}>
+            <ol className="series-nav__list">
                 {entries.map((entry, index) => {
                     const isCurrent = entry.order === currentOrder;
                     return (
@@ -45,23 +44,23 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
                             key={entry.slug}
                             className={
                                 isCurrent
-                                    ? `${styles.item} ${styles.itemCurrent}`
-                                    : styles.item
+                                    ? "series-nav__item series-nav__item--current"
+                                    : "series-nav__item"
                             }
                         >
-                            <span className={`${styles.ordinal} label`}>
+                            <span className="series-nav__ordinal label">
                                 {String(index + 1).padStart(2, "0")}
                             </span>
                             {isCurrent ? (
                                 <span
-                                    className={`${styles.link} ${styles.linkCurrent} body-sm`}
+                                    className="series-nav__link series-nav__link--current body-sm"
                                     aria-current="page"
                                 >
                                     {entry.title}
                                 </span>
                             ) : (
                                 <a
-                                    className={`${styles.link} body-sm`}
+                                    className="series-nav__link body-sm"
                                     href={entry.href}
                                 >
                                     {entry.title}
@@ -72,16 +71,16 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
                 })}
             </ol>
             {(prev || next) && (
-                <div className={styles.arrows}>
+                <div className="series-nav__arrows">
                     {prev ? (
-                        <a className={`${styles.prev} label`} href={prev.href}>
+                        <a className="series-nav__prev label" href={prev.href}>
                             ← {prev.title}
                         </a>
                     ) : (
                         <span />
                     )}
                     {next ? (
-                        <a className={`${styles.next} label`} href={next.href}>
+                        <a className="series-nav__next label" href={next.href}>
                             {next.title} →
                         </a>
                     ) : (

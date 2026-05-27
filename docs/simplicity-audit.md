@@ -31,7 +31,6 @@ This is the highest-leverage area for making the site feel like a technical marv
 
 **Opportunities**
 
-- Reconsider the global reset in `src/styles/reset.css`. It currently removes all margin, padding, and list styles. A more browser-default-friendly reset could preserve native document rhythm and only neutralize styles in components that need it.
 - Apply `text-wrap: balance` to headings and `text-wrap: pretty` to long prose defaults in `src/styles/base.css`, not just selected components.
 - Convert mixed fixed and fluid type tokens in `src/styles/tokens.css` into a smaller fluid type scale.
 - Convert line-height tokens from mixed pixel/unitless values to semantic unitless values.
@@ -72,30 +71,7 @@ The site works well without a framework, but a few interactions still ask JavaSc
 
 The browser provides disclosure, navigation, focus, and fallback behavior. JavaScript becomes a small enhancement layer instead of the owner of simple UI state.
 
-### 3. CSS modules and component styling: remove machinery or make it justify itself
-
-The component co-location pattern is clear, but its support system is comparatively heavy.
-
-**Files to revisit**
-
-- `src/styles/css-modules.ts`
-- `src/build/register-css-modules.ts`
-- `src/build/assets/css.ts`
-- component `*.module.css` files
-- repeated `--import ./src/build/register-css-modules.ts` in `package.json`
-
-**Opportunities**
-
-- Decide whether CSS modules are worth the custom Node hook and temporary module generation.
-- If not, move component styles into global layer files with disciplined names and delete the hook system.
-- If yes, centralize command setup so package scripts do not repeat the CSS-module registration incantation.
-- Avoid creating CSS modules for trivial components with little component-specific styling.
-
-**Candidate outcome**
-
-Either a simpler global CSS architecture, or a cleaner CSS-module pipeline with less command-level noise. The decision should be explicit because this is one of the few places where local elegance currently creates system complexity.
-
-### 4. Content metadata: one source of truth for derived data
+### 3. Content metadata: one source of truth for derived data
 
 The content model is strong, but several metadata fields and derivations can be simplified.
 
@@ -127,7 +103,7 @@ The content model is strong, but several metadata fields and derivations can be 
 
 Authored metadata stays minimal. Derived metadata is built once, close to the content pipeline, then passed forward as read-only data.
 
-### 5. Render data flow: reduce context and prop ceremony
+### 4. Render data flow: reduce context and prop ceremony
 
 The render layer is readable, but static data moves through a context abstraction that may be more powerful than needed.
 
@@ -152,7 +128,7 @@ The render layer is readable, but static data moves through a context abstractio
 
 The render path becomes a plain function from compiled content and metadata to HTML. Context remains only if it solves a concrete problem that props cannot solve cleanly.
 
-### 6. Islands: simplify declaration, registration, and hydration strategy
+### 5. Islands: simplify declaration, registration, and hydration strategy
 
 The island system is small, but wrapper components and duplicated strategy strings create avoidable ceremony.
 
@@ -176,7 +152,7 @@ The island system is small, but wrapper components and duplicated strategy strin
 
 Interactive components become rare, obvious, and cheap to reason about. A page with no true interactivity should not pay conceptual cost for islands.
 
-### 7. Build pipeline: consolidate orchestration without hiding it
+### 6. Build pipeline: consolidate orchestration without hiding it
 
 The custom build is thoughtfully organized, but there are many small orchestration files for a simple site.
 
@@ -204,7 +180,7 @@ The custom build is thoughtfully organized, but there are many small orchestrati
 
 The build remains custom and legible, but future readers encounter fewer orchestration concepts.
 
-### 8. Tests and validation: keep the no-framework advantage, reduce custom glue
+### 7. Tests and validation: keep the no-framework advantage, reduce custom glue
 
 The project uses Node's built-in test runner, which fits the site's low-tooling posture. The custom runner and scattered verification model are the parts to inspect.
 
@@ -227,7 +203,7 @@ The project uses Node's built-in test runner, which fits the site's low-tooling 
 
 Validation remains boring: typecheck, build, test. Any test infrastructure that exists should make that sequence clearer rather than more abstract.
 
-### 9. Configuration: make constants boring and singular
+### 8. Configuration: make constants boring and singular
 
 There is little configuration overall, which is good. The goal is to remove duplication and magic numbers, not add a config framework.
 
@@ -237,7 +213,6 @@ There is little configuration overall, which is good. The goal is to remove dupl
 - `src/config.ts`
 - `src/build/dev.ts`
 - `src/build/assets/css.ts`
-- `src/styles/css-modules.ts`
 
 **Opportunities**
 
@@ -250,7 +225,7 @@ There is little configuration overall, which is good. The goal is to remove dupl
 
 Configuration stays a short TypeScript object with no mystery values scattered across the build.
 
-### 10. Repository cleanup and documentation hygiene
+### 9. Repository cleanup and documentation hygiene
 
 The docs are strong, but the repository contains a few signs of transitional work.
 
@@ -278,14 +253,13 @@ Docs remain a map, not a junk drawer. Aspirational work lives here until a futur
 
 1. Styling and browser defaults.
 2. Progressive enhancement and accessible interactions.
-3. CSS module strategy.
-4. Content metadata consolidation.
-5. Render data-flow simplification.
-6. Island simplification.
-7. Build orchestration consolidation.
-8. Test runner and validation simplification.
-9. Configuration cleanup.
-10. Repository cleanup and doc follow-through.
+3. Content metadata consolidation.
+4. Render data-flow simplification.
+5. Island simplification.
+6. Build orchestration consolidation.
+7. Test runner and validation simplification.
+8. Configuration cleanup.
+9. Repository cleanup and doc follow-through.
 
 ## Concrete Quick Wins
 
@@ -297,7 +271,6 @@ Docs remain a map, not a junk drawer. Aspirational work lives here until a futur
 - Move author identity to `site.config.ts`.
 - Remove unused `summary` metadata if no content uses it.
 - Delete `.deleted/` if it is not intentionally preserved.
-- Centralize the repeated Node import flags in package scripts.
 
 ## Risks to Avoid
 

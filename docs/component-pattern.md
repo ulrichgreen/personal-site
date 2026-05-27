@@ -1,26 +1,26 @@
 # Component Pattern
 
-This document captures the component structure established by `Hero` and turns it into a repeatable recipe.
+This document captures the component structure used by the site and turns it into a repeatable recipe.
 
 Use it in two situations:
 
-- to convert an existing standalone component into the new colocated structure
+- to convert an existing standalone component into the colocated structure
 - to create new standalone components that should follow the same conventions from the start
 
-The goal is not just folder tidiness. The goal is to make each standalone component legible as a small unit with a clear public entry point, a local style surface, and minimal coupling to the rest of the site.
+The goal is not just folder tidiness. The goal is to make each standalone component legible as a small unit with a clear public entry point, predictable global class names, and minimal coupling to the rest of the site.
 
 ## When To Use This Pattern
 
 Use this pattern for a component when most of the following are true:
 
 - it is a named, reusable UI unit rather than incidental markup inside one template
-- it has enough component-specific styling that keeping those rules in `src/styles/components.css` makes the global stylesheet harder to scan
 - it may grow a few adjacent implementation files over time
 - its public API can be expressed as one exported TSX component
+- it has enough component-specific styling to need a named class surface in `src/styles/components.css`
 
 Do not force this pattern onto every file.
 
-Keep a component as a single `.tsx` file when it is still trivial and has little or no component-specific styling.
+Keep a component as a single `.tsx` file when it is still trivial and can rely on semantic HTML plus shared global classes.
 
 ## Target Shape
 
@@ -30,23 +30,11 @@ For a component named `Hero`, the target structure is:
 src/components/
   hero/
     hero.tsx
-    hero.module.css
-```
-
-The same pattern generalizes to other standalone components:
-
-```text
-src/components/
-  callout/
-    callout.tsx
-    callout.module.css
-
-  figure/
-    figure.tsx
-    figure.module.css
 ```
 
 The folder name should be lowercase and match the component file name.
+
+Component styles live in the global CSS layer files, usually `src/styles/components.css`. Use a predictable prefix that matches the component folder, such as `.hero`, `.hero__body`, and `.hero--with-portrait`.
 
 ## Responsibilities
 
@@ -58,51 +46,49 @@ It should:
 
 - export the component itself
 - define or import the component props
-- import its local CSS module with native CSS-module semantics
-- compose local classes with existing shared utility or structural classes when needed
+- compose semantic component classes with existing shared utility or structural classes when needed
+- keep the markup readable without hiding simple class composition behind helpers
 
 It should not:
 
-- know how CSS-module compilation works
-- reach into global styling infrastructure beyond normal shared classes and tokens
+- import component-specific stylesheets
+- know how CSS is bundled
 - contain unrelated helper code that belongs at a broader layer
 
 In practice, the component file should feel like the clearest possible statement of the component's markup and API.
 
-### `component.module.css`
+### `src/styles/components.css`
 
-This file holds styles that are specific to the component.
+This file holds the site's component layer.
 
 It should contain:
 
-- the component's private class names
-- component-local states or variants
-- component-local animation hookups
-- selectors that only make sense in the context of that component
+- shared component primitives such as `.header`, `.card`, and `.semi-bleed`
+- named component class families such as `.hero`, `.site-nav`, and `.article-list`
+- component states and variants expressed with clear modifiers
+- selectors that are intentionally part of the site's public styling language
 
-It should not become a second global stylesheet.
+It should not become a dumping ground for page-specific one-offs. If a rule is only prose styling, layout scaffolding, typography, code presentation, or motion, keep it in the more specific global stylesheet for that concern.
 
-If a selector is shared across multiple components, move it to the appropriate global stylesheet instead of duplicating it into multiple modules.
-
-## Shared vs Local Styling
+## Shared vs Component Styling
 
 This is the most important judgment call in the pattern.
 
-Keep styles global when they are part of the site's shared language:
+Keep a class shared when it is part of the site's common language:
 
 - shared layout wrappers such as `.section`
 - shared typographic helpers such as `.label`, `.lede`, or `.heading-display`
 - shared editorial header primitives that more than one component uses
 - design tokens, keyframes, or rules that are intentionally site-wide
 
-Keep styles local when they are specific to one component's structure:
+Use a component-prefixed class when the selector is specific to one component's structure:
 
 - internal wrappers such as portrait containers, local body rows, or metadata dots
 - component-specific spacing and arrangement
 - component-specific interaction states
 - animation timing applied only to that component's elements
 
-The pattern is not "everything local". The pattern is "local by default, shared when the class is genuinely part of the common system."
+The pattern is not "everything global and vague". The pattern is "global, named, and disciplined".
 
 ## The Hero Example
 
@@ -111,18 +97,18 @@ The pattern is not "everything local". The pattern is "local by default, shared 
 Its current shape demonstrates the intended split:
 
 - the component entry lives in `src/components/hero/hero.tsx`
-- the component-local styles live in `src/components/hero/hero.module.css`
-- shared editorial header primitives still live in the global stylesheets
+- the component-specific class family lives in `src/styles/components.css`
+- shared editorial header primitives also live in global stylesheets
 
-That means the Hero markup composes both local and shared classes.
+That means the Hero markup composes both component-prefixed and shared classes.
 
 Examples:
 
-- the root section keeps shared structural classes like `section` and `header`, then adds the local Hero root class
-- the kicker keeps shared typography and header layout classes, then adds the local Hero kicker class
-- the rule and metadata row still compose with shared `header__rule` and `header__meta` classes while adding local behavior and spacing
+- the root section keeps shared structural classes like `section` and `header`, then adds `hero`
+- the kicker keeps shared typography and header layout classes, then adds `hero__kicker`
+- the rule and metadata row still compose with shared `header__rule` and `header__meta` classes while adding component-specific behavior and spacing
 
-That composition is intentional. A CSS module should isolate the component's private surface, not block reuse of the site's shared design primitives.
+That composition is intentional. Component-prefixed classes keep the component surface clear without reintroducing a local styling build pipeline.
 
 ## Recipe For Converting An Existing Component
 
@@ -138,10 +124,7 @@ to:
 
 ```text
 src/components/example/example.tsx
-src/components/example/example.module.css
 ```
-
-Do this even if the module CSS file starts nearly empty. The point is to establish the shape once.
 
 ### 2. Move imports to the new location
 
@@ -149,44 +132,40 @@ Update any imports that referenced the old file path.
 
 If the component is exposed to MDX through `src/content-components.tsx`, update that file as part of the same change.
 
-### 3. Add a native CSS-module import
+### 3. Choose a class prefix
 
-Inside the component file, import the module directly:
+Use the component folder name as the class prefix.
 
-```tsx
-import styles from "./example.module.css";
-```
+For `src/components/example/example.tsx`, use names like:
 
-Use `styles.foo` for local classes.
+- `.example`
+- `.example__body`
+- `.example__title`
+- `.example--featured`
 
-Do not add component-specific CSS resolution helpers inside the TSX file.
+Prefer semantic names that describe the component part, not its current visual treatment.
 
-### 4. Separate local selectors from shared selectors
+### 4. Move component rules into the global component layer
 
-Audit the existing global CSS and split it deliberately.
+Add the component's rules to `src/styles/components.css`.
 
-Move into the CSS module:
+Leave in other global CSS files:
 
-- selectors prefixed or scoped to only this component
-- local modifiers and internal wrappers
-- local animation bindings
-
-Leave in global CSS:
-
-- shared primitives used by other components
+- shared primitives used by multiple components
 - utility classes
 - site-wide tokens, keyframes, and layered structure
+- prose, layout, code, print, or motion rules that belong to those concerns
 
-If a selector looks shared but is actually only used once, prefer moving it local unless there is a clear reason to keep it as part of the shared system.
+If a selector looks shared but is actually only used once, prefer a component-prefixed name unless there is a clear reason to keep it as part of the shared system.
 
 ### 5. Preserve composition at the markup level
 
-When a component relies on shared global classes, keep composing them in the JSX rather than copying their behavior into the module.
+When a component relies on shared global classes, keep composing them in the JSX rather than copying their behavior into the component-prefixed class.
 
 That usually means class strings like:
 
 ```tsx
-<p className={`${styles.meta} header__meta label`}>
+<p className="hero__meta header__meta label">
 ```
 
 This is the right pattern when the element needs both the shared baseline behavior and component-specific refinement.
@@ -198,24 +177,24 @@ As you move the component, take the chance to trim accidental complexity.
 Prefer:
 
 - one exported component
-- one local CSS module
+- one clear class prefix
 - small, explicit props
 
 Avoid introducing extra wrapper files, barrels, or variant systems unless the component actually needs them.
 
-### 7. Verify the three layers
+### 7. Verify the rendered output
 
 After conversion, verify:
 
-- TypeScript still accepts the component and its CSS import
-- the CSS bundle still contains the component's compiled styles
-- the rendered HTML still composes the expected shared and local classes
+- TypeScript still accepts the component
+- the CSS bundle still contains the component's global styles
+- the rendered HTML still composes the expected shared and component-prefixed classes
 
 In this repository, the usual checks are:
 
 - `pnpm run typecheck`
-- `pnpm build`
-- `pnpm test`
+- `pnpm run build`
+- `pnpm run test`
 
 ## Recipe For New Components
 
@@ -223,33 +202,32 @@ When building a new standalone component, start with the target shape immediatel
 
 ### Start with the folder
 
-Create the folder and both files first:
+Create the folder and component file first:
 
 ```text
 src/components/new-component/
   new-component.tsx
-  new-component.module.css
 ```
 
 ### Write the TSX around the public API
 
 Define the props first, then write the minimal markup the component actually needs.
 
-Import the local CSS module from the start.
+Use semantic HTML and shared classes before adding component-prefixed classes.
 
-### Keep the CSS local until it proves otherwise
+### Keep CSS global but specific
 
-Begin with local classes in the module.
+Begin with component-prefixed classes in `src/styles/components.css`.
 
-Only move a rule into global CSS when one of these becomes true:
+Only promote a rule into a shared class when one of these becomes true:
 
 - another component needs the same selector-level behavior
 - the rule is clearly part of the site's shared typographic or layout language
-- keeping it local would duplicate design-system logic that already exists globally
+- keeping it component-prefixed would duplicate design-system logic that already exists globally
 
 ### Prefer explicit composition over hidden abstraction
 
-If a component needs shared structure plus local refinement, write both classes in the markup.
+If a component needs shared structure plus component-specific refinement, write both classes in the markup.
 
 Do not invent a new abstraction layer just to avoid a two- or three-class `className`.
 
@@ -260,28 +238,31 @@ Use predictable names.
 - folder: lowercase, usually kebab-case if the component name has multiple words
 - file: match the folder name
 - exported component: PascalCase
-- local CSS classes: short semantic names such as `.root`, `.body`, `.title`, `.meta`, `.media`, `.actions`
+- component classes: prefix with the component name, use element and modifier suffixes when useful
 
-There is no need to preserve old BEM-style names inside a module if simpler local names are clearer.
+Examples:
 
-Inside a CSS module, class names are already scoped. Take advantage of that.
+- `.article-list`
+- `.article-list__item`
+- `.series-nav__link--current`
 
 ## What Not To Do
 
 Avoid these failure modes:
 
-- moving files into folders without moving the component-specific CSS with them
-- turning CSS modules into a dumping ground for rules that should stay shared
-- duplicating shared global styles inside a local module just to reduce class composition in TSX
+- creating component-specific stylesheets or CSS module imports
+- moving files into folders without moving the component-specific CSS into the global component layer
+- using generic global names such as `.root`, `.body`, or `.title`
+- duplicating shared global styles inside component-prefixed classes just to reduce class composition in TSX
 - adding barrels, `index.ts`, or extra indirection for a component that only needs one entry point
 - creating separate pattern exceptions for each component instead of treating this as a default recipe
 
 ## Decision Rule
 
-When unsure whether a rule or a file belongs inside the component folder, ask:
+When unsure whether a rule belongs to a component class family or a shared class, ask:
 
-"Does this primarily exist to express this component, or does it primarily exist to express the site's shared language?"
+"Does this primarily express this component, or does it primarily express the site's shared language?"
 
-If it expresses the component, keep it local.
+If it expresses the component, use the component prefix.
 
-If it expresses the shared language, keep it global.
+If it expresses the shared language, keep it shared.

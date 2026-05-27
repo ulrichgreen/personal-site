@@ -10,6 +10,26 @@ function extractBlock(source: string, pattern: RegExp, label: string) {
     return match[1];
 }
 
+function extractCssBlockAfter(source: string, marker: string, label: string) {
+    const markerIndex = source.indexOf(marker);
+    assert(markerIndex >= 0, `Could not find ${label}.`);
+
+    const openIndex = source.indexOf("{", markerIndex);
+    assert(openIndex >= 0, `Could not find ${label} opening brace.`);
+
+    let depth = 0;
+    for (let index = openIndex; index < source.length; index += 1) {
+        const char = source[index];
+        if (char === "{") depth += 1;
+        if (char === "}") depth -= 1;
+        if (depth === 0) {
+            return source.slice(openIndex + 1, index);
+        }
+    }
+
+    assert.fail(`Could not find ${label} closing brace.`);
+}
+
 function extractColor(block: string, name: string) {
     const match = block.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6});`));
     assert(match?.[1], `Could not find color token --${name}.`);
@@ -91,21 +111,24 @@ async function main() {
         "Accent dark-mode text should meet WCAG AA contrast.",
     );
 
-    const siteHeaderPath = new URL(
-        "../src/components/site-header/site-header.module.css",
+    const componentsCssPath = new URL(
+        "../src/styles/components.css",
         import.meta.url,
     ).pathname;
-    const siteHeaderCss = readFileSync(siteHeaderPath, "utf8");
-    const mobileBlock = extractBlock(
-        siteHeaderCss,
-        /@media \(max-width: 820px\)\s*\{([\s\S]*)\}\s*\}\s*$/,
+    const componentsCss = readFileSync(componentsCssPath, "utf8");
+    const mobileBlock = extractCssBlockAfter(
+        componentsCss,
+        "@media (max-width: 820px)",
         "mobile site-header",
     );
 
-    const mobileNavMatch = mobileBlock.match(/\.nav\s*\{([\s\S]*?)\n\s*\}/);
-    assert(mobileNavMatch?.[1], "Could not find small-screen nav styles.");
+    const mobileNavBlock = extractCssBlockAfter(
+        mobileBlock,
+        ".site-nav",
+        "small-screen nav styles",
+    );
     assert(
-        !/display:\s*none;/.test(mobileNavMatch[1]),
+        !/display:\s*none;/.test(mobileNavBlock),
         "Primary navigation should stay visible on small screens.",
     );
 

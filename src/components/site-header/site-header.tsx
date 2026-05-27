@@ -1,5 +1,4 @@
 import type { CSSProperties } from "preact/compat";
-import styles from "./site-header.module.css";
 
 const LOGO_EXPAND_CHARS = [
     "l",
@@ -18,25 +17,25 @@ const LOGO_EXPAND_CHARS = [
 export function SiteHeader() {
     return (
         <header className="site-header full-bleed">
-            <nav className={`${styles.nav} label`} aria-label="Primary">
-                <div className={styles.navGroup}>
+            <nav className="site-nav label" aria-label="Primary">
+                <div className="site-nav__group">
                     <a href="/index.html">Home</a>
                     <a href="/#articles">Articles</a>
                 </div>
                 <a
                     href="/index.html"
-                    className={`${styles.logo} body-sm mono`}
+                    className="site-logo body-sm mono"
                     aria-label="ulrich.green — home"
                 >
-                    <span aria-hidden="true" className={styles.logoBrace}>
+                    <span aria-hidden="true" className="site-logo__brace">
                         {"{"}
                     </span>
-                    <span className={styles.logoName}>
-                        <span className={styles.logoCore}>u</span>
+                    <span className="site-logo__name">
+                        <span className="site-logo__core">u</span>
                         {LOGO_EXPAND_CHARS.map((char, i) => (
                             <span
                                 key={`${char}-${i}`}
-                                className={styles.logoChar}
+                                className="site-logo__char"
                                 aria-hidden="true"
                                 style={
                                     {
@@ -48,11 +47,11 @@ export function SiteHeader() {
                             </span>
                         ))}
                     </span>
-                    <span aria-hidden="true" className={styles.logoBrace}>
+                    <span aria-hidden="true" className="site-logo__brace">
                         {"}"}
                     </span>
                 </a>
-                <div className={`${styles.navGroup} ${styles.navGroupRight}`}>
+                <div className="site-nav__group site-nav__group--right">
                     <a href="/cv.html">CV</a>
                     <a href="/colophon.html">Colophon</a>
                 </div>
