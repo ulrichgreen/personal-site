@@ -177,6 +177,12 @@
                 transform: translateY(-1px);
             }
 
+            &:disabled {
+                cursor: default;
+                opacity: 0.55;
+                transform: none;
+            }
+
             &[data-state="copied"] { color: var(--color-text-primary); }
             &[data-state="error"]  { color: #a63f29; }
         }

@@ -26,25 +26,22 @@ function bootCodeBlocks() {
         let toolbar = figure.querySelector<HTMLElement>(".code-block__toolbar");
         if (!toolbar) continue;
 
-        let copyButton =
+        const copyButton =
             toolbar.querySelector<HTMLButtonElement>(".code-block__copy");
-        if (!copyButton) {
-            copyButton = document.createElement("button");
-            copyButton.type = "button";
-            copyButton.className = "code-block__copy";
-            copyButton.textContent = "Copy";
-            toolbar.append(copyButton);
-        }
+        if (!copyButton) continue;
 
         copyButton.setAttribute(
             "aria-label",
             `Copy ${language} code to clipboard`,
         );
+        copyButton.dataset.state = "idle";
 
         if (!navigator.clipboard?.writeText) {
             copyButton.disabled = true;
             continue;
         }
+
+        copyButton.disabled = false;
 
         copyButton.addEventListener("click", async () => {
             const source = code.textContent?.replace(/\n$/, "") || "";

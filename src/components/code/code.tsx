@@ -19,6 +19,14 @@ export function Code({ children, language, title }: CodeProps) {
                 <span className="code-block__language">
                     {formatCodeLanguage(language)}
                 </span>
+                <button
+                    className="code-block__copy"
+                    type="button"
+                    aria-label={`Copy ${language || "text"} code to clipboard`}
+                    disabled
+                >
+                    Copy
+                </button>
             </div>
             <pre>
                 <code>{children}</code>

@@ -196,6 +196,19 @@ async function main() {
         "Islands should include the data-hydrate attribute.",
     );
 
+    const scriptingPath = new URL(
+        "../content/articles/on-scripting.mdx",
+        import.meta.url,
+    ).pathname;
+    const scripting = await buildContent(scriptingPath);
+    const scriptingHtml = renderPage(scripting, articleIndex);
+
+    assert(
+        scriptingHtml.includes('class="code-block__copy"') &&
+            scriptingHtml.includes("disabled"),
+        "Code copy controls should be static HTML, disabled until enhanced.",
+    );
+
     assert(
         article.meta.readingTime &&
             /\d+ min read/.test(article.meta.readingTime),
