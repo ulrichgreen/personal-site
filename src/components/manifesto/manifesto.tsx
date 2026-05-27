@@ -1,4 +1,6 @@
 
+import { SITE_AUTHOR } from "../../config.ts";
+
 /**
  * Homepage manifesto block. Renders the site's central statement
  * as three typographic movements: opening declaration, body paragraph,
@@ -13,7 +15,7 @@ export function Manifesto() {
 
             <p className="manifesto__body body-lg">
                 The web never stopped being simple. Under every website: text
-                files. Usually too many. My name is Ulrich Green. I build text
+                files. Usually too many. My name is {SITE_AUTHOR}. I build text
                 files for a living. It's a surprisingly short list of materials.
                 Worth choosing the characters carefully.
             </p>

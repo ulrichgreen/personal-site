@@ -6,7 +6,6 @@ interface SharedMeta {
     title: string;
     description?: string;
     section?: string;
-    summary?: string;
     pagePath?: string;
     words?: number | string;
     readingTime?: string;

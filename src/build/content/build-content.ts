@@ -77,7 +77,7 @@ export function resolveMetaDescription(
     input: FrontmatterPayload,
 ): string | undefined {
     const explicit = collapseWhitespace(
-        String(input.meta.description || input.meta.summary || ""),
+        String(input.meta.description || ""),
     );
 
     if (explicit) {

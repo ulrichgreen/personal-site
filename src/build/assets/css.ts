@@ -1,6 +1,6 @@
 import { bundle } from "lightningcss";
 import { copyFileSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
-import { BROWSER_TARGETS } from "../../config.ts";
+import { LIGHTNING_CSS_TARGET } from "../../config.ts";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { distDirectory } from "../shared/paths.ts";
@@ -17,11 +17,7 @@ export async function buildCss(): Promise<void> {
     const { code } = bundle({
         filename: source,
         minify: true,
-        targets: {
-            chrome: BROWSER_TARGETS.chrome << 16,
-            firefox: BROWSER_TARGETS.firefox << 16,
-            safari: BROWSER_TARGETS.safari << 16,
-        },
+        targets: LIGHTNING_CSS_TARGET,
     });
 
     writeFileSync(destination, Buffer.from(code).toString("utf8"));

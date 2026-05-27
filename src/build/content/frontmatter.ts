@@ -27,7 +27,6 @@ const contentMetaSchema = z
             .union([z.number().positive(), z.string().trim().min(1)])
             .optional(),
         note: z.string().trim().min(1).optional(),
-        summary: z.string().trim().min(1).optional(),
         series: z.string().trim().min(1).optional(),
         seriesOrder: z.number().int().positive().optional(),
         revisions: z.array(revisionSchema).optional(),
@@ -81,7 +80,6 @@ export function parseFrontmatter(
                   layout: "article" as const,
                   description: validated.description,
                   section: validated.section,
-                  summary: validated.summary,
                   published: validated.published!,
                   revised: validated.revised,
                   draft: validated.draft,
@@ -96,7 +94,6 @@ export function parseFrontmatter(
                   layout: "base" as const,
                   description: validated.description,
                   section: validated.section,
-                  summary: validated.summary,
                   published: validated.published,
                   revised: validated.revised,
                   words: validated.words,

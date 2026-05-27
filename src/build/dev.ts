@@ -5,11 +5,11 @@ import http from "node:http";
 import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
+import { DEV_DEBOUNCE_MS, DEV_PORT } from "../config.ts";
 import { buildClient } from "./assets/client.ts";
 import { buildCss } from "./assets/css.ts";
 import { distDirectory } from "./shared/paths.ts";
 
-const PORT = 3009;
 const DIST = distDirectory;
 const MIME: Record<string, string> = {
     ".html": "text/html",
@@ -246,8 +246,6 @@ export function startDevServer(): void {
     let buildQueued = false;
     let buildRunning = false;
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-    const DEBOUNCE_MS = 80;
-
     function reload() {
         wss.clients.forEach((client) => {
             try {
@@ -311,7 +309,7 @@ export function startDevServer(): void {
 
     function debouncedBuild() {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => void runBuild(), DEBOUNCE_MS);
+        debounceTimer = setTimeout(() => void runBuild(), DEV_DEBOUNCE_MS);
     }
 
     chokidar
@@ -324,8 +322,8 @@ export function startDevServer(): void {
 
     void runBuild();
 
-    server.listen(PORT, () =>
-        process.stdout.write(`\n  http://localhost:${PORT}\n\n`),
+    server.listen(DEV_PORT, () =>
+        process.stdout.write(`\n  http://localhost:${DEV_PORT}\n\n`),
     );
 }
 
