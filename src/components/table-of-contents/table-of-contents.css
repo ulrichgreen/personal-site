@@ -1,8 +1,9 @@
 @layer components {
     .table-of-contents {
+        --toc-max-height: calc(100vh - var(--layout-header-height) - (2 * var(--space-2)));
         position: sticky;
         inset-block-start: calc(var(--layout-header-height) + var(--space-2));
-        max-block-size: calc(100vh - var(--layout-header-height) - (2 * var(--space-2)));
+        max-block-size: var(--toc-max-height);
         margin-block: var(--space-4);
         overflow: auto;
     }
