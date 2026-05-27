@@ -6,57 +6,60 @@ import { PageHeader } from "../components/page-header/page-header.tsx";
 import { RevisionHistory } from "../components/revision-history/revision-history.tsx";
 import { SeriesNav } from "../components/series-nav/series-nav.tsx";
 import BaseLayout from "./base.tsx";
-import type { ArticleLayoutProps } from "../types/content.ts";
+import type { ReactNode } from "preact/compat";
+import type { AssetManifest } from "../build/assets/asset-manifest.ts";
+import type { ArticlePageMeta, SeriesInfo } from "../types/content.ts";
+
+interface ArticleLayoutProps {
+    meta: ArticlePageMeta;
+    pagePath: string;
+    assetManifest: AssetManifest;
+    hasIslands: () => boolean;
+    seriesInfo?: SeriesInfo;
+    children?: ReactNode;
+}
 
 export default function ArticleLayout({
-    title,
-    description,
-    section,
+    meta,
     pagePath,
-    published,
-    revised,
-    words,
-    readingTime,
-    note,
-    revisions,
+    assetManifest,
+    hasIslands,
     seriesInfo,
     children,
 }: ArticleLayoutProps) {
     return (
         <BaseLayout
-            title={title}
-            description={description}
-            section={section}
+            meta={meta}
             pagePath={pagePath}
-            published={published}
-            revised={revised}
+            assetManifest={assetManifest}
+            hasIslands={hasIslands}
             mainClassName="page page--article"
             seriesName={seriesInfo?.name}
         >
-            <PageHeader title={title} section={section} />
+            <PageHeader title={meta.title} section={meta.section} />
             <article>
                 <ArticleHeader
-                    title={title}
-                    description={description}
-                    section={section}
+                    title={meta.title}
+                    description={meta.description}
+                    section={meta.section}
                     kickerType={
                         seriesInfo
                             ? `Part ${seriesInfo.currentOrder}`
                             : "Article"
                     }
-                    published={published}
-                    revised={revised}
-                    words={words}
-                    readingTime={readingTime}
-                    note={note}
+                    published={meta.published}
+                    revised={meta.revised}
+                    words={meta.words}
+                    readingTime={meta.readingTime}
+                    note={meta.note}
                     titleTransitionName={getArticleTitleTransitionName(
                         pagePath,
                     )}
                     seriesName={seriesInfo?.name}
                 />
                 <div className="section article-body">{children}</div>
-                {revisions && revisions.length > 0 && (
-                    <RevisionHistory revisions={revisions} />
+                {meta.revisions && meta.revisions.length > 0 && (
+                    <RevisionHistory revisions={meta.revisions} />
                 )}
                 {seriesInfo && <SeriesNav seriesInfo={seriesInfo} />}
                 <footer className="section article-footer label">

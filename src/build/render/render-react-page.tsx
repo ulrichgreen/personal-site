@@ -3,10 +3,9 @@ import { renderToStaticMarkup } from "preact-render-to-string";
 import { getContentComponents } from "../../content-components.tsx";
 import type { BuiltContent, SeriesInfo, ArticleIndexEntry } from "../../types/content.ts";
 import type { RegisterIslandInput } from "../../types/islands.ts";
-import type { AssetManifest } from "../assets/asset-manifest.ts";
+import { devAssetManifest, type AssetManifest } from "../assets/asset-manifest.ts";
 import { renderLayout } from "./layouts.tsx";
 import {
-    defaultAssetManifest,
     RenderContext,
     type RenderContextValue,
 } from "../../context/render-context.tsx";
@@ -29,7 +28,6 @@ function derivePagePath(sourcePath: string): string {
 
 function createRenderContext(
     articleIndex: ArticleIndexEntry[],
-    assetManifest: AssetManifest,
     content: BuiltContent,
 ): {
     context: RenderContextValue;
@@ -50,7 +48,6 @@ function createRenderContext(
             articleIndex,
             headings: content.headings,
             registerIsland,
-            assetManifest,
             hasIslands,
         },
         hasIslands,
@@ -61,9 +58,8 @@ function createRenderContext(
 export function renderContentBody(
     content: BuiltContent,
     articleIndex: ArticleIndexEntry[],
-    assetManifest: AssetManifest = defaultAssetManifest,
 ): string {
-    const { context } = createRenderContext(articleIndex, assetManifest, content);
+    const { context } = createRenderContext(articleIndex, content);
     const body = createElement(content.Content, {
         components: getContentComponents(),
     });
@@ -75,7 +71,7 @@ export function renderContentBody(
 export function renderPage(
     content: BuiltContent,
     articleIndex: ArticleIndexEntry[],
-    assetManifest: AssetManifest = defaultAssetManifest,
+    assetManifest: AssetManifest = devAssetManifest,
     seriesInfo?: SeriesInfo,
 ): string {
     return renderPageWithMetadata(
@@ -89,25 +85,28 @@ export function renderPage(
 export function renderPageWithMetadata(
     content: BuiltContent,
     articleIndex: ArticleIndexEntry[],
-    assetManifest: AssetManifest = defaultAssetManifest,
+    assetManifest: AssetManifest = devAssetManifest,
     seriesInfo?: SeriesInfo,
 ): RenderedPage {
-    const { context, getIslandUsage } = createRenderContext(
+    const { context, hasIslands, getIslandUsage } = createRenderContext(
         articleIndex,
-        assetManifest,
         content,
     );
 
-    const meta = {
-        ...content.meta,
-        pagePath: derivePagePath(content.sourcePath),
-    };
+    const pagePath = derivePagePath(content.sourcePath);
 
     const body = createElement(content.Content, {
         components: getContentComponents(),
     });
 
-    const page = renderLayout(meta, body, seriesInfo);
+    const page = renderLayout(
+        content.meta,
+        pagePath,
+        body,
+        assetManifest,
+        hasIslands,
+        seriesInfo,
+    );
 
     return {
         html: `<!doctype html>\n${renderToStaticMarkup(

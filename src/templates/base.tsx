@@ -1,40 +1,49 @@
-import { useRenderContext } from "../context/render-context.tsx";
 import { SiteHeader } from "../components/site-header/site-header.tsx";
 import { SiteFooter } from "../components/site-footer/site-footer.tsx";
 import { SiteHead } from "../components/site-head.tsx";
-import type { BaseLayoutProps } from "../types/content.ts";
+import type { ReactNode } from "preact/compat";
+import type { AssetManifest } from "../build/assets/asset-manifest.ts";
+import type { PageMeta } from "../types/content.ts";
 
 const speculationRules = JSON.stringify({
     prerender: [{ where: { href_matches: "/*" }, eagerness: "moderate" }],
 });
 
-function IslandsScript() {
-    const { hasIslands, assetManifest } = useRenderContext();
+interface BaseLayoutProps {
+    meta: PageMeta;
+    pagePath: string;
+    assetManifest: AssetManifest;
+    hasIslands: () => boolean;
+    mainClassName?: string;
+    seriesName?: string;
+    children?: ReactNode;
+}
+
+function IslandsScript({
+    assetManifest,
+    hasIslands,
+}: Pick<BaseLayoutProps, "assetManifest" | "hasIslands">) {
     if (!hasIslands()) return null;
     return <script src={`/${assetManifest["islands.js"]}`} defer />;
 }
 
 export default function BaseLayout({
-    title,
-    description,
-    section = "",
+    meta,
     pagePath,
-    published,
-    revised,
+    assetManifest,
+    hasIslands,
     mainClassName = "page",
     seriesName,
     children,
 }: BaseLayoutProps) {
-    const { assetManifest } = useRenderContext();
-
     return (
         <html lang="en">
             <SiteHead
-                title={title}
-                description={description}
+                title={meta.title}
+                description={meta.description}
                 pagePath={pagePath}
-                published={published}
-                revised={revised}
+                published={meta.published}
+                revised={meta.revised}
                 cssHref={`/${assetManifest["style.css"]}`}
                 seriesName={seriesName}
             />
@@ -49,7 +58,10 @@ export default function BaseLayout({
                     <SiteFooter />
                 </main>
                 <script src={`/${assetManifest["site.js"]}`} defer></script>
-                <IslandsScript />
+                <IslandsScript
+                    assetManifest={assetManifest}
+                    hasIslands={hasIslands}
+                />
                 <script
                     type="speculationrules"
                     dangerouslySetInnerHTML={{ __html: speculationRules }}

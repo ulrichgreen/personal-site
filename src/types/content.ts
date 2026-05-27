@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from "preact/compat";
+import type { ComponentType } from "preact/compat";
 
 export type LayoutName = "article" | "base";
 
@@ -6,7 +6,6 @@ interface SharedMeta {
     title: string;
     description?: string;
     section?: string;
-    pagePath?: string;
     words?: number | string;
     readingTime?: string;
     published?: string;
@@ -86,25 +85,4 @@ export interface ArticleIndexEntry extends ArticlePageMeta {
     slug: string;
     href: string;
     sourcePath: string;
-}
-
-export interface BaseLayoutProps {
-    title?: string;
-    description?: string;
-    section?: string;
-    pagePath?: string;
-    published?: string;
-    revised?: string;
-    mainClassName?: string;
-    seriesName?: string;
-    children?: ReactNode;
-}
-
-export interface ArticleLayoutProps extends BaseLayoutProps {
-    published: string;
-    words?: number | string;
-    readingTime?: string;
-    note?: string;
-    revisions?: Revision[];
-    seriesInfo?: SeriesInfo;
 }
