@@ -114,7 +114,7 @@ The content model is strong, but several metadata fields and derivations can be 
 
 **Opportunities**
 
-- Move author/site identity into `site.config.ts`; the author name is currently hardcoded in multiple files.
+- Move author/site identity into `site.config.ts`; the author name is currently hard-coded in multiple files.
 - Remove `summary` if it remains unused in real content and only acts as a fallback for `description`.
 - Do not store `pagePath` as metadata if it can be derived reliably from the source path at render time.
 - Store word count and compute reading time where displayed, or keep both derived together in one metadata builder.
@@ -217,7 +217,7 @@ The project uses Node's built-in test runner, which fits the site's low-tooling 
 
 **Opportunities**
 
-- Decide whether the custom test runner still earns its keep over direct `node --test` usage.
+- Decide whether the custom test runner provides enough value to justify its maintenance overhead over direct `node --test` usage.
 - Keep co-located unit tests if they improve locality, but document the split between unit and output verification.
 - Consider parallel execution only if test time becomes friction.
 - Keep `pnpm run verify` as the single confidence command.
