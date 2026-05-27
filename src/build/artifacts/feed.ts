@@ -1,5 +1,5 @@
 import type { BuiltContent, ArticleIndexEntry } from "../../types/content.ts";
-import { SITE_URL } from "../../config.ts";
+import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from "../../config.ts";
 import { writeDistFile } from "../shared/dist-fs.ts";
 import { renderContentBody } from "../render/render-react-page.tsx";
 
@@ -80,13 +80,13 @@ export async function buildFeed(
     const xml = [
         '<?xml version="1.0" encoding="utf-8"?>',
         '<feed xmlns="http://www.w3.org/2005/Atom">',
-        "  <title>Ulrich Green</title>",
+        `  <title>${escapeXml(SITE_TITLE)}</title>`,
         `  <link href="${SITE_URL}/" />`,
         `  <link rel="self" href="${SITE_URL}/feed.xml" />`,
         `  <id>${SITE_URL}/</id>`,
         `  <updated>${latestDate}</updated>`,
         "  <author>",
-        "    <name>Ulrich Green</name>",
+        `    <name>${escapeXml(SITE_AUTHOR)}</name>`,
         "  </author>",
         ...entries,
         "</feed>",

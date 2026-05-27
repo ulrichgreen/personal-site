@@ -232,6 +232,16 @@ function rehypeCodeBlockChrome() {
                         { className: ["code-block__language"] },
                         [createText(formatCodeLanguage(language))],
                     ),
+                    createElement(
+                        "button",
+                        {
+                            className: ["code-block__copy"],
+                            type: "button",
+                            "aria-label": `Copy ${language} code to clipboard`,
+                            disabled: true,
+                        },
+                        [createText("Copy")],
+                    ),
                 ],
             );
 

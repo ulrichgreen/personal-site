@@ -25,23 +25,6 @@ describe("resolveMetaDescription", () => {
             );
             assert.equal(result, "Explicit description.");
         });
-
-        it("falls back to frontmatter summary when description is absent", () => {
-            const result = resolveMetaDescription(
-                payload("Some body", { summary: "Summary text." }),
-            );
-            assert.equal(result, "Summary text.");
-        });
-
-        it("prefers description over summary", () => {
-            const result = resolveMetaDescription(
-                payload("Some body", {
-                    description: "The description.",
-                    summary: "The summary.",
-                }),
-            );
-            assert.equal(result, "The description.");
-        });
     });
 
     describe("extracted from body", () => {

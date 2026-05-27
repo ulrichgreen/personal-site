@@ -8,7 +8,8 @@ function hydrateIsland(root: HTMLElement): void {
     const name = root.dataset.island;
     if (!name || !(name in islandRegistry)) return;
 
-    const Component = islandRegistry[name as keyof typeof islandRegistry] as ComponentType<any>;
+    const Component = islandRegistry[name as keyof typeof islandRegistry]
+        .component as ComponentType<any>;
     const rawProps = root.getAttribute("data-island-props") || "{}";
 
     let props: Record<string, unknown>;

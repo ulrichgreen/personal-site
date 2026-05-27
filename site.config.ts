@@ -6,17 +6,34 @@ const browserTargets = {
     safari: 17,
 } as const;
 
+function toEsbuildTarget(targets: typeof browserTargets): string[] {
+    return Object.entries(targets).map(([browser, version]) => `${browser}${version}`);
+}
+
+function toLightningCssTarget(targets: typeof browserTargets): Record<keyof typeof browserTargets, number> {
+    return {
+        chrome: targets.chrome << 16,
+        firefox: targets.firefox << 16,
+        safari: targets.safari << 16,
+    };
+}
+
 export const siteConfig = {
     site: {
         url: "https://ulrich.green",
+        title: "Ulrich Green",
+        author: "Ulrich Green",
+        domain: "ulrich.green",
+        locale: "en",
+    },
+    dev: {
+        port: 3009,
+        debounceMs: 80,
     },
     build: {
         browserTargets,
-        esbuildTarget: [
-            `chrome${browserTargets.chrome}`,
-            `firefox${browserTargets.firefox}`,
-            `safari${browserTargets.safari}`,
-        ],
+        esbuildTarget: toEsbuildTarget(browserTargets),
+        lightningCssTarget: toLightningCssTarget(browserTargets),
     },
     performance: {
         budgets: [

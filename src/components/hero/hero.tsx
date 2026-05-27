@@ -1,4 +1,5 @@
 import { Picture } from "../picture.tsx";
+import { SITE_DOMAIN } from "../../config.ts";
 
 interface HeroPortrait {
     /** Path to fallback image (JPEG / SVG). */
@@ -90,7 +91,7 @@ export function Hero({
                 <span className="hero__meta-dot" aria-hidden="true">
                     ·
                 </span>
-                <span>ulrich.green</span>
+                <span>{SITE_DOMAIN}</span>
                 <span className="hero__meta-dot" aria-hidden="true">
                     ·
                 </span>

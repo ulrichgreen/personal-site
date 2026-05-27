@@ -1,4 +1,4 @@
-import { SITE_URL } from "../config.ts";
+import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from "../config.ts";
 
 const OG_IMAGE_URL = `${SITE_URL}/og-image.svg`;
 const LIGHT_THEME_COLOR = "#fffbf4";
@@ -81,7 +81,7 @@ export function SiteHead({
                 crossOrigin="anonymous"
             />
             <link rel="stylesheet" href={cssHref || "/style.css"} />
-            <link rel="alternate" type="application/atom+xml" title="Ulrich Green" href="/feed.xml" />
+            <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href="/feed.xml" />
             {pagePath?.startsWith("/articles/") && (
                 <script
                     type="application/ld+json"
@@ -95,7 +95,7 @@ export function SiteHead({
                             ...(revised && safeISODate(revised) ? { dateModified: safeISODate(revised) } : {}),
                             author: {
                                 "@type": "Person",
-                                name: "Ulrich Green",
+                                name: SITE_AUTHOR,
                                 url: SITE_URL,
                             },
                             ...(seriesName
