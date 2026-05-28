@@ -52,9 +52,8 @@ The writing guide can then point authors to the archetypes instead of documentin
 1. Add archetype files that mirror the valid frontmatter contract.
 2. Keep the examples intentionally minimal.
 3. Update `docs/writing-guide.md` to describe copying an archetype as the preferred starting point.
-4. Remove the creation scripts from `package.json`.
-5. Delete `src/build/tools/create-content.ts`.
-6. Keep validation in the build pipeline as the safety net for malformed frontmatter, duplicate slugs, and invalid series ordering.
+4. After authors have moved to archetypes, apply the implementation removals listed below.
+5. Keep validation in the build pipeline as the safety net for malformed frontmatter, duplicate slugs, and invalid series ordering.
 
 ### What This Can Remove
 
@@ -240,7 +239,7 @@ Build stages would then consume the graph instead of repeatedly deriving overlap
 4. Update validation to operate on the graph.
 5. Update page rendering and ancillary artifact generation to consume graph slices.
 6. Keep the graph immutable after construction, except for clearly separate render output summaries if needed.
-7. Remove older helper functions only after each consumer has moved to the graph.
+7. Remove older helper functions only after each consumer has moved to the graph, using the removal candidates below as the checklist.
 
 ### What This Can Remove
 
