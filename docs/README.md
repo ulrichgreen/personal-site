@@ -12,7 +12,7 @@ This folder holds the project's planning and reference documents. Each file has 
 | `component-pattern.md` | Recipe for structuring standalone components around colocated TSX and CSS modules.                                       |
 | `tooling.md`           | Current tool choices and why they fit.                                                                                   |
 | `simplicity-audit.md`  | Findings from a broad audit of opportunities to simplify architecture, styling, content, tooling, and UX.                |
-| `restraint-implementation-expansion.md` | Expanded implementation outlines for selected restraint-oriented simplification approaches. |
+| `restraint-implementation-approaches.md` | Expanded implementation outlines for selected restraint-oriented simplification approaches. |
 | `writing-guide.md`     | Authoring reference for MDX frontmatter, approved content components, images, series metadata, revisions, footnotes, and content audits. |
 | `roadmap.md`           | Planned work, in rough priority order.                                                                                   |
 | `future-ideas.md`      | Ideas worth remembering but not worth building yet.                                                                      |

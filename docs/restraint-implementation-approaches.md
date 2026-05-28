@@ -1,4 +1,4 @@
-# Restraint Implementation Expansion
+# Restraint Implementation Approaches
 
 This document expands seven alternative approaches for making the site simpler, more restrained, and more elegant without changing its center of gravity: authored text files, static output, inspectable HTML, and a small amount of intentional tooling.
 
@@ -37,7 +37,7 @@ Those commands call `src/build/tools/create-content.ts`, which:
 
 ### Proposed Approach
 
-Create a small `docs/archetypes/` or `content/_archetypes/` folder with plain `.mdx` examples:
+Create a small `docs/archetypes/` folder with plain `.mdx` examples:
 
 - `article.mdx`
 - `page.mdx`
@@ -463,7 +463,7 @@ If all seven approaches are implemented well, the repository could remove or avo
 - tags frontmatter
 - generated tag index pages
 - related-article metadata
-- an `ArticleLink` content component
+- `ArticleLink` content component
 - polyfill dependencies for decorative enhancements
 - more hand-maintained architecture inventory docs
 
@@ -478,4 +478,3 @@ If all seven approaches are implemented well, the repository could remove or avo
 7. Consider the site graph only after smaller derivation cleanups prove the need.
 
 That order starts with documentation and low-risk deletion before attempting larger build data-flow changes.
-
