@@ -145,7 +145,7 @@ Several docs describe implementation surfaces that can drift:
 - `docs/architecture.md` lists approved content components and major folders.
 - `docs/writing-guide.md` lists approved content components.
 - `docs/tooling.md` describes current dependencies.
-- `src/styles/MAPPING.md` manually records typography class mapping.
+- `src/styles/MAPPING.md` manually records which shared typography classes are applied to component elements.
 
 These docs are useful, but repeated implementation inventories become stale unless maintained carefully.
 
@@ -368,7 +368,7 @@ Docs:
 ### Trade-Offs
 
 - Manual curation requires editorial attention.
-- Discovery is less automatic.
+- Reader discovery is less automatic.
 - Some cross-linking consistency relies on the author.
 
 That trade-off matches a personal site where voice and selection are part of the value.
