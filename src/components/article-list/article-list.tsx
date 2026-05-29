@@ -69,9 +69,9 @@ function EntryItem({ entry }: { entry: ArticleIndexEntry }) {
     const titleTransitionName = getArticleTitleTransitionName(entry.slug);
 
     return (
-        <li className="article-list__item">
+        <li>
             <a
-                className="article-list__link heading-md"
+                className="article-link heading-md"
                 href={entry.href}
                 style={
                     titleTransitionName
@@ -81,14 +81,12 @@ function EntryItem({ entry }: { entry: ArticleIndexEntry }) {
             >
                 {entry.title}
             </a>
-            {entry.description && (
-                <p className="article-list__summary body-sm">
-                    {entry.description}
-                </p>
-            )}
             <time className="label" dateTime={isoDate}>
                 {formatDate(entry.published)}
             </time>
+            {entry.description && (
+                <p className="article-summary caption">{entry.description}</p>
+            )}
         </li>
     );
 }
@@ -101,18 +99,16 @@ export function ArticleList({ items }: { items?: ArticleIndexEntry[] }) {
     return (
         <div className="section article-list">
             {yearGroups.map((group) => (
-                <section key={group.year} className="article-list__year-group">
-                    <h3 className="article-list__year-heading label">
-                        {group.year}
-                    </h3>
-                    <ul className="article-list__entries">
+                <section key={group.year} className="article-year">
+                    <h3 className="year-label label">{group.year}</h3>
+                    <ul>
                         {group.seriesOrder.map((seriesName) => {
                             const seriesEntries =
                                 group.series.get(seriesName) ?? [];
                             return [
                                 <li
                                     key={`series-${seriesName}`}
-                                    className="article-list__series-label label"
+                                    className="series-label label"
                                 >
                                     Series · {seriesName}
                                 </li>,

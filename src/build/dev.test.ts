@@ -3,15 +3,15 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, it } from "node:test";
-import { resolveDevServerFilePath } from "./dev.ts";
+import { resolveStaticServerFilePath } from "./serve.ts";
 
-describe("resolveDevServerFilePath", () => {
+describe("resolveStaticServerFilePath", () => {
     it("ignores query strings while resolving files", () => {
         const directory = mkdtempSync(join(tmpdir(), "dev-server-"));
         try {
             writeFileSync(join(directory, "index.html"), "home");
 
-            const result = resolveDevServerFilePath("/?v=1", directory);
+            const result = resolveStaticServerFilePath("/?v=1", directory);
 
             assert.equal(result.status, 200);
             assert.equal(result.filePath, join(directory, "index.html"));
@@ -26,7 +26,7 @@ describe("resolveDevServerFilePath", () => {
             mkdirSync(join(directory, "articles"));
             writeFileSync(join(directory, "articles/index.html"), "articles");
 
-            const result = resolveDevServerFilePath("/articles/", directory);
+            const result = resolveStaticServerFilePath("/articles/", directory);
 
             assert.equal(result.status, 200);
             assert.equal(result.filePath, join(directory, "articles/index.html"));
@@ -39,11 +39,11 @@ describe("resolveDevServerFilePath", () => {
         const directory = mkdtempSync(join(tmpdir(), "dev-server-"));
         try {
             assert.equal(
-                resolveDevServerFilePath("/../package.json", directory).status,
+                resolveStaticServerFilePath("/../package.json", directory).status,
                 400,
             );
             assert.equal(
-                resolveDevServerFilePath("/%2e%2e/package.json", directory).status,
+                resolveStaticServerFilePath("/%2e%2e/package.json", directory).status,
                 400,
             );
         } finally {
@@ -54,7 +54,7 @@ describe("resolveDevServerFilePath", () => {
     it("rejects malformed encoded URLs", () => {
         const directory = mkdtempSync(join(tmpdir(), "dev-server-"));
         try {
-            assert.equal(resolveDevServerFilePath("/%E0%A4%A", directory).status, 400);
+            assert.equal(resolveStaticServerFilePath("/%E0%A4%A", directory).status, 400);
         } finally {
             rmSync(directory, { recursive: true, force: true });
         }

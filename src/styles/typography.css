@@ -5,32 +5,35 @@
         font-size: var(--type-size-display);
         line-height: var(--type-leading-display);
         font-weight: 400;
-        letter-spacing: -0.025em;
+        letter-spacing: var(--tracking-display);
+        text-wrap: balance;
     }
 
     .heading-xl {
-        font-size: var(--type-size-xl);
-        line-height: var(--type-leading-loose);
+        font-size: var(--type-size-2xl);
+        line-height: 1.1;
         font-weight: 400;
-        letter-spacing: -0.02em;
+        letter-spacing: var(--tracking-display);
+        text-wrap: balance;
     }
 
     .heading-lg {
-        font-size: var(--type-size-lg);
-        line-height: var(--type-leading-loose);
+        font-size: var(--type-size-xl);
+        line-height: 1.2;
         font-weight: 400;
-        letter-spacing: -0.01em;
+        letter-spacing: var(--tracking-tight);
     }
 
     .heading-md {
-        font-size: var(--type-size-md);
-        line-height: var(--type-leading-normal);
-        font-weight: 600;
+        font-size: var(--type-size-lg);
+        line-height: 1.25;
+        font-weight: 400;
+        letter-spacing: var(--tracking-tight);
     }
 
     .heading-sm {
-        font-size: var(--type-size-sm);
-        line-height: var(--type-leading-tight);
+        font-size: var(--type-size-md);
+        line-height: 1.35;
         font-weight: 600;
     }
 
@@ -48,26 +51,25 @@
 
     .body-sm {
         font-size: var(--type-size-sm);
-        line-height: var(--type-leading-tight);
+        line-height: var(--type-leading-normal);
         font-weight: 400;
     }
 
     .label {
         font-family: var(--type-family-mono);
         font-size: var(--type-size-2xs);
-        letter-spacing: 0.18em;
+        letter-spacing: var(--tracking-label);
         text-transform: uppercase;
-        color: var(--color-text-secondary);
+        color: var(--color-text-muted);
     }
 
     .caption {
         font-size: var(--type-size-xs);
-        line-height: var(--type-leading-tight);
+        line-height: var(--type-leading-normal);
         color: var(--color-text-secondary);
     }
 
     .mono {
         font-family: var(--type-family-mono);
     }
-
 }

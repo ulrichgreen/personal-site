@@ -11,7 +11,7 @@ import { isArticleMeta } from "../../types/content.ts";
 import {
     buildSeriesMap,
     resolveSeriesInfo,
-} from "../content/series-index.ts";
+} from "../content/article-index.ts";
 
 export interface WrittenPageSummary {
     pageCount: number;
@@ -39,10 +39,10 @@ export function writePages(
         const outputPath = resolveOutputPath(page.sourcePath);
         const seriesInfo = isArticleMeta(page.meta)
             ? resolveSeriesInfo(
-                  page.meta.series,
-                  page.meta.seriesOrder,
-                  seriesMap,
-              )
+                page.meta.series,
+                page.meta.seriesOrder,
+                seriesMap,
+            )
             : undefined;
 
         mkdirSync(dirname(outputPath), { recursive: true });

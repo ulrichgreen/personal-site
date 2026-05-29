@@ -1,32 +1,12 @@
 import chokidar from "chokidar";
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync, statSync } from "node:fs";
-import http from "node:http";
-import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
 import { DEV_DEBOUNCE_MS, DEV_PORT } from "../config.ts";
 import { buildClient } from "./assets/client.ts";
 import { buildCss } from "./assets/css.ts";
-import { distDirectory } from "./shared/paths.ts";
-
-const DIST = distDirectory;
-const MIME: Record<string, string> = {
-    ".html": "text/html",
-    ".css": "text/css",
-    ".js": "application/javascript",
-    ".json": "application/json",
-    ".xml": "application/xml",
-    ".svg": "image/svg+xml",
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".webp": "image/webp",
-    ".avif": "image/avif",
-    ".woff2": "font/woff2",
-    ".woff": "font/woff",
-    ".txt": "text/plain",
-};
+import { rebuildPages } from "./pipeline.ts";
+import { createStaticSiteServer } from "./serve.ts";
 const LIVE_RELOAD_SCRIPT = `<script>
 (() => {
     if (window.__siteLiveReloadSocket) {
@@ -41,91 +21,23 @@ const LIVE_RELOAD_SCRIPT = `<script>
 })();
 </script>`;
 
-const ARTICLE_RENDER_PATH_PREFIXES = [
-    "src/templates/article.tsx",
-    "src/components/article-header/",
-    "src/components/page-header/",
-    "src/components/revision-history/",
-    "src/components/series-nav/",
-];
-
+// Changes under these paths alter rendering/build code, so the in-process
+// module graph is stale and a fresh subprocess is required.
 const RENDER_PATH_PREFIXES = [
     "src/templates/",
     "src/components/",
     "src/content-components.tsx",
     "src/build/render/",
+    "src/build/content/",
+    "src/build/pipeline.ts",
     "src/context/",
     "src/islands/",
     "src/types/",
 ];
 
-type FreshBuildMode = "full" | "content" | "render" | "render-articles";
+type FreshBuildMode = "full" | "render";
 
-type RebuildKind =
-    | "content"
-    | "styles"
-    | "client"
-    | "render"
-    | "render-articles"
-    | "full";
-
-interface DevServerFileResolution {
-    status: 200 | 400 | 404;
-    filePath?: string;
-}
-
-function isInsideDirectory(candidate: string, directory: string): boolean {
-    return candidate.startsWith(directory + sep) || candidate === directory;
-}
-
-export function resolveDevServerFilePath(
-    requestUrl: string | undefined,
-    directory = DIST,
-): DevServerFileResolution {
-    if (!requestUrl) return { status: 400 };
-
-    let pathname: string;
-    try {
-        const decodedRawPath = decodeURIComponent(requestUrl.split(/[?#]/, 1)[0]);
-        if (decodedRawPath.split("/").includes("..")) {
-            return { status: 400 };
-        }
-        pathname = decodeURIComponent(
-            new URL(requestUrl, "http://localhost").pathname,
-        );
-    } catch {
-        return { status: 400 };
-    }
-
-    if (pathname.includes("\0")) return { status: 400 };
-
-    let filePath = resolve(
-        directory,
-        pathname === "/" ? "index.html" : `.${pathname}`,
-    );
-    if (!isInsideDirectory(filePath, directory)) return { status: 400 };
-
-    if (!existsSync(filePath) || !statSync(filePath).isFile()) {
-        const candidate = resolve(directory, `.${pathname}`, "index.html");
-        if (
-            isInsideDirectory(candidate, directory) &&
-            existsSync(candidate) &&
-            statSync(candidate).isFile()
-        ) {
-            filePath = candidate;
-        }
-    }
-
-    if (
-        !existsSync(filePath) ||
-        !statSync(filePath).isFile() ||
-        !isInsideDirectory(filePath, directory)
-    ) {
-        return { status: 404 };
-    }
-
-    return { status: 200, filePath };
-}
+type RebuildKind = "content" | "styles" | "client" | "render" | "full";
 
 function classifyChange(changedPath: string): RebuildKind {
     if (changedPath.startsWith("content")) return "content";
@@ -136,17 +48,7 @@ function classifyChange(changedPath: string): RebuildKind {
         return "styles";
     if (changedPath.startsWith("src/client")) return "client";
 
-    if (
-        ARTICLE_RENDER_PATH_PREFIXES.some((prefix) =>
-            changedPath.startsWith(prefix),
-        )
-    ) {
-        return "render-articles";
-    }
-
-    if (
-        RENDER_PATH_PREFIXES.some((prefix) => changedPath.startsWith(prefix))
-    ) {
+    if (RENDER_PATH_PREFIXES.some((prefix) => changedPath.startsWith(prefix))) {
         return "render";
     }
 
@@ -156,25 +58,11 @@ function classifyChange(changedPath: string): RebuildKind {
 function runFreshBuild(mode: FreshBuildMode): Promise<void> {
     return new Promise((resolve, reject) => {
         const scriptPath =
-            mode === "full"
-                ? "./src/build/build.ts"
-                : mode === "content"
-                  ? "./src/build/dev-content.ts"
-                  : "./src/build/dev-render.ts";
-        const scriptArgs =
-            mode === "full"
-                ? ["--dev"]
-                : mode === "render-articles"
-                  ? ["articles"]
-                  : [];
+            mode === "full" ? "./src/build/build.ts" : "./src/build/pipeline.ts";
+        const scriptArgs = mode === "full" ? ["--dev"] : [];
         const child = spawn(
             process.execPath,
-            [
-                "--import",
-                "tsx",
-                scriptPath,
-                ...scriptArgs,
-            ],
+            ["--import", "tsx", scriptPath, ...scriptArgs],
             {
                 cwd: process.cwd(),
                 stdio: "inherit",
@@ -200,44 +88,9 @@ function runFreshBuild(mode: FreshBuildMode): Promise<void> {
 }
 
 export function startDevServer(): void {
-    const server = http.createServer((req, res) => {
-        const resolved = resolveDevServerFilePath(req.url);
-        if (resolved.status === 400) {
-            res.writeHead(400);
-            res.end("Bad request");
-            return;
-        }
-        if (resolved.status === 404 || !resolved.filePath) {
-            const notFoundPage = join(DIST, "404.html");
-            if (existsSync(notFoundPage)) {
-                let body = readFileSync(notFoundPage);
-                body = Buffer.from(
-                    body
-                        .toString()
-                        .replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`),
-                );
-                res.writeHead(404, { "Content-Type": "text/html" });
-                res.end(body);
-            } else {
-                res.writeHead(404);
-                res.end("Not found");
-            }
-            return;
-        }
-
-        const filePath = resolved.filePath;
-        const mime = MIME[extname(filePath)] || "text/plain";
-        let body = readFileSync(filePath);
-        if (extname(filePath) === ".html") {
-            body = Buffer.from(
-                body
-                    .toString()
-                    .replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`),
-            );
-        }
-
-        res.writeHead(200, { "Content-Type": mime });
-        res.end(body);
+    const server = createStaticSiteServer({
+        transformHtml: (html) =>
+            html.replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`),
     });
 
     const wss = new WebSocketServer({ server });
@@ -245,6 +98,9 @@ export function startDevServer(): void {
     const pendingChanges = new Set<string>();
     let buildQueued = false;
     let buildRunning = false;
+    // Once rendering/build code changes, this long-lived process holds stale
+    // modules, so all later content rebuilds must also use a fresh subprocess.
+    let codeStale = false;
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
     function reload() {
         wss.clients.forEach((client) => {
@@ -274,18 +130,25 @@ export function startDevServer(): void {
                 } else {
                     const kinds = new Set(changedPaths.map(classifyChange));
                     if (kinds.has("full")) {
+                        codeStale = true;
                         await runFreshBuild("full");
                     } else {
                         const tasks: Promise<unknown>[] = [];
                         if (kinds.has("styles")) tasks.push(buildCss());
                         if (kinds.has("client")) tasks.push(buildClient());
-                        if (kinds.has("content")) {
-                            tasks.push(runFreshBuild("content"));
-                        }
                         if (kinds.has("render")) {
+                            // Template/build code changed: rebuild pages in a
+                            // fresh subprocess so updated modules are used.
+                            codeStale = true;
                             tasks.push(runFreshBuild("render"));
-                        } else if (kinds.has("render-articles")) {
-                            tasks.push(runFreshBuild("render-articles"));
+                        } else if (kinds.has("content")) {
+                            // Only MDX changed: rebuild in-process (content is
+                            // read fresh) unless code modules are already stale.
+                            tasks.push(
+                                codeStale
+                                    ? runFreshBuild("render")
+                                    : rebuildPages(),
+                            );
                         }
                         await Promise.all(tasks);
                     }

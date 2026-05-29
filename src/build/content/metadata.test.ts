@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { resolveMetaDescription } from "./build-content.ts";
+import { resolveMetaDescription } from "./metadata.ts";
 import type { FrontmatterPayload, BasePageMeta } from "../../types/content.ts";
 
 function payload(

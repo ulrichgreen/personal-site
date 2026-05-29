@@ -33,7 +33,7 @@ export function Figure({ src, alt, caption, width, height }: FigureProps) {
                 loading="lazy"
             />
             {caption && (
-                <figcaption className="figure__caption caption">
+                <figcaption className="figure-caption caption">
                     {caption}
                 </figcaption>
             )}

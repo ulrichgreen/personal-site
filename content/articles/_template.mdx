@@ -1,0 +1,36 @@
+---
+title: Article Title
+description: One or two sentences summarizing the article. Used for SEO and social previews. If omitted, the first paragraph is used.
+published: 2025-01-01
+# layout is inferred as "article" for files under content/articles/.
+# Optional series fields — uncomment to add this article to a series:
+# series: The Series Name
+# seriesOrder: 1
+# Set to true to keep this article out of the published index:
+# draft: true
+---
+
+Open with a strong lead paragraph. When `description` is omitted, this paragraph
+becomes the meta description, so make it count.
+
+<TableOfContents />
+
+## First Section
+
+Body copy goes here. The following components are available in MDX content
+(registered in `src/content-components.tsx`):
+
+- `<TableOfContents />` — auto-generated from headings
+- `<Callout type="tip">…</Callout>` — also `note`, `warning`
+- `<Figure src="/images/example.png" alt="…" caption="…" />`
+- `<Code language="ts">…</Code>`
+- `<Hero />`, `<ArticleList />`, `<DemoWidget />`, `<Manifesto />`
+
+<Callout type="tip">
+    Delete this template's example content before publishing.
+</Callout>
+
+## Second Section
+
+Continue the article. Headings become table-of-contents entries and get
+anchor links automatically.

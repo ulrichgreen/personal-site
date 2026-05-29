@@ -16,53 +16,38 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
             className="section semi-bleed card series-nav"
             aria-label={`${name} series navigation`}
         >
-            <div className="series-nav__header">
+            <div className="series-head">
                 <p className="label">Series</p>
-                <p className="series-nav__title heading-sm">{name}</p>
-                <p className="series-nav__progress label">
+                <p className="series-name heading-sm">{name}</p>
+                <p className="series-progress label">
                     Part {current} of {total}
                 </p>
             </div>
             <div
-                className="series-nav__track"
+                className="series-track"
                 role="progressbar"
                 aria-valuenow={current}
                 aria-valuemin={1}
                 aria-valuemax={total}
                 aria-label={`Part ${current} of ${total}`}
             >
-                <div
-                    className="series-nav__fill"
-                    style={{ width: `${(current / total) * 100}%` }}
-                />
+                <div style={{ width: `${(current / total) * 100}%` }} />
             </div>
-            <ol className="series-nav__list">
+            <ol className="series-list">
                 {entries.map((entry, index) => {
                     const isCurrent = entry.order === currentOrder;
                     return (
                         <li
                             key={entry.slug}
-                            className={
-                                isCurrent
-                                    ? "series-nav__item series-nav__item--current"
-                                    : "series-nav__item"
-                            }
+                            aria-current={isCurrent ? "page" : undefined}
                         >
-                            <span className="series-nav__ordinal label">
+                            <span className="ord label">
                                 {String(index + 1).padStart(2, "0")}
                             </span>
                             {isCurrent ? (
-                                <span
-                                    className="series-nav__link series-nav__link--current body-sm"
-                                    aria-current="page"
-                                >
-                                    {entry.title}
-                                </span>
+                                <span className="body-sm">{entry.title}</span>
                             ) : (
-                                <a
-                                    className="series-nav__link body-sm"
-                                    href={entry.href}
-                                >
+                                <a className="body-sm" href={entry.href}>
                                     {entry.title}
                                 </a>
                             )}
@@ -71,16 +56,16 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
                 })}
             </ol>
             {(prev || next) && (
-                <div className="series-nav__arrows">
+                <div className="series-arrows label">
                     {prev ? (
-                        <a className="series-nav__prev label" href={prev.href}>
+                        <a className="series-prev" href={prev.href}>
                             ← {prev.title}
                         </a>
                     ) : (
                         <span />
                     )}
                     {next ? (
-                        <a className="series-nav__next label" href={next.href}>
+                        <a className="series-next" href={next.href}>
                             {next.title} →
                         </a>
                     ) : (

@@ -14,36 +14,36 @@ const revisionSchema = z.object({
     note: z.string().trim().min(1),
 });
 
-const contentMetaSchema = z
-    .object({
-        title: z.string().trim().min(1, "title is required"),
-        description: z.string().trim().min(1).optional(),
-        layout: z.enum(["article", "base"]).optional(),
-        section: z.string().trim().min(1).optional(),
-        published: yamlDateString.optional(),
-        revised: yamlDateString.optional(),
-        draft: z.boolean().optional(),
-        words: z
-            .union([z.number().positive(), z.string().trim().min(1)])
-            .optional(),
-        note: z.string().trim().min(1).optional(),
-        series: z.string().trim().min(1).optional(),
-        seriesOrder: z.number().int().positive().optional(),
-        revisions: z.array(revisionSchema).optional(),
-    })
-    .transform((meta) => ({
-        ...meta,
-        layout: (meta.layout ?? "base") as "article" | "base",
-    }))
-    .superRefine((meta, context) => {
-        if (meta.layout === "article" && !meta.published) {
-            context.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "published is required when layout is article",
-                path: ["published"],
-            });
-        }
-    });
+const contentMetaSchema = z.object({
+    title: z.string().trim().min(1, "title is required"),
+    description: z.string().trim().min(1).optional(),
+    layout: z.enum(["article", "base"]).optional(),
+    section: z.string().trim().min(1).optional(),
+    published: yamlDateString.optional(),
+    revised: yamlDateString.optional(),
+    draft: z.boolean().optional(),
+    words: z
+        .union([z.number().positive(), z.string().trim().min(1)])
+        .optional(),
+    note: z.string().trim().min(1).optional(),
+    series: z.string().trim().min(1).optional(),
+    seriesOrder: z.number().int().positive().optional(),
+    revisions: z.array(revisionSchema).optional(),
+});
+
+const ARTICLE_PATH_PATTERN = /(^|\/)articles\/[^/]+\.mdx$/;
+
+/**
+ * Articles live under `content/articles/`, so a file in that directory is an
+ * article by default. Authors only need to write `layout` to override this.
+ */
+function resolveLayout(
+    explicit: "article" | "base" | undefined,
+    filePath: string,
+): "article" | "base" {
+    if (explicit) return explicit;
+    return ARTICLE_PATH_PATTERN.test(filePath) ? "article" : "base";
+}
 
 function formatFrontmatterError(filePath: string, error: z.ZodError): Error {
     const details = error.issues
@@ -73,31 +73,39 @@ export function parseFrontmatter(
     }
 
     const validated = meta.data;
+    const layout = resolveLayout(validated.layout, filePath);
+
+    if (layout === "article" && !validated.published) {
+        throw new Error(
+            `${filePath}: invalid frontmatter\n- published: published is required when layout is article`,
+        );
+    }
+
     const typedMeta: PageMeta =
-        validated.layout === "article"
+        layout === "article"
             ? {
-                  title: validated.title,
-                  layout: "article" as const,
-                  description: validated.description,
-                  section: validated.section,
-                  published: validated.published!,
-                  revised: validated.revised,
-                  draft: validated.draft,
-                  words: validated.words,
-                  note: validated.note,
-                  revisions: validated.revisions,
-                  series: validated.series,
-                  seriesOrder: validated.seriesOrder,
-              }
+                title: validated.title,
+                layout: "article" as const,
+                description: validated.description,
+                section: validated.section,
+                published: validated.published!,
+                revised: validated.revised,
+                draft: validated.draft,
+                words: validated.words,
+                note: validated.note,
+                revisions: validated.revisions,
+                series: validated.series,
+                seriesOrder: validated.seriesOrder,
+            }
             : {
-                  title: validated.title,
-                  layout: "base" as const,
-                  description: validated.description,
-                  section: validated.section,
-                  published: validated.published,
-                  revised: validated.revised,
-                  words: validated.words,
-              };
+                title: validated.title,
+                layout: "base" as const,
+                description: validated.description,
+                section: validated.section,
+                published: validated.published,
+                revised: validated.revised,
+                words: validated.words,
+            };
 
     return {
         meta: typedMeta,

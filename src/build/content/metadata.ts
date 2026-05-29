@@ -1,9 +1,7 @@
-import { readFileSync } from "node:fs";
-import { compileMdx } from "./compile-mdx.ts";
-import { parseFrontmatter } from "./frontmatter.ts";
-import type { BuiltContent, FrontmatterPayload, PageMeta } from "../../types/content.ts";
+import type { FrontmatterPayload, PageMeta } from "../../types/content.ts";
 
 const DESCRIPTION_MAX_LENGTH = 160;
+const WORDS_PER_MINUTE = 238;
 
 function normalizeTitle(value: string): string {
     return value.trim().replace(/\s+/g, " ").toLowerCase();
@@ -73,12 +71,14 @@ function extractDescriptionFromMdx(
     return undefined;
 }
 
+/**
+ * Resolves the meta description, preferring an explicit frontmatter value and
+ * otherwise falling back to the first prose block of the body.
+ */
 export function resolveMetaDescription(
     input: FrontmatterPayload,
 ): string | undefined {
-    const explicit = collapseWhitespace(
-        String(input.meta.description || ""),
-    );
+    const explicit = collapseWhitespace(String(input.meta.description || ""));
 
     if (explicit) {
         return truncateDescription(explicit);
@@ -94,43 +94,47 @@ function computeReadingTime(body: string): {
     wordCount: number;
     readingTime: string;
 } {
-    const text = stripMdxSyntax(body);
-    const words = text.split(/\s+/).filter(Boolean);
+    const words = stripMdxSyntax(body).split(/\s+/).filter(Boolean);
     const count = words.length;
-    const minutes = Math.max(1, Math.round(count / 238));
+    const minutes = Math.max(1, Math.round(count / WORDS_PER_MINUTE));
     return { wordCount: count, readingTime: `${minutes} min read` };
 }
 
-export async function buildContent(filePath: string): Promise<BuiltContent> {
-    const raw = readFileSync(filePath, "utf8");
-    const parsed = parseFrontmatter(raw, filePath);
-    const description = resolveMetaDescription(parsed);
+/**
+ * Derives the `section` from the content directory layout when frontmatter
+ * omits it (e.g. `content/articles/foo.mdx` → `articles`).
+ */
+function deriveSection(
+    explicit: string | undefined,
+    filePath: string,
+): string | undefined {
+    if (explicit) return explicit;
 
-    const { wordCount, readingTime } = computeReadingTime(parsed.body);
-
-    let section = parsed.meta.section;
-    if (!section) {
-        const segments = filePath.split("/");
-        const contentIdx = segments.indexOf("content");
-        if (contentIdx >= 0 && segments.length > contentIdx + 2) {
-            section = segments[contentIdx + 1];
-        }
+    const segments = filePath.split("/");
+    const contentIdx = segments.indexOf("content");
+    if (contentIdx >= 0 && segments.length > contentIdx + 2) {
+        return segments[contentIdx + 1];
     }
+    return undefined;
+}
 
-    const meta: PageMeta = {
+/**
+ * Combines parsed frontmatter with auto-derived metadata (description,
+ * section, word count, and reading time) into the final `PageMeta`.
+ */
+export function resolvePageMeta(
+    parsed: FrontmatterPayload,
+    filePath: string,
+): PageMeta {
+    const description = resolveMetaDescription(parsed);
+    const { wordCount, readingTime } = computeReadingTime(parsed.body);
+    const section = deriveSection(parsed.meta.section, filePath);
+
+    return {
         ...parsed.meta,
         ...(description ? { description } : {}),
         section,
         words: wordCount,
         readingTime,
-    };
-
-    const { Content, headings } = await compileMdx(parsed.body, filePath);
-
-    return {
-        meta,
-        Content,
-        headings,
-        sourcePath: filePath,
     };
 }

@@ -4,9 +4,9 @@ import {
     createContentAudit,
     formatContentAuditReport,
 } from "../content/audit.ts";
-import { compilePages } from "../content/compile-pages.ts";
+import { compilePages } from "../content/compile.ts";
 import { discoverSourceFiles } from "../content/discover.ts";
-import { listArticleEntriesFromBuiltContent } from "../content/article-index.ts";
+import { indexArticles } from "../content/article-index.ts";
 import { validateContentContracts } from "../content/contracts.ts";
 
 export async function auditContent(): Promise<void> {
@@ -20,7 +20,7 @@ export async function auditContent(): Promise<void> {
         throw new Error(`Content audit failed: ${failed.length} page(s) had errors`);
     }
 
-    const articleIndex = listArticleEntriesFromBuiltContent(compiled);
+    const articleIndex = indexArticles(compiled);
     validateContentContracts({ articleIndex, builtContent: compiled });
 
     const sourceTextByPath = new Map(

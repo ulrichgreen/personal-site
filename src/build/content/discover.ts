@@ -7,11 +7,13 @@ import {
 } from "../shared/paths.ts";
 
 export function discoverSourceFiles(): string[] {
+    const isContentFile = (file: string) =>
+        file.endsWith(".mdx") && !file.startsWith("_");
     const topLevelPages = readdirSync(contentDirectory)
-        .filter((file) => file.endsWith(".mdx"))
+        .filter(isContentFile)
         .map((file) => join(contentDirectory, file));
     const articlePages = readdirSync(articlesDirectory)
-        .filter((file) => file.endsWith(".mdx"))
+        .filter(isContentFile)
         .map((file) => join(articlesDirectory, file));
     return [...topLevelPages, ...articlePages];
 }

@@ -1,20 +1,24 @@
 import assert from "node:assert/strict";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { parseFrontmatter } from "../src/build/content/frontmatter.ts";
-import {
-    buildContent,
-    resolveMetaDescription,
-} from "../src/build/content/build-content.ts";
+import { buildContent } from "../src/build/content/compile.ts";
+import { resolveMetaDescription } from "../src/build/content/metadata.ts";
 import { renderPage } from "../src/build/render/render-react-page.tsx";
-import { listArticleEntries } from "../src/build/content/article-index.ts";
 import {
     buildSeriesMap,
+    indexArticles,
     resolveSeriesInfo,
-} from "../src/build/content/series-index.ts";
+} from "../src/build/content/article-index.ts";
 
 async function main() {
     const articlesDir = new URL("../content/articles", import.meta.url)
         .pathname;
-    const articleIndex = listArticleEntries(articlesDir);
+    const articleFiles = readdirSync(articlesDir)
+        .filter((name) => name.endsWith(".mdx") && !name.startsWith("_"))
+        .map((name) => join(articlesDir, name));
+    const builtArticles = await Promise.all(articleFiles.map(buildContent));
+    const articleIndex = indexArticles(builtArticles);
 
     const homePath = new URL("../content/index.mdx", import.meta.url).pathname;
     const home = await buildContent(homePath);
@@ -41,8 +45,8 @@ async function main() {
     );
     assert(
         homeHtml.includes("It\u2019s just text files.") ||
-            homeHtml.includes("It&#x27;s just text files.") ||
-            homeHtml.includes("It's just text files."),
+        homeHtml.includes("It&#x27;s just text files.") ||
+        homeHtml.includes("It's just text files."),
         "Manifesto opener should be present.",
     );
     assert(
@@ -134,7 +138,7 @@ async function main() {
     );
     assert(
         /<h1[^>]*>\s*On Tools\s*<\/h1>/.test(articleHtml) &&
-            /style="view-transition-name:article-title-on-tools/.test(articleHtml),
+        /style="view-transition-name:article-title-on-tools/.test(articleHtml),
         "Article title should have a named view transition.",
     );
     assert(articleHtml.includes('class="page page--article"'));
@@ -205,13 +209,13 @@ async function main() {
 
     assert(
         scriptingHtml.includes('class="code-block__copy"') &&
-            scriptingHtml.includes("disabled"),
+        scriptingHtml.includes("disabled"),
         "Code copy controls should be static HTML, disabled until enhanced.",
     );
 
     assert(
         article.meta.readingTime &&
-            /\d+ min read/.test(article.meta.readingTime),
+        /\d+ min read/.test(article.meta.readingTime),
         "Article should have a computed reading time.",
     );
     assert(
@@ -393,7 +397,7 @@ async function main() {
     );
     assert(
         markupHtml.includes("On CSS Architecture") &&
-            /href="[^"]+on-css-architecture/.test(markupHtml),
+        /href="[^"]+on-css-architecture/.test(markupHtml),
         "First series article should have a next link.",
     );
     assert(

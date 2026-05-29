@@ -14,57 +14,50 @@ import { buildAncillary } from "./artifacts/ancillary.ts";
 import { buildClient } from "./assets/client.ts";
 import { buildCss } from "./assets/css.ts";
 import { buildImages } from "./assets/images.ts";
-import { compilePages } from "./content/compile-pages.ts";
-import {
-    cleanGeneratedPages,
-    discoverSourceFiles,
-} from "./content/discover.ts";
+import { cleanGeneratedPages } from "./content/discover.ts";
+import { validateContentContracts } from "./content/contracts.ts";
 import { enforcePerformanceBudgets } from "./performance-budgets.ts";
 import { writePages } from "./render/write-pages.ts";
-import {
-    listArticleEntries,
-    listArticleEntriesFromBuiltContent,
-} from "./content/article-index.ts";
-import { articlesDirectory } from "./shared/paths.ts";
-import { validateContentContracts } from "./content/contracts.ts";
+import { assertCompiledCleanly, compileSite } from "./pipeline.ts";
 
 export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     const start = performance.now();
+    const dev = options.dev ?? false;
 
-    if (!options.dev) cleanDist();
+    // Stage 0 — assets (independent of content, build in parallel).
+    if (!dev) cleanDist();
     const [, , imageSummary] = await Promise.all([
         buildCss(),
         buildClient(),
         buildImages(),
     ]);
-    const manifest = options.dev ? devAssetManifest : generateAssetManifest();
+    const manifest = dev ? devAssetManifest : generateAssetManifest();
 
-    const sourceFiles = discoverSourceFiles();
-    const { compiled, failed } = await compilePages(sourceFiles);
-    const articleIndex =
-        failed.length === 0
-            ? listArticleEntriesFromBuiltContent(compiled)
-            : listArticleEntries(articlesDirectory);
+    // Stages 1–3 — discover, compile, index (single source of truth).
+    const { compiled, failed, articleIndex } = await compileSite();
+
+    // Stage 4 — validate (only meaningful once every page compiled).
     if (failed.length === 0) {
         validateContentContracts({ articleIndex, builtContent: compiled });
     }
 
+    // Stage 5 — render pages to disk.
     cleanGeneratedPages();
     const pageSummary = writePages(compiled, articleIndex, manifest);
+    assertCompiledCleanly(failed);
 
-    if (failed.length > 0) {
-        for (const { file, error } of failed) {
-            process.stderr.write(`  error  ${file}\n  ${String(error)}\n`);
-        }
-        throw new Error(`Build failed: ${failed.length} page(s) had errors`);
-    }
-
+    // Stage 6 — ancillary artifacts (feed, sitemap, robots, headers, og-image).
     const compiledArticles = compiled.filter((c) =>
         c.sourcePath.includes("/articles/"),
     );
     const ancillarySummary = await buildAncillary(articleIndex, compiledArticles);
-    if (!options.dev) applyHashedFilenames(manifest);
-    if (!options.dev) enforcePerformanceBudgets();
+
+    // Stage 7 — production-only finalization.
+    if (!dev) {
+        applyHashedFilenames(manifest);
+        enforcePerformanceBudgets();
+    }
+
     writeBuildSummary({
         pageCount: pageSummary.pageCount,
         articleCount: articleIndex.length,

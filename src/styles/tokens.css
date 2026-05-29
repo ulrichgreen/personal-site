@@ -4,38 +4,46 @@
         --u: 8px;
 
         /* ─── Colors ─────────────────────────────────────── */
-        --color-surface-base:   #fffbf4;
+        --color-surface-base: #fffbf4;
         --color-surface-raised: #f5efe4;
-        --color-text-primary:   #11120d;
-        --color-text-secondary: #565449;
-        --color-border:         #d8cfbc;
-        --color-accent:         #b7522e;
-        --color-accent-subtle:  color-mix(in srgb, #b7522e 12%, var(--color-surface-base));
-
-        /* ─── Type sizes ─────────────────────────────────── */
-        --type-size-xs:         12px;
-        --type-size-sm:         14px;
-        --type-size-md:         18px;
-        --type-size-lg:         28px;
-        --type-size-xl:         40px;
-        --type-size-2xs:        .62rem;
-        --type-size-display:    clamp(3rem, 10vw, 7.5rem);
-        --type-size-display-sm: clamp(2.6rem, 7vw, 5rem);
-        --type-size-fluid-lg:   clamp(1.25rem, 2.8vw, 1.75rem);
-        --type-size-fluid-md:   clamp(1.1rem, 2vw, 1.35rem);
-
-        /* ─── Type leading ───────────────────────────────── */
-        --type-leading-tight:   24px;
-        --type-leading-normal:  32px;
-        --type-leading-loose:   40px;
-        --type-leading-relaxed: 1.8;
-        --type-leading-display: .93;
-        --type-leading-body:    1.75;
+        --color-text-primary: #11120d;
+        --color-text-secondary: #5f5c50;
+        --color-text-muted: #908a7c;
+        --color-border: #e7dfcf;
+        --color-border-strong: #d8cfbc;
+        --color-accent: #b7522e;
+        --color-accent-subtle: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-base));
 
         /* ─── Type families ──────────────────────────────── */
         --type-family-serif: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
-        --type-family-sans:  system-ui, -apple-system, "Segoe UI", sans-serif;
-        --type-family-mono:  "JetBrains Mono", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+        --type-family-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+        --type-family-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+
+        /* ─── Type scale (fluid, calm) ───────────────────── */
+        --type-size-2xs: 0.7rem;
+        --type-size-xs: 0.8rem;
+        --type-size-sm: 0.875rem;
+        --type-size-md: 1rem;
+        --type-size-lg: 1.3rem;
+        --type-size-xl: clamp(1.55rem, 1.25rem + 1.3vw, 2.2rem);
+        --type-size-2xl: clamp(2rem, 1.55rem + 1.9vw, 3rem);
+        --type-size-display: clamp(2.3rem, 1.7rem + 2.6vw, 3.6rem);
+        --type-size-display-sm: var(--type-size-2xl);
+        --type-size-fluid-lg: clamp(1.2rem, 1.08rem + 0.55vw, 1.45rem);
+        --type-size-fluid-md: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
+
+        /* ─── Leading ────────────────────────────────────── */
+        --type-leading-tight: 1.2;
+        --type-leading-normal: 1.5;
+        --type-leading-loose: 1.25;
+        --type-leading-relaxed: 1.8;
+        --type-leading-display: 1.05;
+        --type-leading-body: 1.7;
+
+        /* ─── Tracking ───────────────────────────────────── */
+        --tracking-display: -0.02em;
+        --tracking-tight: -0.01em;
+        --tracking-label: 0.14em;
 
         /* ─── Spacing ────────────────────────────────────── */
         --space-1: calc(1 * var(--u));
@@ -47,30 +55,42 @@
         --space-7: calc(7 * var(--u));
         --space-8: calc(8 * var(--u));
 
-        /* ─── Layout ─────────────────────────────────────── */
-        --layout-content-width: 66ch;
-        --layout-gutter:        clamp(1.5rem, 5vw, 4rem);
-        --layout-header-height: calc(5 * var(--u));
+        /* Fluid rhythm */
+        --space-block: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+        --space-section: clamp(3rem, 2rem + 5vw, 5.5rem);
 
-        /* ─── Easing ─────────────────────────────────────── */
+        /* ─── Layout ─────────────────────────────────────── */
+        --layout-content-width: 64ch;
+        --layout-gutter: clamp(1.5rem, 5vw, 4rem);
+        --layout-header-height: calc(7 * var(--u));
+
+        /* ─── Motion ─────────────────────────────────────── */
         --easing-default: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        --transition-fast: 150ms;
+        --transition: 250ms;
+        --transition-slow: 420ms;
+
+        /* ─── Shape ──────────────────────────────────────── */
+        --radius-sm: 3px;
+        --radius: 6px;
 
         /* ─── Dropcap ────────────────────────────────────── */
-        --dropcap-size:     5.5em;
-        --dropcap-leading:  0.78;
+        --dropcap-size: 5.2em;
+        --dropcap-leading: 0.78;
         --dropcap-offset-x: 0.06em;
         --dropcap-offset-y: 0.04em;
     }
 
     @media (prefers-color-scheme: dark) {
         :root {
-            --color-surface-base:   #171611;
-            --color-surface-raised: #22201a;
-            --color-text-primary:   #f3ede2;
-            --color-text-secondary: #cbc2b3;
-            --color-border:         #4b4438;
-            --color-accent:         #e07a50;
-            --color-accent-subtle:  color-mix(in srgb, #e07a50 12%, var(--color-surface-base));
+            --color-surface-base: #171611;
+            --color-surface-raised: #211f19;
+            --color-text-primary: #f3ede2;
+            --color-text-secondary: #c4bbab;
+            --color-text-muted: #8c8473;
+            --color-border: #38332a;
+            --color-border-strong: #4b4438;
+            --color-accent: #e07a50;
         }
     }
 }

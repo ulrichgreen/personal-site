@@ -1,11 +1,20 @@
+import { readFileSync } from "node:fs";
+import { availableParallelism } from "node:os";
 import { pathToFileURL } from "node:url";
 import * as runtime from "preact/jsx-runtime";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
-import type { ContentBodyComponent, ContentHeading } from "../../types/content.ts";
+import type {
+    BuiltContent,
+    ContentBodyComponent,
+    ContentHeading,
+} from "../../types/content.ts";
 import { formatCodeLanguage } from "../../format-code-language.ts";
+import { parseFrontmatter } from "./frontmatter.ts";
+import { resolvePageMeta } from "./metadata.ts";
+import { CODE_THEME } from "./syntax-theme.ts";
 
 const MDX_ESM_PATTERN = /^\s*(import|export)\s/m;
 
@@ -15,92 +24,6 @@ type HastNode = {
     value?: string;
     properties?: Record<string, unknown>;
     children?: HastNode[];
-};
-
-const CODE_THEME = {
-    name: "site-code",
-    settings: [
-        {
-            settings: {
-                foreground: "var(--ct)",
-            },
-        },
-        {
-            scope: ["comment", "punctuation.definition.comment"],
-            settings: {
-                foreground: "var(--cc)",
-                fontStyle: "italic",
-            },
-        },
-        {
-            scope: [
-                "keyword",
-                "storage",
-                "storage.type",
-                "keyword.control",
-                "keyword.operator",
-            ],
-            settings: {
-                foreground: "var(--ck)",
-            },
-        },
-        {
-            scope: [
-                "entity.name.function",
-                "support.function",
-                "meta.function-call",
-            ],
-            settings: {
-                foreground: "var(--cf)",
-            },
-        },
-        {
-            scope: ["string", "string.quoted", "string.template"],
-            settings: {
-                foreground: "var(--cs)",
-            },
-        },
-        {
-            scope: [
-                "constant.numeric",
-                "constant.language",
-                "constant.character.escape",
-            ],
-            settings: {
-                foreground: "var(--cn)",
-            },
-        },
-        {
-            scope: ["variable", "variable.parameter", "identifier"],
-            settings: {
-                foreground: "var(--cv)",
-            },
-        },
-        {
-            scope: ["entity.name.type", "support.type", "entity.name.class"],
-            settings: {
-                foreground: "var(--cy)",
-            },
-        },
-        {
-            scope: ["entity.name.tag", "support.class.component"],
-            settings: {
-                foreground: "var(--cg)",
-            },
-        },
-        {
-            scope: ["entity.other.attribute-name"],
-            settings: {
-                foreground: "var(--ca)",
-            },
-        },
-        {
-            scope: ["punctuation", "meta.brace", "meta.delimiter"],
-            settings: {
-                foreground: "var(--cp)",
-            },
-        },
-    ],
 };
 
 function getStringProperty(value: unknown): string | undefined {
@@ -341,4 +264,69 @@ export async function compileMdx(
     };
 
     return { Content: module.default, headings };
+}
+
+/**
+ * Reads a single MDX source file and produces its compiled component, derived
+ * metadata, and heading outline.
+ */
+export async function buildContent(filePath: string): Promise<BuiltContent> {
+    const raw = readFileSync(filePath, "utf8");
+    const parsed = parseFrontmatter(raw, filePath);
+    const meta = resolvePageMeta(parsed, filePath);
+    const { Content, headings } = await compileMdx(parsed.body, filePath);
+
+    return { meta, Content, headings, sourcePath: filePath };
+}
+
+export interface CompileResult {
+    compiled: BuiltContent[];
+    failed: { file: string; error: unknown }[];
+}
+
+/**
+ * Compiles every source file with bounded concurrency, preserving input order
+ * and collecting failures rather than aborting on the first error.
+ */
+export async function compilePages(
+    sourceFiles: string[],
+): Promise<CompileResult> {
+    const results: PromiseSettledResult<BuiltContent>[] = new Array(
+        sourceFiles.length,
+    );
+    const concurrency = Math.min(sourceFiles.length, 4, availableParallelism());
+    let nextIndex = 0;
+
+    async function worker(): Promise<void> {
+        while (nextIndex < sourceFiles.length) {
+            const currentIndex = nextIndex;
+            nextIndex += 1;
+
+            try {
+                results[currentIndex] = {
+                    status: "fulfilled",
+                    value: await buildContent(sourceFiles[currentIndex]),
+                };
+            } catch (error) {
+                results[currentIndex] = {
+                    status: "rejected",
+                    reason: error,
+                };
+            }
+        }
+    }
+
+    await Promise.all(Array.from({ length: concurrency }, () => worker()));
+
+    const compiled: BuiltContent[] = [];
+    const failed: { file: string; error: unknown }[] = [];
+    for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result.status === "fulfilled") {
+            compiled.push(result.value);
+        } else {
+            failed.push({ file: sourceFiles[i], error: result.reason });
+        }
+    }
+    return { compiled, failed };
 }

@@ -17,6 +17,7 @@ There are two main kinds of source material:
 - site code in `src/`
 
 `pnpm build` reads the content tree, compiles pages, renders layouts, bundles assets, and writes the finished site to `dist/`.
+`pnpm start` runs that build and then serves the generated site from `dist/` on localhost.
 
 The output is plain HTML, CSS, fonts, images, and a couple of focused browser bundles. The site does not depend on client-side routing or full-page hydration to exist.
 
@@ -79,7 +80,7 @@ After content compiles, the build checks the authored archive as a whole:
 
 - article slugs must be unique
 - content paths must stay lowercase and kebab-cased
-- series ordering must be contiguous
+- series ordering should be contiguous (gaps warn rather than fail)
 - local `/images/...` references must point at source files under `src/images/`
 
 These checks keep the authoring model plain while making broken references fail during the build.
@@ -236,6 +237,7 @@ The repository verifies the system in layers:
 
 - `pnpm run typecheck` checks the TypeScript contracts
 - `pnpm run build` exercises the full static build and budget enforcement
+- `pnpm start` rebuilds the site and serves the generated output on localhost
 - `pnpm run test` runs both unit tests and rendered-output verifiers
 - `pnpm run verify` runs the full validation sequence in order
 - `pnpm run audit-content` prints read-only archive diagnostics for maintenance

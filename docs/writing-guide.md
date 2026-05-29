@@ -2,12 +2,14 @@
 
 This is the authoring reference for pages and articles in `content/`. It focuses on what you write by hand after scaffolding.
 
+To start a new article, copy `content/articles/_template.mdx` (files beginning with `_` are skipped by the build) and fill in the frontmatter and body.
+
 ## Frontmatter
 
 All content is `.mdx` with YAML frontmatter.
 
 - pages default to `layout: base`
-- articles use `layout: article`
+- files under `content/articles/` are treated as `layout: article` automatically, so the field is optional there
 - articles need `published: YYYY-MM-DD`
 - optional fields that affect article rendering include `description`, `summary`, `note`, `series`, `seriesOrder`, `revisions`, and `draft`
 

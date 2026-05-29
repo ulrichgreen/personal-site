@@ -81,13 +81,13 @@ export function ArticleHeader({
         .join(" · ");
 
     return (
-        <header className="section header article-header">
-            <p className="header__eyebrow label">
+        <header className="section article-header">
+            <p className="eyebrow label">
                 <span>{kickerSection}</span>
                 <span>{kickerType || "Article"}</span>
             </p>
             <h1
-                className="title heading-xl"
+                className="heading-xl"
                 style={
                     titleTransitionName
                         ? { viewTransitionName: titleTransitionName }
@@ -96,37 +96,22 @@ export function ArticleHeader({
             >
                 {title || ""}
             </h1>
-            <div className="header__rule" aria-hidden="true"></div>
-            <div className="header__meta">
+            {description && (
+                <p className="lede body-lg">{description}</p>
+            )}
+            <p className="article-meta">
                 {publishedDate && (
-                    <p className="article-header__byline">
-                        <span className="label">Published</span>
-                        <strong className="body-sm">
-                            <time dateTime={publishedIso}>{publishedDate}</time>
-                        </strong>
-                    </p>
+                    <time dateTime={publishedIso}>{publishedDate}</time>
                 )}
+                {lengthLabel && <span>{lengthLabel}</span>}
                 {revisedDate && (
-                    <p className="article-header__byline">
-                        <span className="label">Revised</span>
-                        <strong className="body-sm">
-                            <time dateTime={revisedIso}>{revisedDate}</time>
-                        </strong>
-                    </p>
+                    <span>
+                        Revised{" "}
+                        <time dateTime={revisedIso}>{revisedDate}</time>
+                    </span>
                 )}
-                {lengthLabel && (
-                    <p className="article-header__byline">
-                        <span className="label">Length</span>
-                        <strong className="body-sm">{lengthLabel}</strong>
-                    </p>
-                )}
-                {description && (
-                    <p className="lede">
-                        <span className="body-lg">{description}</span>
-                    </p>
-                )}
-            </div>
-            {note && <p className="article-header__note caption">{note}</p>}
+            </p>
+            {note && <p className="article-note caption">{note}</p>}
         </header>
     );
 }

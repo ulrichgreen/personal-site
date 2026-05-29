@@ -76,9 +76,13 @@ function assertSeriesIntegrity(articleIndex: ArticleIndexEntry[]): void {
         for (let index = 0; index < ordered.length; index++) {
             const expected = index + 1;
             if (ordered[index] !== expected) {
-                fail(
-                    `Series "${series}" should use contiguous seriesOrder values starting at 1.`,
+                // Gaps are allowed (e.g. inserting an article mid-series), but
+                // worth surfacing so renumbering stays a deliberate choice.
+                process.stderr.write(
+                    `  warn  Series "${series}" has non-contiguous seriesOrder ` +
+                    `(expected ${expected}, found ${ordered[index]}).\n`,
                 );
+                break;
             }
         }
     }

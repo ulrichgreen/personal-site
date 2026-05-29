@@ -8,19 +8,19 @@ import { SITE_AUTHOR } from "../../config.ts";
  */
 export function Manifesto() {
     return (
-        <section className="section manifesto" aria-label="About">
-            <p className="manifesto__opener heading-display">
+        <section className="manifesto section" aria-label="About">
+            <p className="manifesto-line heading-display">
                 It's just text files.
             </p>
 
-            <p className="manifesto__body body-lg">
+            <p className="manifesto-body body-lg">
                 The web never stopped being simple. Under every website: text
                 files. Usually too many. My name is {SITE_AUTHOR}. I build text
                 files for a living. It's a surprisingly short list of materials.
                 Worth choosing the characters carefully.
             </p>
 
-            <p className="manifesto__closer heading-display">
+            <p className="manifesto-line heading-display">
                 Just some <em>very well considered</em> text files.
             </p>
         </section>

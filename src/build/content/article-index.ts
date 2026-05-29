@@ -1,7 +1,10 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { parseFrontmatter } from "./frontmatter.ts";
-import type { ArticleIndexEntry, BuiltContent, PageMeta } from "../../types/content.ts";
+import type {
+    ArticleIndexEntry,
+    BuiltContent,
+    PageMeta,
+    SeriesEntry,
+    SeriesInfo,
+} from "../../types/content.ts";
 import { isArticleMeta } from "../../types/content.ts";
 
 function toArticleIndexEntry(
@@ -60,24 +63,11 @@ function filterAndSortArticleEntries(
     );
 }
 
-export function listArticleEntries(directory: string): ArticleIndexEntry[] {
-    const allEntries = readdirSync(directory)
-        .filter((file) => file.endsWith(".mdx"))
-        .map((file) => {
-            const sourcePath = join(directory, file);
-            const raw = readFileSync(sourcePath, "utf8");
-            const { meta } = parseFrontmatter(raw, sourcePath);
-            return toArticleIndexEntry(meta, sourcePath);
-        });
-
-    return filterAndSortArticleEntries(
-        allEntries.filter(
-            (entry): entry is ArticleIndexEntry => entry !== undefined,
-        ),
-    );
-}
-
-export function listArticleEntriesFromBuiltContent(
+/**
+ * Builds the published-article index from compiled content. This is the single
+ * source of truth for article listings, feeds, and series navigation.
+ */
+export function indexArticles(
     builtContent: BuiltContent[],
 ): ArticleIndexEntry[] {
     return filterAndSortArticleEntries(
@@ -85,4 +75,71 @@ export function listArticleEntriesFromBuiltContent(
             .map((page) => toArticleIndexEntry(page.meta, page.sourcePath))
             .filter((entry): entry is ArticleIndexEntry => entry !== undefined),
     );
+}
+
+export function buildSeriesMap(
+    articleIndex: ArticleIndexEntry[],
+): Map<string, SeriesEntry[]> {
+    const seriesMap = new Map<string, SeriesEntry[]>();
+    const ordersBySeries = new Map<string, Map<number, ArticleIndexEntry>>();
+
+    for (const entry of articleIndex) {
+        if (!entry.series) continue;
+
+        if (entry.seriesOrder !== undefined) {
+            const seriesOrders =
+                ordersBySeries.get(entry.series) ??
+                new Map<number, ArticleIndexEntry>();
+            const conflictingEntry = seriesOrders.get(entry.seriesOrder);
+            if (conflictingEntry) {
+                throw new Error(
+                    [
+                        `Series "${entry.series}" has conflicting seriesOrder ${entry.seriesOrder}.`,
+                        conflictingEntry.sourcePath,
+                        entry.sourcePath,
+                    ].join(" "),
+                );
+            }
+            seriesOrders.set(entry.seriesOrder, entry);
+            ordersBySeries.set(entry.series, seriesOrders);
+        }
+
+        const seriesEntry: SeriesEntry = {
+            title: entry.title,
+            slug: entry.slug,
+            href: entry.href,
+            order: entry.seriesOrder ?? 0,
+            published: entry.published,
+        };
+
+        const existing = seriesMap.get(entry.series);
+        if (existing) {
+            existing.push(seriesEntry);
+        } else {
+            seriesMap.set(entry.series, [seriesEntry]);
+        }
+    }
+
+    for (const entries of seriesMap.values()) {
+        entries.sort((a, b) => a.order - b.order);
+    }
+
+    return seriesMap;
+}
+
+export function resolveSeriesInfo(
+    seriesName: string | undefined,
+    seriesOrder: number | undefined,
+    seriesMap: Map<string, SeriesEntry[]>,
+): SeriesInfo | undefined {
+    if (!seriesName) return undefined;
+
+    const entries = seriesMap.get(seriesName);
+    if (!entries || entries.length === 0) return undefined;
+
+    return {
+        name: seriesName,
+        entries,
+        currentOrder: seriesOrder ?? 0,
+    };
 }

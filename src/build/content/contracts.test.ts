@@ -60,25 +60,23 @@ describe("validateContentContracts", () => {
         );
     });
 
-    it("requires contiguous series order values", () => {
-        assert.throws(
-            () =>
-                validateContentContracts({
-                    articleIndex: [
-                        article({
-                            slug: "part-one",
-                            series: "Series",
-                            seriesOrder: 1,
-                        }),
-                        article({
-                            slug: "part-three",
-                            series: "Series",
-                            seriesOrder: 3,
-                        }),
-                    ],
-                    builtContent: [],
-                }),
-            /Series "Series" should use contiguous seriesOrder values/,
+    it("allows non-contiguous series order values (gaps warn, not fail)", () => {
+        assert.doesNotThrow(() =>
+            validateContentContracts({
+                articleIndex: [
+                    article({
+                        slug: "part-one",
+                        series: "Series",
+                        seriesOrder: 1,
+                    }),
+                    article({
+                        slug: "part-three",
+                        series: "Series",
+                        seriesOrder: 3,
+                    }),
+                ],
+                builtContent: [],
+            }),
         );
     });
 

@@ -32,34 +32,23 @@ export function Hero({
     portrait,
 }: HeroProps) {
     const hasPortrait = Boolean(portrait?.src);
-    const sectionClasses = ["section", "header", "hero"];
-
-    if (hasPortrait) {
-        sectionClasses.push("hero--with-portrait");
-    }
 
     return (
-        <section
-            className={sectionClasses.join(" ")}
-            aria-labelledby="hero-name"
-        >
-            <p
-                className="hero__kicker header__eyebrow label"
-                aria-hidden="true"
-            >
-                Product engineer & designer
+        <section className="hero section" aria-labelledby="hero-name">
+            <p className="eyebrow label" aria-hidden="true">
+                Product engineer &amp; designer
             </p>
 
-            <div className="hero__body">
+            <div className="hero-body">
                 <h1
-                    className="hero__name title heading-display"
+                    className="hero-name heading-display"
                     id="hero-name"
                 >
                     Ulrich <em>Green</em>
                 </h1>
 
                 {hasPortrait && portrait && (
-                    <div className="hero__portrait" aria-hidden="true">
+                    <div className="hero-portrait" aria-hidden="true">
                         <Picture
                             src={portrait.src}
                             srcWebp={portrait.srcWebp}
@@ -74,27 +63,11 @@ export function Hero({
                 )}
             </div>
 
-            <div
-                className="hero__rule header__rule"
-                role="presentation"
-            />
+            <p className="hero-tagline lede body-lg">{tagline}</p>
 
-            <p className="hero__tagline lede">
-                <span className="body-lg">{tagline}</span>
-            </p>
-
-            <p
-                className="hero__meta header__meta label"
-                aria-label="About"
-            >
+            <p className="hero-meta label" aria-label="About">
                 <span>London</span>
-                <span className="hero__meta-dot" aria-hidden="true">
-                    ·
-                </span>
                 <span>{SITE_DOMAIN}</span>
-                <span className="hero__meta-dot" aria-hidden="true">
-                    ·
-                </span>
                 <span>
                     <a href="#articles">Articles</a>
                 </span>

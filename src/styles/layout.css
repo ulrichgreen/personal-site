@@ -6,8 +6,13 @@
         padding-inline: var(--layout-gutter);
     }
 
-    .full-bleed { inline-size: 100%; }
-    .section { min-width: 0; }
+    .full-bleed {
+        inline-size: 100%;
+    }
+
+    .section {
+        min-width: 0;
+    }
 
     .page {
         display: grid;
@@ -17,32 +22,39 @@
         padding-inline: var(--layout-gutter);
     }
 
-    .page > * {
+    .page>* {
         grid-column: 1;
         min-width: 0;
     }
 
-    article > :is(.article-body, .series-nav, .article-footer).section {
-        margin-block-start: clamp(2.5rem, 7vw, 6rem);
+    article> :is(.article-body, .series-nav, .article-footer).section {
+        margin-block-start: var(--space-section);
     }
 
     article {
         grid-column: 1;
-        padding-block: clamp(2.5rem, 7vw, 6rem);
+        padding-block: var(--space-section);
         padding-inline: 0;
         position: relative;
         min-width: 0;
 
-        & > * + * { margin-block-start: var(--space-2); }
-        & > h2:not(:first-child) { margin-block-start: var(--space-6); }
+        &>*+* {
+            margin-block-start: var(--space-2);
+        }
 
-        & > h1 {
+        &>h2:not(:first-child) {
+            margin-block-start: var(--space-6);
+        }
+
+        &>h1 {
             margin-block-start: var(--space-4);
             margin-block-end: var(--space-4);
         }
     }
 
-    .page--article { padding-block-start: 0; }
+    .page--article {
+        padding-block-start: 0;
+    }
 
     header.site-header,
     footer.site-footer {
@@ -56,14 +68,17 @@
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: var(--space-1);
-        margin-block-start: var(--space-8);
+        gap: var(--space-2);
+        padding-block-start: var(--space-3);
+        margin-block-start: var(--space-section);
     }
 
     section {
-        margin-block-start: var(--space-6);
+        margin-block-start: var(--space-section);
 
-        &:first-child { margin-block-start: 0; }
+        &:first-child {
+            margin-block-start: 0;
+        }
     }
 
     @media (min-width: 821px) {
@@ -74,7 +89,7 @@
             padding-inline: 0;
         }
 
-        .page > *,
+        .page>*,
         article,
         header.site-header,
         footer.site-footer {

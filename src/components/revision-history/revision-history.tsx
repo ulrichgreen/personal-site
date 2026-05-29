@@ -24,19 +24,17 @@ export function RevisionHistory({ revisions }: { revisions: Revision[] }) {
             className="section revision-history"
             aria-label="Revision history"
         >
-            <p className="revision-history__heading label">Revisions</p>
-            <ol className="revision-history__list">
+            <p className="revision-history-heading label">Revisions</p>
+            <ol>
                 {revisions.map((revision) => (
-                    <li key={revision.date} className="revision-history__entry">
+                    <li key={revision.date}>
                         <time
                             className="label"
                             dateTime={safeISODate(revision.date)}
                         >
                             {formatDate(revision.date)}
                         </time>
-                        <p className="revision-history__note caption">
-                            {revision.note}
-                        </p>
+                        <p className="caption">{revision.note}</p>
                     </li>
                 ))}
             </ol>

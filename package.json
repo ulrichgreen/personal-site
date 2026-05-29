@@ -4,9 +4,8 @@
     "description": "",
     "scripts": {
         "build": "node --import tsx ./src/build/build.ts",
+        "start": "node --import tsx ./src/build/build.ts && node --import tsx ./src/build/start.ts",
         "clean": "node --import tsx ./src/build/clean.ts",
-        "create-article": "node --import tsx ./src/build/tools/create-content.ts article",
-        "create-page": "node --import tsx ./src/build/tools/create-content.ts page",
         "audit-content": "node --import tsx ./src/build/tools/audit-content.ts",
         "dev": "node --import tsx ./src/build/dev.ts",
         "check-links": "node --import tsx ./test/verify-links.ts",

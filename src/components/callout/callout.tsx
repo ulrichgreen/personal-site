@@ -8,25 +8,19 @@ const calloutLabels: Record<CalloutType, string> = {
     tip: "Tip",
 };
 
-const variantClasses: Record<CalloutType, string> = {
-    note: "",
-    warning: "callout--warning",
-    tip: "callout--tip",
-};
-
 interface CalloutProps {
     type?: CalloutType;
     children?: ReactNode;
 }
 
 export function Callout({ type = "note", children }: CalloutProps) {
-    const variant = variantClasses[type];
     return (
         <aside
-            className={`callout${variant ? ` ${variant}` : ""} card semi-bleed`}
+            className="callout card semi-bleed"
+            data-type={type}
             aria-label={`${calloutLabels[type]} callout`}
         >
-            <p className="callout__label label">{calloutLabels[type]}</p>
+            <p className="callout-label label">{calloutLabels[type]}</p>
             <div className="body-md">{children}</div>
         </aside>
     );

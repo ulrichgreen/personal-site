@@ -1,57 +1,23 @@
-import type { CSSProperties } from "preact/compat";
-
-const LOGO_EXPAND_CHARS = [
-    "l",
-    "r",
-    "i",
-    "c",
-    "h",
-    ".",
-    "g",
-    "r",
-    "e",
-    "e",
-    "n",
-];
-
 export function SiteHeader() {
     return (
         <header className="site-header full-bleed">
             <nav className="site-nav label" aria-label="Primary">
-                <div className="site-nav__group">
+                <div className="nav-links">
                     <a href="/index.html">Home</a>
                     <a href="/#articles">Articles</a>
                 </div>
                 <a
                     href="/index.html"
-                    className="site-logo body-sm mono"
+                    className="logo mono body-sm"
                     aria-label="ulrich.green — home"
                 >
-                    <span aria-hidden="true" className="site-logo__brace">
-                        {"{"}
+                    <span aria-hidden="true">{"{"}</span>
+                    <span>
+                        u<span className="logo-rest">lrich.green</span>
                     </span>
-                    <span className="site-logo__name">
-                        <span className="site-logo__core">u</span>
-                        {LOGO_EXPAND_CHARS.map((char, i) => (
-                            <span
-                                key={`${char}-${i}`}
-                                className="site-logo__char"
-                                aria-hidden="true"
-                                style={
-                                    {
-                                        "--logo-i": i + 1,
-                                    } as CSSProperties
-                                }
-                            >
-                                {char}
-                            </span>
-                        ))}
-                    </span>
-                    <span aria-hidden="true" className="site-logo__brace">
-                        {"}"}
-                    </span>
+                    <span aria-hidden="true">{"}"}</span>
                 </a>
-                <div className="site-nav__group site-nav__group--right">
+                <div className="nav-links nav-links-end">
                     <a href="/cv.html">CV</a>
                     <a href="/colophon.html">Colophon</a>
                 </div>

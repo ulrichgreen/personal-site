@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildContent } from "../src/build/content/build-content.ts";
+import { buildContent } from "../src/build/content/compile.ts";
 import { renderPage } from "../src/build/render/render-react-page.tsx";
-import { listArticleEntries } from "../src/build/content/article-index.ts";
+import { compileSite } from "../src/build/pipeline.ts";
 
 function extractBlock(source: string, pattern: RegExp, label: string) {
     const match = source.match(pattern);
@@ -141,9 +141,7 @@ async function main() {
         "A visible-on-focus skip link style should exist.",
     );
 
-    const articlesDir = new URL("../content/articles", import.meta.url)
-        .pathname;
-    const articleIndex = listArticleEntries(articlesDir);
+    const { articleIndex } = await compileSite();
     const homePath = new URL("../content/index.mdx", import.meta.url).pathname;
     const home = await buildContent(homePath);
     const homeHtml = renderPage(home, articleIndex);
