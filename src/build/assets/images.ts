@@ -25,7 +25,7 @@ export interface ImageBuildSummary {
     outputCount: number;
 }
 
-async function processImage(
+export async function processImage(
     sourcePath: string,
     destDir: string,
 ): Promise<ProcessedImage> {

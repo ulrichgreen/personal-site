@@ -1,0 +1,32 @@
+@layer interactive {
+
+    /* ─── Centralized interaction ────────────────────────── */
+    /* Muted navigational links share one transition + hover.
+       The dedicated layer sits before `components`, so any
+       component rule can override these without specificity games. */
+    :where(.site-nav a,
+        .nav-links a,
+        .hero-meta a,
+        .page-header-nav a,
+        .article-footer a,
+        .series-list a,
+        .series-arrows a,
+        .footer-nav a,
+        .fn-ref) {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: color var(--transition-fast) var(--easing-default);
+    }
+
+    :where(.site-nav a,
+        .nav-links a,
+        .hero-meta a,
+        .page-header-nav a,
+        .article-footer a,
+        .series-list a,
+        .series-arrows a,
+        .footer-nav a,
+        .fn-ref):is(:hover, :focus-visible) {
+        color: var(--color-text-primary);
+    }
+}

@@ -242,9 +242,13 @@ The repository verifies the system in layers:
 - `pnpm run verify` runs the full validation sequence in order
 - `pnpm run audit-content` prints read-only archive diagnostics for maintenance
 
-The tests cover both implementation details and emitted artifacts. That includes:
+The tests come in two layers: co-located `*.test.ts` files are fast unit tests
+run through `node:test` (pure functions and build helpers), while `test/verify-*.ts`
+are integration verifiers that assert against the rendered `dist/` output. That
+includes:
 
 - frontmatter and content-pipeline unit tests
+- asset-hashing and image-derivative unit tests
 - performance-budget tests
 - render verification
 - accessibility checks

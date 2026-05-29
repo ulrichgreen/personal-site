@@ -1,10 +1,11 @@
-@layer reset, tokens, base, typography, layout, components;
+@layer reset, tokens, base, typography, layout, interactive, components;
 
 @import "./reset.css";
 @import "./tokens.css";
 @import "./base.css";
 @import "./typography.css";
 @import "./layout.css";
+@import "./interactive.css";
 @import "./components.css";
 @import "../components/demo-widget/demo-widget.css";
 @import "../components/table-of-contents/table-of-contents.css";

@@ -9,7 +9,7 @@ export interface AssetManifest {
     "islands.js": string;
 }
 
-function contentHash(filePath: string): string {
+export function contentHash(filePath: string): string {
     if (!existsSync(filePath)) {
         throw new Error(
             `Asset not found: ${filePath}. Was the upstream build step skipped?`,
@@ -25,20 +25,23 @@ export const devAssetManifest: AssetManifest = {
     "islands.js": "islands.js",
 };
 
-export function generateAssetManifest(): AssetManifest {
+export function generateAssetManifest(baseDir: string = distDirectory): AssetManifest {
     return {
-        "style.css": `style.${contentHash(join(distDirectory, "style.css"))}.css`,
-        "site.js": `site.${contentHash(join(distDirectory, "site.js"))}.js`,
-        "islands.js": `islands.${contentHash(join(distDirectory, "islands.js"))}.js`,
+        "style.css": `style.${contentHash(join(baseDir, "style.css"))}.css`,
+        "site.js": `site.${contentHash(join(baseDir, "site.js"))}.js`,
+        "islands.js": `islands.${contentHash(join(baseDir, "islands.js"))}.js`,
     };
 }
 
-export function applyHashedFilenames(manifest: AssetManifest): void {
+export function applyHashedFilenames(
+    manifest: AssetManifest,
+    baseDir: string = distDirectory,
+): void {
     for (const [original, hashed] of Object.entries(manifest)) {
-        const originalPath = join(distDirectory, original);
+        const originalPath = join(baseDir, original);
         if (!existsSync(originalPath)) {
             throw new Error(`Cannot rename missing asset: ${originalPath}`);
         }
-        renameSync(originalPath, join(distDirectory, hashed));
+        renameSync(originalPath, join(baseDir, hashed));
     }
 }

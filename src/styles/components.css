@@ -1,32 +1,17 @@
 @layer components {
 
-    /* ─── Centralized interaction ────────────────────────── */
-    /* Muted navigational links share one transition + hover.
-       :where() keeps specificity at 0 so components can override. */
-    :where(.site-nav a,
-        .nav-links a,
-        .hero-meta a,
-        .page-header-nav a,
-        .article-footer a,
-        .series-list a,
-        .series-arrows a,
-        .footer-nav a,
-        .fn-ref) {
-        color: var(--color-text-secondary);
-        text-decoration: none;
-        transition: color var(--transition-fast) var(--easing-default);
+    /* ─── Shared list reset ──────────────────────────────── */
+    /* Editorial lists drop their default marker + indentation.
+       :where() keeps specificity at 0 so list items style freely. */
+    :where(.article-list ul, .series-list, .revision-history ol) {
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
 
-    :where(.site-nav a,
-        .nav-links a,
-        .hero-meta a,
-        .page-header-nav a,
-        .article-footer a,
-        .series-list a,
-        .series-arrows a,
-        .footer-nav a,
-        .fn-ref):is(:hover, :focus-visible) {
-        color: var(--color-text-primary);
+    /* ─── Shared hairline divider ────────────────────────── */
+    :where(.article-list li + li, .article-footer) {
+        border-block-start: 1px solid var(--color-border);
     }
 
     /* ─── Shared surfaces ────────────────────────────────── */
@@ -221,22 +206,12 @@
         color: var(--color-text-muted);
     }
 
-    .article-list ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
     .article-list li {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         gap: var(--space-1) var(--space-3);
         align-items: baseline;
         padding-block: var(--space-2);
-    }
-
-    .article-list li+li {
-        border-block-start: 1px solid var(--color-border);
     }
 
     .series-label {
@@ -347,7 +322,6 @@
 
     .article-footer {
         padding-block-start: var(--space-5);
-        border-block-start: 1px solid var(--color-border);
 
         & a {
             text-decoration: none;
@@ -456,9 +430,6 @@
         display: flex;
         flex-direction: column;
         gap: var(--space-1);
-        padding: 0;
-        margin: 0;
-        list-style: none;
     }
 
     .series-list li {
@@ -503,12 +474,6 @@
 
     .revision-history-heading {
         margin-block-end: var(--space-2);
-    }
-
-    .revision-history ol {
-        list-style: none;
-        padding: 0;
-        margin: 0;
     }
 
     .revision-history li {

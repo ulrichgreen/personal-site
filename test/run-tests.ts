@@ -26,6 +26,8 @@ const unitTestFiles = [
     "src/build/build-summary.test.ts",
     "src/build/dev.test.ts",
     "src/build/performance-budgets.test.ts",
+    "src/build/assets/asset-manifest.test.ts",
+    "src/build/assets/images.test.ts",
     "src/build/content/frontmatter.test.ts",
     "src/build/content/article-index.test.ts",
     "src/build/content/audit.test.ts",

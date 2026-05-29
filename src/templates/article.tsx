@@ -2,7 +2,6 @@ import {
     ArticleHeader,
     getArticleTitleTransitionName,
 } from "../components/article-header/article-header.tsx";
-import { PageHeader } from "../components/page-header/page-header.tsx";
 import { RevisionHistory } from "../components/revision-history/revision-history.tsx";
 import { SeriesNav } from "../components/series-nav/series-nav.tsx";
 import BaseLayout from "./base.tsx";
@@ -36,7 +35,17 @@ export default function ArticleLayout({
             mainClassName="page page--article"
             seriesName={seriesInfo?.name}
         >
-            <PageHeader title={meta.title} section={meta.section} />
+            <div className="page-header">
+                {meta.section && (
+                    <span className="label">{meta.section}</span>
+                )}
+                <span className="page-header-title body-sm">
+                    {meta.title}
+                </span>
+                <nav className="page-header-nav body-sm" aria-label="Article">
+                    <a href="/index.html">← All articles</a>
+                </nav>
+            </div>
             <article>
                 <ArticleHeader
                     title={meta.title}

@@ -1,255 +1,168 @@
-# Codebase Assessment: Toward a Technical Marvel
+# Codebase Assessment: Remaining Work Toward a Marvel
 
-> An honest, opinionated review of the site as a place to write and as a showcase
-> for a highly opinionated, minimal, blazing-fast static site. Findings are drawn
-> from a multi-angle audit (CSS, build pipeline, dev workflow, content/MDX,
-> components/rendering/islands). Figures verified against the working tree.
+> A follow-up to the original multi-angle audit. The build pipeline and dev
+> workflow recommendations have largely landed; this document records **what was
+> done**, **what is left**, and **where the next round of simplification should
+> go**. Figures verified against the working tree.
 
 ## TL;DR
 
-The codebase is **already good** — semantic markup, real partial hydration, a clean
-authoring model, and sane tooling choices. It is **not yet a marvel**, and your two
-instincts are correct:
+The two structural themes from the first audit are **done**: the build is now one
+linear, readable pipeline, and dev reuses it instead of maintaining a parallel
+path. The authoring model picked up its highest-ROI wins (path-inferred layout, a
+template, friendlier series rules).
 
-1. **The design can survive on far less CSS.** The styling is healthy but carries
-   ~30–40% redundancy that pure-CSS consolidation and modern features can remove
-   without touching the look.
-2. **The build/dev layer is over-partitioned.** Functionality is fine; it is split
-   across too many small modules with two parallel rebuild paths and implicit
-   ordering, which is what makes it "hard to reason about."
+What remains is concentrated in **two places**:
 
-The content/authoring system and the component/island architecture are the strongest
-parts and need only light trimming.
+1. **CSS still carries its redundancy.** `components.css` is unchanged in size
+   (~634 lines). The groundwork landed — tokens for durations/radii, one
+   centralized `:where()` interaction rule — but the broader consolidation
+   (shared borders, list resets, pseudo-element marks, modern CSS features) has
+   not happened yet. This is now the single largest lever left.
+2. **A few components and wrappers still exist only as indirection.** `PageHeader`
+   and `Manifesto` remain thin pass-throughs, and a handful of presentational
+   `<span>`/`<div>` wrappers exist solely to be styled.
 
-The single most valuable mental shift: **stop adding layers, start removing them.**
-Elegance here comes from deletion and from leaning harder on the platform (modern CSS,
-the filesystem as the database, one linear pipeline), not from new abstractions.
+Everything else is polish: a couple of test-coverage gaps and a small set of
+"lean harder on the platform" opportunities.
+
+The guiding instinct is unchanged: **elegance comes from deletion**, not new
+abstractions.
 
 ---
 
-## Current State (verified)
+## What landed since the first audit
 
-| Area | Metric | Note |
+| Theme | Recommendation | Status |
 | --- | --- | --- |
-| CSS total | ~1,558 lines across 12 files | `components.css` alone is 633 lines (41%) |
-| Build/dev modules | 33 `.ts`/`.tsx` files (excl. tests) | `content/` holds 9; `dev.ts` is 332 lines; `compile-mdx.ts` is 344 |
-| Components | 16 entries in `src/components/` | All semantic; 2 are pure indirection |
-| Islands | 1 registered (`DemoWidget`) | Pattern is correct and not overbuilt |
-| Client JS | ~15 KB gzipped (est.) | Progressive enhancement; no full-page hydration |
+| Build pipeline | Extract named pipeline stages | **Done** — `src/build/pipeline.ts` exposes `compileSite` / `rebuildPages`; `build.ts` is a short, commented stage list |
+| Build pipeline | Single article index (no disk fallback) | **Done** — index always derives from compiled content |
+| Build pipeline | Collapse `content/` to ~5 cohesive files | **Done** — `discover`, `compile`, `metadata`, `article-index`, `contracts` |
+| Build pipeline | Split Shiki theme out of compile | **Done** — `src/build/content/syntax-theme.ts` |
+| Build pipeline | One `buildArtifacts()` call | **Done** — `buildAncillary()` orchestrates feed/sitemap/robots/headers/og |
+| Dev workflow | Reuse prod pipeline in dev | **Done** — `rebuildPages()` is the content subset of the full pipeline |
+| Dev workflow | Merge `dev-content` / `dev-render` | **Done** — both deleted; one rebuild path |
+| Dev workflow | In-process fast rebuilds | **Done** — content edits rebuild in-process; a `codeStale` flag routes template edits through a fresh subprocess |
+| Authoring | Infer `layout: article` from path | **Done** — `resolveLayout()` in `frontmatter.ts` |
+| Authoring | Add an article template | **Done** — `content/articles/_template.mdx` |
+| Authoring | Document auto-description | **Done** — called out in the template |
+| Authoring | Allow gaps in `seriesOrder` | **Done** — non-contiguous order now warns instead of failing |
+| Styling | Tokenize durations / radii / transitions | **Done** — present in `tokens.css` |
+| Styling | Centralize the interaction pattern | **Partial** — one `:where()` rule exists atop `components.css`; the rest of the consolidation is outstanding |
 
-What is genuinely excellent and should **not** be "improved":
-
-- Markup is semantic with no div soup. `site-header`, `site-footer`, `figure`,
-  `callout`, `code`, `table-of-contents` all emit clean, minimal HTML.
-- Partial hydration via `src/islands/` + `src/client/islands.ts` is elegant: props
-  inlined as JSON, four hydration strategies, scripts loaded only when an island
-  exists.
-- Authoring ceremony is proportionate: pages need only `title`; articles need
-  `title` + `published`. Reading time, word count, and description are auto-derived.
-- Dependency choices are lean and each pulls its weight (esbuild, lightningcss,
-  sharp, shiki, preact). No bloat to remove here.
-
----
-
-## Theme 1 — Styling: same design, far less CSS
-
-The design direction is good. The CSS that produces it is **repetitive**, not large.
-`components.css` (633 lines) is where the weight sits, and most of it is duplicated
-interaction, border, and list patterns.
-
-### What is inflating the CSS
-
-1. **Repeated interaction pattern (~30+ sites).**
-   `transition: color 0.2s var(--easing-default)` followed by a
-   `&:hover, &:focus-visible { color: var(--color-text-primary) }` block recurs on
-   nav links, article-list links, series-nav links, footnote refs, and more.
-2. **Repeated border rule (~20+ sites).** `border-block-end: 1px solid var(--color-border)`
-   appears across list items, headings, nav, and page-header.
-3. **Repeated list reset (3–4 sites).** `list-style: none; padding: 0; margin: 0` is
-   re-declared per component.
-4. **Magic numbers, not tokens.** Durations (`0.2s/0.3s/0.7s/0.9s`), opacities
-   (`0.4/0.55/0.72`), border widths, and radii are hardcoded throughout, so intent is
-   invisible and changes are global find-replace.
-5. **A few presentational wrappers in markup** (`hero` tagline `<span>`, three dot
-   `<span>`s, a `header__rule` `<div>`) that exist only to be styled and could be
-   pseudo-elements.
-
-### Approach to take (target ~40–50% reduction in `components.css`)
-
-The right lever is **modern CSS plus consolidation**, not a framework.
-
-- **Centralize interaction in one `:where()` rule.** Group every interactive selector:
-  ```css
-  @layer components {
-    :where(a, .article-list__link, .series-nav__link, .fn-ref) {
-      transition: color var(--transition-fast) var(--easing-default);
-    }
-    :where(a, .article-list__link, .series-nav__link, .fn-ref):is(:hover, :focus-visible) {
-      color: var(--color-text-primary);
-    }
-  }
-  ```
-  `:where()` keeps specificity at zero so components can still override locally.
-- **Add the missing tokens** (durations, opacity, border widths, radii) to
-  `tokens.css`. This is the cheapest legibility win and unlocks the consolidations
-  above. The existing token set (colors, type scale, spacing) is *not* over-engineered
-  — it is under-tokenized on these axes.
-- **Promote shared affordances to element selectors** instead of per-component classes:
-  one rule for "bordered list item," one for "list reset," applied via `:where()`.
-- **Adopt `@property`** for the theme colors so light/dark transitions animate in pure
-  CSS, removing bespoke transition handling.
-- **Reach for `:has()` and container queries** to delete sibling-selector hacks and
-  per-component media queries (e.g., `callout`, `demo-widget`, cards size to their
-  container instead of the viewport).
-- **Delete the presentational wrappers** and render those marks with `::before`/`::after`.
-  This simplifies both the HTML and the CSS at once — which is exactly the
-  "markup as a work of art" goal.
-
-Keep the cascade-layer structure (`reset → tokens → base → typography → layout →
-components`); it is a strength. Consider one additional `interactive` layer so all
-hover/focus/transition behavior lives in a single, auditable place.
-
-Net effect: the rendered output is byte-for-byte the same, but the source becomes a
-short, declarative description of the system rather than a list of per-component recipes.
+The build now reads as one story, and a content edit no longer pays subprocess
+cold-start. Those were the hardest-to-reason-about parts of the codebase, and
+they are no longer the bottleneck.
 
 ---
 
-## Theme 2 — Build pipeline: one linear story, fewer modules
+## What is left
 
-The build *works* and the stage order is sound:
+### 1. CSS consolidation — the biggest remaining lever
 
-```
-discover → compile MDX → index articles → build series map
-        → render pages → build artifacts (feed/sitemap/robots/headers/og)
-        → (prod only) hash assets, validate contracts, enforce budgets
-```
+`components.css` is still ~634 lines and the redundancies the first audit named
+are still present. The tokens and the single interaction rule are in place, which
+means the hard part (deciding the shape) is settled; the work now is mechanical
+consolidation that should not change a single rendered pixel.
 
-The problem is not the algorithm; it is that this single story is **spread across too
-many files and expressed through conditionals** in `build.ts`, so the reader has to
-reassemble it mentally.
+Concrete, still-open items:
 
-### Where the difficulty actually lives
+- **No dedicated `interactive` layer.** Interaction lives inside `components.css`
+  rather than in its own auditable cascade layer. Promoting it to
+  `@layer interactive` (added to the layer order in `style.css`) keeps all
+  hover/focus/transition behavior in one place.
+- **`list-style: none` is repeated** in at least three components. One
+  `:where()` list-reset removes the duplication.
+- **The bordered-divider rule recurs** (`border-block-start: 1px solid
+  var(--color-border)` and friends) across list items, headings, and nav. A
+  single shared rule applied via `:where()` collapses these.
+- **`@property` is not adopted.** Declaring the theme colors as `@property`
+  custom properties lets light/dark transitions animate in pure CSS and removes
+  any bespoke transition handling.
+- **`:has()` and container queries are unused.** `callout`, `demo-widget`, and
+  the cards still size to the viewport via per-component media queries; container
+  queries would let them size to their container and delete those breakpoints.
 
-1. **Two ways to build the article index.** `build.ts` computes the index from compiled
-   content when compilation succeeds, but falls back to re-reading frontmatter from
-   disk otherwise. There is no single source of truth, which is the core "what is
-   actually happening here?" smell.
-2. **Implicit ordering via conditionals.** Hashing, contract validation, and budget
-   enforcement are gated on `!dev` / `failed.length === 0` inside `buildAll()`. The
-   ordering is correct but not *expressed*; it is inferred from the position of `if`s.
-3. **Over-partitioned `content/` (9 files).** Several files (`build-content`,
-   `article-index`, `compile-pages`) each do a slice of "turn MDX into typed,
-   indexed content," and the metadata-extraction logic is duplicated between them.
-4. **Thin wrappers that add a hop, not value.** `compile-pages.ts` wraps a concurrency
-   pool; `render-react-page.tsx` exposes two near-identical render functions.
-5. **`compile-mdx.ts` (344 lines) mixes three concerns:** Shiki theme data, three
-   inline rehype plugins with HAST tree-walking, and the MDX evaluation itself.
+Target outcome is unchanged from the first audit: **~40% smaller `components.css`
+with byte-identical rendered output.** The difference now is that it is a pure
+clean-up — no design decisions remain.
 
-### Approach to take (same outputs, ~6 clear stages)
+### 2. Remove indirection-only components and wrappers
 
-Make the pipeline **the literal shape of the code.**
+- **`PageHeader`** is used exactly once (in `templates/article.tsx`). Inlining its
+  markup into the template removes a component, a CSS file, and a directory.
+- **`Manifesto`** is static prose wrapped in a component and registered as an MDX
+  component, used only by `index.mdx`. Moving the text into `index.mdx` directly
+  removes the component and shrinks the content-component registry.
+- **Presentational wrappers** remain in markup that exist only to be styled — e.g.
+  the `hero-meta` `<span>`s and the hero rule. Several of these can become
+  `::before`/`::after` marks, simplifying both the HTML and the CSS at once. This
+  is the "markup as a work of art" goal the site is reaching for.
 
-- **Express stages as named functions in one place.** A small `pipeline.ts` that runs
-  `discover → compile → index → render → artifacts → validate` in sequence, each stage
-  a pure function over a `BuildContext`. `build.ts` becomes ~15 lines that runs the
-  pipeline with `{ dev }`; nothing else.
-- **One article index, always from compiled content.** Delete the disk fallback. If
-  compilation fails in prod, fail loudly; in dev, render what compiled. This removes
-  the dual code path entirely.
-- **Collapse the `content/` folder from 9 → ~5 files:** `discover`, `compile`
-  (MDX + parallelism inline), `metadata` (frontmatter + description + reading time +
-  section), `index` (article + series), `contracts`. Move the Shiki theme to its own
-  `syntax-theme.ts` so `compile.ts` is just plugins + evaluation.
-- **One `buildArtifacts()`** that `Promise.all`s feed/sitemap/robots/headers/og behind a
-  single call, instead of orchestrating five builders from `build.ts`.
-- **Make gating explicit, not positional.** A `validate` stage that early-returns in
-  dev reads far better than scattered `if (!dev)` branches.
+### 3. Close the two test gaps
 
-This is deletion and flattening, not redesign — the same modules, fewer of them, with
-the control flow visible at a glance.
+- **No tests for image optimization** (`src/build/assets/images.ts`).
+- **No tests for asset-manifest hashing** (`src/build/assets/asset-manifest.ts`).
+
+Both are production-only paths that currently rely on the full `verify` pass
+rather than focused unit tests. A small `*.test.ts` beside each would lock in the
+hashing contract and the image-derivative outputs against regression.
 
 ---
 
-## Theme 3 — Dev workflow: collapse the parallel paths
+## Further improvements that fit the vision
 
-Live reload (HTTP + WebSocket + chokidar, debounced) is simple and effective. The
-friction is structural:
+These were not in the original audit but align with the "simpler, more elegant,
+lean on the platform" direction. None is required; each removes more than it adds.
 
-1. **`dev-content.ts` and `dev-render.ts` duplicate ~60% of the build content path**
-   (discover → compile → render); the only real difference is an article scope filter.
-2. **Rebuilds spawn a fresh `tsx` subprocess per change**, paying ~100–500 ms of cold
-   start each time. Isolation is nice but unnecessary for the fast path.
-3. **A separate `render-articles` classification** adds a branch for a probably-tiny
-   saving that has never been measured.
-
-### Approach to take
-
-- **Reuse the prod pipeline in dev.** Once stages exist (Theme 2), dev just runs a
-  *subset*: `discover → compile → index → render` with `validate` skipped. Delete
-  `dev-content.ts` and `dev-render.ts`; replace with one `rebuildPages(scope?)`
-  exported from the pipeline.
-- **Run fast rebuilds in-process** via dynamic import; reserve subprocess spawning for
-  the full/cold path. This is the single biggest dev-latency win.
-- **Drop `render-articles`** unless a measurement justifies it. Prefer three
-  categories: `styles`, `client`, `content` (everything content/template).
-
-The test split (`*.test.ts` unit + `test/verify-*.ts` integration) is coherent and
-worth keeping; just document it in one sentence in `docs/`. The only real coverage gaps
-are image optimization and asset-manifest hashing.
+- **Collapse the CSS entry imports.** `style.css` lists two component stylesheets
+  (`demo-widget`, `table-of-contents`) inline alongside the layer imports. Once
+  the `interactive` layer exists, consider a single convention — every component
+  stylesheet imported in one ordered block — so the layer story is visible at a
+  glance.
+- **Treat `docs/` as a small, current set.** Several documents
+  (`simplicity-audit.md`, `roadmap.md`, `future-ideas.md`, this file) overlap.
+  After the CSS pass, fold the still-true parts into `architecture.md` and retire
+  the rest, so a newcomer reads one source of truth rather than a paper trail.
+- **One sentence on the test split.** The `*.test.ts` (unit) vs `test/verify-*.ts`
+  (integration) division is coherent but undocumented. A single line in
+  `docs/architecture.md` is enough.
+- **Consider a client-JS size budget.** Performance budgets exist for output
+  bytes; an explicit ceiling on shipped client JS would guard the partial-
+  hydration promise the same way the CSS budget guards the styling one.
+- **Audit the `--type-leading-*` set.** `tokens.css` defines `tight`, `normal`,
+  `loose`, `relaxed`, `display`, and `body`. If any are unused after the CSS
+  consolidation, drop them — the type system should be exactly as large as the
+  design needs.
 
 ---
 
-## Theme 4 — Content & components: trim, don't rebuild
+## The bar for "marvel" (unchanged)
 
-These are the healthiest parts. Light touches only:
+When the remaining work is done, a newcomer should be able to:
 
-- **Infer `layout: article` from the `content/articles/` path** so authors never type
-  it. This is the one authoring-friction item with clear ROI.
-- **Document auto-description extraction** prominently — authors should know that
-  omitting `description` pulls the first content block.
-- **Add a `content/articles/_template.mdx`** scaffold as a copy-paste starting point.
-- **Inline the two indirection-only components** into their single call site:
-  `page-header` (used once in the article template) and `manifesto` (static text that
-  belongs in `index.mdx`). Everything else in `src/components/` earns its place.
-- **Consider allowing gaps in `seriesOrder`** (warn instead of fail) so inserting an
-  article mid-series doesn't force renumbering.
+- Read `tokens.css` + a single short `interactive` layer and understand the entire
+  visual system.
+- Read `pipeline.ts` top to bottom and see the whole build in one screen. *(Already
+  true.)*
+- Add an article by copying the template and writing prose — no layout field, no
+  ceremony. *(Already true.)*
+- Open any component and find clean, semantic HTML with no wrapper noise.
+
+Two of the four are met. The other two are a CSS consolidation pass and a small
+round of component/wrapper deletion away — almost entirely **removal**, not new
+code.
 
 ---
 
-## What to change — assumptions and priorities
-
-Reframe three assumptions:
-
-1. **"More files = more modular."** Here it means more places to look. Prefer fewer,
-   cohesive modules whose names map to the pipeline stages.
-2. **"Components need classes; classes need rules."** Lean on the platform: element
-   selectors, `:where()`, `:has()`, container queries, and pseudo-elements remove both
-   markup and CSS. Minimal markup *is* the styling strategy.
-3. **"Dev and prod need separate code paths."** They need the same pipeline with
-   different stage selection. One path, parameterized.
-
-### Suggested order of work
+## Suggested order of work
 
 | Phase | Work | Payoff |
 | --- | --- | --- |
-| 1 (quick) | Add CSS tokens; centralize interaction/border/list rules with `:where()`; delete presentational wrappers | ~40% smaller `components.css`, cleaner markup |
-| 1 (quick) | Inline `page-header` + `manifesto`; infer `layout: article`; add article template | Less indirection, lower authoring friction |
-| 2 (core) | Extract `pipeline.ts` stages; single article index; collapse `content/` to ~5 files; split Shiki theme out of `compile-mdx` | Build becomes one readable story |
-| 2 (core) | Merge `dev-content`/`dev-render` into `rebuildPages`; reuse pipeline in dev | Less duplication, simpler dev mental model |
-| 3 (polish) | In-process fast rebuilds; `@property` theme transitions; container queries; budget for client JS size; image/manifest tests | Faster dev, modern CSS showcase, regression safety |
+| 1 | Add `interactive` layer; consolidate list-reset + border rules with `:where()`; delete presentational wrappers | ~40% smaller `components.css`, cleaner markup, identical render |
+| 1 | Inline `PageHeader` and `Manifesto` into their single call sites | Fewer files, smaller content-component registry |
+| 2 | Adopt `@property` theme colors; container queries for `callout` / `demo-widget` / cards | Modern-CSS showcase, fewer media queries |
+| 2 | Add `images` and `asset-manifest` unit tests | Regression safety on the two prod-only paths |
+| 3 | Consolidate `docs/`; document the test split; add a client-JS budget | One source of truth, guarded promises |
 
 Done in this order, each phase leaves the site shippable and the diff reviewable.
-
----
-
-## The bar for "marvel"
-
-When finished, a newcomer should be able to:
-
-- Read `tokens.css` + one short `interactive` layer and understand the entire visual
-  system.
-- Read `pipeline.ts` top to bottom and see the whole build in one screen.
-- Add an article by copying a template and writing prose — no layout field, no ceremony.
-- Open any component and find clean, semantic HTML with no wrapper noise.
-
-That is achievable from where the code is today, almost entirely by **removing** things.
