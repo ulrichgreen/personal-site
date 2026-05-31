@@ -1,5 +1,4 @@
-import { createElement, type ComponentType } from "preact/compat";
-import { hydrate } from "preact";
+import { createElement, hydrate, type ComponentType } from "preact";
 import { islandRegistry } from "../islands/registry.ts";
 
 function hydrateIsland(root: HTMLElement): void {

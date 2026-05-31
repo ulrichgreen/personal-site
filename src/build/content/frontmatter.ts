@@ -14,22 +14,59 @@ const revisionSchema = z.object({
     note: z.string().trim().min(1),
 });
 
-const contentMetaSchema = z.object({
-    title: z.string().trim().min(1, "title is required"),
-    description: z.string().trim().min(1).optional(),
-    layout: z.enum(["article", "base"]).optional(),
-    section: z.string().trim().min(1).optional(),
-    published: yamlDateString.optional(),
-    revised: yamlDateString.optional(),
-    draft: z.boolean().optional(),
-    words: z
-        .union([z.number().positive(), z.string().trim().min(1)])
-        .optional(),
-    note: z.string().trim().min(1).optional(),
-    series: z.string().trim().min(1).optional(),
-    seriesOrder: z.number().int().positive().optional(),
-    revisions: z.array(revisionSchema).optional(),
-});
+const contentMetaSchema = z
+    .object({
+        title: z.string().trim().min(1, "title is required"),
+        description: z.string().trim().min(1).optional(),
+        layout: z.enum(["article", "base"]).optional(),
+        section: z.string().trim().min(1).optional(),
+        published: yamlDateString.optional(),
+        revised: yamlDateString.optional(),
+        draft: z.boolean().optional(),
+        words: z
+            .union([z.number().positive(), z.string().trim().min(1)])
+            .optional(),
+        note: z.string().trim().min(1).optional(),
+        series: z.string().trim().min(1).optional(),
+        seriesOrder: z.number().int().positive().optional(),
+        revisions: z.array(revisionSchema).optional(),
+    })
+    .superRefine((data, ctx) => {
+        // `series` and `seriesOrder` are meaningless apart; require both or neither.
+        if (data.series && data.seriesOrder === undefined) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["seriesOrder"],
+                message: "seriesOrder is required when series is set",
+            });
+        }
+        if (data.seriesOrder !== undefined && !data.series) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["series"],
+                message: "series is required when seriesOrder is set",
+            });
+        }
+        // Edit dates cannot predate publication (ISO yyyy-mm-dd sorts lexically).
+        if (data.published && data.revised && data.revised < data.published) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["revised"],
+                message: "revised cannot be earlier than published",
+            });
+        }
+        if (data.published && data.revisions) {
+            for (const [index, revision] of data.revisions.entries()) {
+                if (revision.date < data.published) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        path: ["revisions", index, "date"],
+                        message: "revision date cannot be earlier than published",
+                    });
+                }
+            }
+        }
+    });
 
 const ARTICLE_PATH_PATTERN = /(^|\/)articles\/[^/]+\.mdx$/;
 

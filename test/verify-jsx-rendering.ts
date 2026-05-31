@@ -150,12 +150,15 @@ async function main() {
         articleHtml.includes('src="/islands.js"'),
         "Article page with an interactive demo should include islands.js.",
     );
-    assert(articleHtml.includes('data-island="DemoWidget"'));
+    assert(articleHtml.includes('data-island="GridPlayground"'));
     assert(
         !articleHtml.includes('data-island="TableOfContents"'),
         "Table of contents should be static markup, not an island.",
     );
-    assert(articleHtml.includes("Count the cost before you add capability."));
+    assert(
+        articleHtml.includes('class="playground"'),
+        "Interactive example should render the playground frame.",
+    );
     assert(
         articleHtml.includes('aria-label="Tip callout"'),
         "Callout tip should render with accessible label.",
@@ -196,7 +199,7 @@ async function main() {
     );
 
     assert(
-        articleHtml.includes('data-hydrate="load"'),
+        articleHtml.includes('data-hydrate="visible"'),
         "Islands should include the data-hydrate attribute.",
     );
 
@@ -305,7 +308,7 @@ async function main() {
             title: "Essay",
             layout: "base",
         },
-        body: "<DemoWidget />\n\n# Essay\n\nA paragraph that should become the fallback description.",
+        body: "<GridPlayground />\n\n# Essay\n\nA paragraph that should become the fallback description.",
     });
 
     assert.equal(

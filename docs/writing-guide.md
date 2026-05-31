@@ -55,13 +55,15 @@ Use for the short manifesto block on the home page. It renders the site's core p
 <Manifesto />
 ```
 
-### `DemoWidget`
+### `GridPlayground`
 
-An explicit interactive island. Use it sparingly, only when state is the point.
+An interactive example island — a small, article-scoped "mini CodePen". It renders a CSS grid on a resizable stage so readers can drag the viewport width and adjust columns, gap, and dense flow. Use interactive examples to let readers explore a concept, not just read about it.
 
 ```mdx
-<DemoWidget prompt="Count the cost before you add capability." initialCount={2} />
+<GridPlayground initialColumns={3} initialGap={16} boxCount={9} />
 ```
+
+New examples are authored as island components under `src/components/examples/` and registered in `src/islands/registry.ts`; once registered they are available in MDX automatically.
 
 ### `Callout`
 
@@ -124,18 +126,24 @@ seriesOrder: 2
 - the article footer shows series navigation
 - `seriesOrder` values must be unique within a series
 - series orders must be contiguous, starting at `1`
+- `series` and `seriesOrder` must be set together; one without the other fails the build
 
-## Revisions
+## Notes and revisions
 
-Use `revisions` when an already-published article changes in a meaningful way.
+`note` and `revisions` look similar but do different jobs:
+
+- `note` is a single, undated editorial aside about the piece as a whole — for example, "I rewrote the third section four times." Use it sparingly; one per article.
+- `revisions` is the dated change log. Use it when an already-published article changes in a meaningful way.
 
 ```yaml
+note: I rewrote the third section four times.
+revised: "2025-03-02"
 revisions:
   - date: "2025-03-02"
     note: Rewrote the third section
 ```
 
-Keep entries short and factual. The revision history renders after the article body and before series navigation.
+Keep entries short and factual. The revision history renders after the article body and before series navigation. Set `revised` to the date of the newest revision. The build rejects a `revised` date or any revision `date` that falls before `published`.
 
 ## Footnotes
 

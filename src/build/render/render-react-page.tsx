@@ -4,6 +4,7 @@ import { getContentComponents } from "../../content-components.tsx";
 import type { BuiltContent, SeriesInfo, ArticleIndexEntry } from "../../types/content.ts";
 import type { RegisterIslandInput } from "../../types/islands.ts";
 import { devAssetManifest, type AssetManifest } from "../assets/asset-manifest.ts";
+import { urlPathFromSource } from "../shared/paths.ts";
 import { renderLayout } from "./layouts.tsx";
 import {
     RenderContext,
@@ -17,19 +18,7 @@ export interface RenderedPage {
     islands: IslandUsage;
 }
 
-function derivePagePath(sourcePath: string): string {
-    const marker = "/content/";
-    const idx = sourcePath.indexOf(marker);
-    if (idx === -1) return "/";
-    return (
-        "/" + sourcePath.slice(idx + marker.length).replace(/\.mdx$/, ".html")
-    );
-}
-
-function createRenderContext(
-    articleIndex: ArticleIndexEntry[],
-    content: BuiltContent,
-): {
+function createRenderContext(content: BuiltContent): {
     context: RenderContextValue;
     hasIslands: () => boolean;
     getIslandUsage: () => IslandUsage;
@@ -45,7 +34,6 @@ function createRenderContext(
         Object.fromEntries(islands.entries()) as IslandUsage;
     return {
         context: {
-            articleIndex,
             headings: content.headings,
             registerIsland,
             hasIslands,
@@ -59,9 +47,9 @@ export function renderContentBody(
     content: BuiltContent,
     articleIndex: ArticleIndexEntry[],
 ): string {
-    const { context } = createRenderContext(articleIndex, content);
+    const { context } = createRenderContext(content);
     const body = createElement(content.Content, {
-        components: getContentComponents(),
+        components: getContentComponents(articleIndex),
     });
     return renderToStaticMarkup(
         createElement(RenderContext.Provider, { value: context }, body),
@@ -89,14 +77,13 @@ export function renderPageWithMetadata(
     seriesInfo?: SeriesInfo,
 ): RenderedPage {
     const { context, hasIslands, getIslandUsage } = createRenderContext(
-        articleIndex,
         content,
     );
 
-    const pagePath = derivePagePath(content.sourcePath);
+    const pagePath = urlPathFromSource(content.sourcePath);
 
     const body = createElement(content.Content, {
-        components: getContentComponents(),
+        components: getContentComponents(articleIndex),
     });
 
     const page = renderLayout(

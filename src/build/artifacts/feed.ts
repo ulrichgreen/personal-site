@@ -1,7 +1,9 @@
-import type { BuiltContent, ArticleIndexEntry } from "../../types/content.ts";
+import type { BuiltContent } from "../../types/content.ts";
 import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from "../../config.ts";
 import { writeDistFile } from "../shared/dist-fs.ts";
+import { slugFromSource } from "../shared/paths.ts";
 import { renderContentBody } from "../render/render-react-page.tsx";
+import type { ArtifactContext } from "./context.ts";
 
 function toISOTimestamp(value: string): string {
     const date = new Date(value);
@@ -22,25 +24,20 @@ function escapeCdata(text: string): string {
     return text.replace(/]]>/g, "]]]]><![CDATA[>");
 }
 
-export async function buildFeed(
-    articleIndex: ArticleIndexEntry[],
-    compiledArticles: BuiltContent[],
-): Promise<number> {
+export async function buildFeed({
+    articleIndex,
+    compiledArticles,
+}: ArtifactContext): Promise<number> {
     const latestDate =
         articleIndex.length > 0
             ? toISOTimestamp(
-                  articleIndex[0].revised || articleIndex[0].published,
-              )
+                articleIndex[0].revised || articleIndex[0].published,
+            )
             : new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 
     const contentBySlug = new Map<string, BuiltContent>();
     for (const content of compiledArticles) {
-        const slug =
-            content.sourcePath
-                .split("/")
-                .pop()
-                ?.replace(/\.mdx$/, "") ?? "";
-        contentBySlug.set(slug, content);
+        contentBySlug.set(slugFromSource(content.sourcePath), content);
     }
 
     const entries: string[] = [];

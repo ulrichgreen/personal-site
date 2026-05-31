@@ -11,11 +11,10 @@ function toEsbuildTarget(targets: typeof browserTargets): string[] {
 }
 
 function toLightningCssTarget(targets: typeof browserTargets): Record<keyof typeof browserTargets, number> {
-    return {
-        chrome: targets.chrome << 16,
-        firefox: targets.firefox << 16,
-        safari: targets.safari << 16,
-    };
+    // Lightning CSS encodes each browser version as major << 16.
+    return Object.fromEntries(
+        Object.entries(targets).map(([browser, version]) => [browser, version << 16]),
+    ) as Record<keyof typeof browserTargets, number>;
 }
 
 export const siteConfig = {

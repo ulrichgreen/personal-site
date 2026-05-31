@@ -1,9 +1,10 @@
 import { mkdirSync, readdirSync, rmSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 import {
     contentDirectory,
     distDirectory,
     articlesDirectory,
+    outputPathFromSource,
 } from "../shared/paths.ts";
 
 export function discoverSourceFiles(): string[] {
@@ -18,12 +19,7 @@ export function discoverSourceFiles(): string[] {
     return [...topLevelPages, ...articlePages];
 }
 
-export function resolveOutputPath(sourcePath: string): string {
-    return join(
-        distDirectory,
-        relative(contentDirectory, sourcePath).replace(/\.mdx$/, ".html"),
-    );
-}
+export const resolveOutputPath = outputPathFromSource;
 
 export function cleanGeneratedPages(): void {
     mkdirSync(distDirectory, { recursive: true });

@@ -1,10 +1,10 @@
-import { DemoWidget } from "../components/demo-widget/demo-widget.client.tsx";
+import { GridPlayground } from "../components/examples/grid-playground/grid-playground.client.tsx";
 import type { IslandDefinition } from "../types/islands.ts";
 
 export const islandRegistry = {
-    DemoWidget: {
-        component: DemoWidget,
-        hydrate: "load",
+    GridPlayground: {
+        component: GridPlayground,
+        hydrate: "visible",
     },
 } satisfies Record<string, IslandDefinition>;
 

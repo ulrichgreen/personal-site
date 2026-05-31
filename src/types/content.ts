@@ -9,6 +9,8 @@ interface SharedMeta {
     words?: number | string;
     readingTime?: string;
     published?: string;
+    /** Date of the most recent substantive edit. Surfaced as the "updated"
+     *  timestamp; should be the newest of any {@link Revision} dates. */
     revised?: string;
 }
 
@@ -16,6 +18,7 @@ export interface BasePageMeta extends SharedMeta {
     layout: "base";
 }
 
+/** One dated entry in the visible changelog rendered by `RevisionHistory`. */
 export interface Revision {
     date: string;
     note: string;
@@ -25,7 +28,12 @@ export interface ArticlePageMeta extends SharedMeta {
     layout: "article";
     published: string;
     draft?: boolean;
+    /** A single editorial aside about the piece as a whole (e.g. "I rewrote the
+     *  third section four times"). Distinct from {@link revisions}: `note` is
+     *  one undated remark, `revisions` is the dated change log. */
     note?: string;
+    /** The dated change log. Each entry is shown by `RevisionHistory`; the
+     *  latest entry's date should match {@link SharedMeta.revised}. */
     revisions?: Revision[];
     series?: string;
     seriesOrder?: number;

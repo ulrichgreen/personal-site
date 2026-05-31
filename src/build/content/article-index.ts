@@ -6,6 +6,7 @@ import type {
     SeriesInfo,
 } from "../../types/content.ts";
 import { isArticleMeta } from "../../types/content.ts";
+import { slugFromSource } from "../shared/paths.ts";
 
 function toArticleIndexEntry(
     meta: PageMeta,
@@ -15,7 +16,7 @@ function toArticleIndexEntry(
         return undefined;
     }
 
-    const slug = sourcePath.split("/").pop()?.replace(/\.mdx$/, "") || "";
+    const slug = slugFromSource(sourcePath);
 
     return {
         ...meta,

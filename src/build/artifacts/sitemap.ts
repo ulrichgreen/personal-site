@@ -1,7 +1,8 @@
 import { readdirSync } from "node:fs";
-import type { ArticleIndexEntry } from "../../types/content.ts";
 import { SITE_URL } from "../../config.ts";
 import { writeDistFile } from "../shared/dist-fs.ts";
+import { contentDirectory } from "../shared/paths.ts";
+import type { Artifact } from "./context.ts";
 
 function toISODate(value: string): string {
     const date = new Date(value);
@@ -18,11 +19,8 @@ function escapeXml(text: string): string {
         .replace(/'/g, "&apos;");
 }
 
-export function buildSitemap(
-    contentDir: string,
-    articleIndex: ArticleIndexEntry[],
-): void {
-    const topLevelPages = readdirSync(contentDir)
+export const buildSitemap: Artifact = ({ articleIndex }) => {
+    const topLevelPages = readdirSync(contentDirectory)
         .filter((file) => file.endsWith(".mdx") && file !== "404.mdx")
         .map((file) => file.replace(/\.mdx$/, ".html"));
 
@@ -49,4 +47,4 @@ export function buildSitemap(
     ].join("\n");
 
     writeDistFile("sitemap.xml", xml);
-}
+};

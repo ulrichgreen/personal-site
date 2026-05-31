@@ -1,0 +1,21 @@
+@layer components {
+    .grid-demo {
+        display: grid;
+    }
+
+    .grid-demo__box {
+        display: grid;
+        place-items: center;
+        min-block-size: 3rem;
+        padding: var(--space-2);
+        font-family: var(--type-family-mono);
+        color: var(--color-surface-base);
+        background-color: var(--color-accent);
+    }
+
+    .grid-demo__box:nth-child(even) {
+        background-color: color-mix(in srgb,
+                var(--color-accent) 70%,
+                var(--color-text-primary));
+    }
+}

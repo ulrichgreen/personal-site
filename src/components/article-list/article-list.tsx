@@ -1,5 +1,4 @@
 import { getArticleTitleTransitionName } from "../article-header/article-header.tsx";
-import { useRenderContext } from "../../context/render-context.tsx";
 import type { ArticleIndexEntry } from "../../types/content.ts";
 
 function formatDate(value: string): string {
@@ -91,8 +90,13 @@ function EntryItem({ entry }: { entry: ArticleIndexEntry }) {
     );
 }
 
-export function ArticleList({ items }: { items?: ArticleIndexEntry[] }) {
-    const { articleIndex } = useRenderContext();
+export function ArticleList({
+    items,
+    articleIndex = [],
+}: {
+    items?: ArticleIndexEntry[];
+    articleIndex?: ArticleIndexEntry[];
+}) {
     const entries = items || articleIndex;
     const yearGroups = groupByYear(entries);
 

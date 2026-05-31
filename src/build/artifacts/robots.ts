@@ -1,7 +1,8 @@
 import { SITE_URL } from "../../config.ts";
 import { writeDistFile } from "../shared/dist-fs.ts";
+import type { Artifact } from "./context.ts";
 
-export function buildRobots(): void {
+export const buildRobots: Artifact = () => {
     const content = [
         "User-agent: *",
         "Allow: /",
@@ -11,4 +12,4 @@ export function buildRobots(): void {
     ].join("\n");
 
     writeDistFile("robots.txt", content);
-}
+};

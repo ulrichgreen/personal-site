@@ -75,19 +75,18 @@ Content`);
             }
         });
 
-        it("allows series without seriesOrder", () => {
-            const result = parseFrontmatter(`---
+        it("rejects series without seriesOrder", () => {
+            assert.throws(
+                () =>
+                    parseFrontmatter(`---
 title: Series Part
 layout: article
 published: "2025-07-01"
 series: My Series
 ---
-Content`);
-            assert.equal(result.meta.layout, "article");
-            if (result.meta.layout === "article") {
-                assert.equal(result.meta.series, "My Series");
-                assert.equal(result.meta.seriesOrder, undefined);
-            }
+Content`),
+                /seriesOrder is required when series is set/,
+            );
         });
 
         it("parses revisions array", () => {

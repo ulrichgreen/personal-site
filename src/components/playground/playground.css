@@ -1,0 +1,158 @@
+@layer components {
+    .playground {
+        margin-block: var(--space-5);
+        border: 1px solid var(--color-border);
+        background-color: var(--color-surface-raised);
+    }
+
+    .playground__bar {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border-block-end: 1px solid var(--color-border-subtle);
+        color: var(--color-text-secondary);
+    }
+
+    .playground__title {
+        margin-inline-end: auto;
+        color: var(--color-text-primary);
+    }
+
+    .playground__readout {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+    }
+
+    .playground__reset {
+        appearance: none;
+        border: 1px solid var(--color-border);
+        background: transparent;
+        color: var(--color-text-secondary);
+        padding: 0.3rem 0.6rem;
+        cursor: pointer;
+    }
+
+    .playground__reset:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+
+    .playground__viewport {
+        display: flex;
+        align-items: stretch;
+        min-height: 8rem;
+        background-image: linear-gradient(90deg,
+                color-mix(in srgb, var(--color-border) 50%, transparent) 1px,
+                transparent 1px),
+            linear-gradient(color-mix(in srgb, var(--color-border) 50%, transparent) 1px,
+                transparent 1px);
+        background-size: var(--space-3) var(--space-3);
+    }
+
+    .playground__stage {
+        min-width: 0;
+        overflow: auto;
+        padding: var(--space-3);
+        background-color: var(--color-surface-base);
+        border-inline-end: 1px solid var(--color-border);
+    }
+
+    .playground__handle {
+        appearance: none;
+        flex: 0 0 auto;
+        inline-size: 1rem;
+        border: none;
+        border-inline-start: 1px solid var(--color-border-strong);
+        background-color: var(--color-surface-raised);
+        cursor: ew-resize;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: none;
+    }
+
+    .playground__handle:is(:hover, :focus-visible) {
+        background-color: color-mix(in srgb,
+                var(--color-accent) 16%,
+                var(--color-surface-raised));
+    }
+
+    .playground__grip {
+        inline-size: 2px;
+        block-size: 1.5rem;
+        background-color: var(--color-border-strong);
+    }
+
+    .playground__controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3) var(--space-4);
+        padding: var(--space-3);
+        border-block-start: 1px solid var(--color-border-subtle);
+    }
+
+    .control {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .control__label {
+        color: var(--color-text-secondary);
+    }
+
+    .control__range {
+        accent-color: var(--color-accent);
+    }
+
+    .control__value {
+        min-width: 4ch;
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+    }
+
+    .control--toggle {
+        cursor: pointer;
+    }
+
+    .control__checkbox {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .control__switch {
+        inline-size: 2.2rem;
+        block-size: 1.2rem;
+        border-radius: 1rem;
+        background-color: var(--color-border-strong);
+        position: relative;
+        transition: background-color var(--transition-fast) var(--easing-default);
+    }
+
+    .control__switch::after {
+        content: "";
+        position: absolute;
+        inset-block-start: 2px;
+        inset-inline-start: 2px;
+        inline-size: 0.9rem;
+        block-size: 0.9rem;
+        border-radius: 50%;
+        background-color: var(--color-surface-base);
+        transition: translate var(--transition-fast) var(--easing-default);
+    }
+
+    .control__checkbox:checked+.control__switch {
+        background-color: var(--color-accent);
+    }
+
+    .control__checkbox:checked+.control__switch::after {
+        translate: 1rem 0;
+    }
+
+    .control__checkbox:focus-visible+.control__switch {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+    }
+}

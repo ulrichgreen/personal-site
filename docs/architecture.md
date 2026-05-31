@@ -207,7 +207,7 @@ That boundary is enforced in two ways:
 - MDX does not get free-form module imports
 - content only sees the components exported through `src/content-components.tsx`
 
-Today that approved surface is whatever `src/content-components.tsx` registers — currently `ArticleList`, `Callout`, `Code`, `DemoWidget`, `Figure`, `Hero`, and `TableOfContents`. The exact list may change, but the architectural rule should stay the same: content authors use a curated surface, not the whole codebase.
+Today that approved surface is whatever `src/content-components.tsx` registers — currently `ArticleList`, `Callout`, `Code`, `Figure`, `Hero`, `Manifesto`, `TableOfContents`, and the interactive `GridPlayground` island. The exact list may change, but the architectural rule should stay the same: content authors use a curated surface, not the whole codebase.
 
 ## Project Structure
 

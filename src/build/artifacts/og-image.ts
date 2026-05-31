@@ -1,5 +1,6 @@
 import { writeDistFile } from "../shared/dist-fs.ts";
 import { SITE_DOMAIN, SITE_TITLE } from "../../config.ts";
+import type { Artifact } from "./context.ts";
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#1a1917"/>
@@ -8,6 +9,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
   <text x="600" y="370" font-size="28" text-anchor="middle" fill="#8a8880" font-family="system-ui, sans-serif">${SITE_DOMAIN}</text>
 </svg>`;
 
-export function buildOgImage(): void {
-    writeDistFile("og-image.svg", svg);
-}
+export const buildOgImage: Artifact = () => {
+  writeDistFile("og-image.svg", svg);
+};

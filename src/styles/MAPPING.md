@@ -36,5 +36,42 @@
 | `article blockquote p` | — | Fluid quote size, local |
 | `.article-list__link` | — | Fluid link size |
 | `.page > h1:first-child` | — | Display-sm heading, kept local |
-| `.demo-widget__value` | `.mono` | Mono display value |
-| `.demo-widget__prompt` | — | Sans small text |
+| `.playground__title` | `.label` | Mono label pattern |
+| `.playground__readout` | `.mono` | Mono viewport-width readout |
+| `.control__label` | `.label` | Mono label pattern |
+| `.control__value` | `.mono` | Mono control value readout |
+
+## Cascade layers
+
+Every rule lives inside one named layer, declared once in
+`style.css`:
+
+```css
+@layer reset, tokens, base, typography, layout, interactive, components;
+```
+
+Order is precedence: later layers win regardless of selector specificity,
+so a component rule never needs `!important` or deep selectors to override a
+base default. Place new rules in the layer that matches their job:
+
+- `reset` — element normalization only.
+- `tokens` — custom properties (`:root`), no element styling.
+- `base` — bare element defaults (semantic HTML, prose).
+- `typography` — the shared text utilities (`.label`, `.mono`, `.caption`, …).
+- `layout` — page scaffolding, containers, regions.
+- `interactive` — focus, hover, motion-driven states shared across components.
+- `components` — self-contained component CSS (`@import`ed per component).
+
+## Token philosophy
+
+- Spell out a literal color/size **once**, as a token in `tokens.css`. Anything
+  used in more than one place, or that must shift between color schemes, is a
+  token — never a repeated literal.
+- Derive related values instead of hand-tuning new literals. Prefer
+  `color-mix()` over a fresh hex (e.g. `--color-border-subtle` and the copy
+  button's error state both derive from existing tokens, so they track light
+  and dark automatically).
+- Keep the token set small. Add a token when a value is shared or theme-aware;
+  a genuinely one-off, scheme-independent value can stay inline rather than
+  inflating the system.
+

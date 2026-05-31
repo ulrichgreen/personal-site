@@ -11,6 +11,9 @@
         --color-text-muted: #908a7c;
         --color-border: #e7dfcf;
         --color-border-strong: #d8cfbc;
+        /* A lighter divider derived from the base border and surface, so it
+           tracks both automatically across color schemes. */
+        --color-border-subtle: color-mix(in srgb, var(--color-border) 55%, var(--color-surface-base));
         --color-accent: #b7522e;
         --color-accent-subtle: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-base));
 

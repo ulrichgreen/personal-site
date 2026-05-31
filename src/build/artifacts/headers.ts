@@ -1,6 +1,7 @@
 import { writeDistFile } from "../shared/dist-fs.ts";
+import type { Artifact } from "./context.ts";
 
-export function buildHeaders(): void {
+export const buildHeaders: Artifact = () => {
     const headers = [
         "/*.css",
         "  Cache-Control: public, max-age=31536000, immutable",
@@ -14,4 +15,4 @@ export function buildHeaders(): void {
     ].join("\n");
 
     writeDistFile("_headers", headers);
-}
+};
