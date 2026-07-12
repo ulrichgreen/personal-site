@@ -148,6 +148,42 @@ layout: article
             );
         });
 
+        it("rejects dates that are not in YYYY-MM-DD form", () => {
+            assert.throws(
+                () =>
+                    parseFrontmatter(`---
+title: Bad Date
+layout: article
+published: January 15, 2025
+---`),
+                /published: expected an ISO date \(YYYY-MM-DD\)/,
+            );
+            assert.throws(
+                () =>
+                    parseFrontmatter(`---
+title: Bad Date
+layout: article
+published: "2025-1-5"
+---`),
+                /published: expected an ISO date \(YYYY-MM-DD\)/,
+            );
+        });
+
+        it("rejects malformed revision dates", () => {
+            assert.throws(
+                () =>
+                    parseFrontmatter(`---
+title: Bad Revision
+layout: article
+published: "2025-01-15"
+revisions:
+  - date: last week
+    note: Tightened the intro
+---`),
+                /revisions\.0\.date: expected an ISO date \(YYYY-MM-DD\)/,
+            );
+        });
+
         it("throws on unknown layout value", () => {
             assert.throws(() =>
                 parseFrontmatter(`---

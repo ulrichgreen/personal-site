@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { globSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildAll } from "../src/build/build.ts";
@@ -12,29 +13,16 @@ function nodeArgs(args: string[]): string[] {
 }
 
 // Integration verifiers (each is a standalone script with its own output)
-const integrationFiles = [
-    "test/verify-jsx-rendering.ts",
-    "test/verify-authoring-docs.ts",
-    "test/verify-accessibility.ts",
-    "test/verify-links.ts",
-    "test/verify-feed.ts",
-    "test/verify-seo-artifacts.ts",
-];
+const integrationFiles = globSync("test/verify-*.ts", { cwd: root }).sort();
 
 // Co-located unit test files (run via node:test, each as a standalone process)
-const unitTestFiles = [
-    "src/build/build-summary.test.ts",
-    "src/build/dev.test.ts",
-    "src/build/performance-budgets.test.ts",
-    "src/build/assets/asset-manifest.test.ts",
-    "src/build/assets/images.test.ts",
-    "src/build/content/frontmatter.test.ts",
-    "src/build/content/article-index.test.ts",
-    "src/build/content/audit.test.ts",
-    "src/build/content/metadata.test.ts",
-    "src/build/content/contracts.test.ts",
-    "src/build/content/discover.test.ts",
-];
+const unitTestFiles = globSync("src/**/*.test.ts", { cwd: root }).sort();
+
+if (integrationFiles.length === 0 || unitTestFiles.length === 0) {
+    throw new Error(
+        "run-tests.ts: test discovery found no unit tests or no verifiers",
+    );
+}
 
 function runScript(file: string): Promise<{ ok: boolean; output: string }> {
     return new Promise((done) => {
@@ -101,4 +89,7 @@ async function main() {
     }
 }
 
-main();
+main().catch((error) => {
+    process.stderr.write(`${String(error)}\n`);
+    process.exit(1);
+});

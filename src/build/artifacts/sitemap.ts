@@ -1,7 +1,8 @@
-import { readdirSync } from "node:fs";
 import { SITE_URL } from "../../config.ts";
+import { isArticlePage } from "../content/article-index.ts";
 import { writeDistFile } from "../shared/dist-fs.ts";
-import { contentDirectory } from "../shared/paths.ts";
+import { urlPathFromSource } from "../shared/paths.ts";
+import { escapeXml } from "../shared/xml.ts";
 import type { Artifact } from "./context.ts";
 
 function toISODate(value: string): string {
@@ -10,26 +11,20 @@ function toISODate(value: string): string {
     return date.toISOString().slice(0, 10);
 }
 
-function escapeXml(text: string): string {
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&apos;");
-}
-
-export const buildSitemap: Artifact = ({ articleIndex }) => {
-    const topLevelPages = readdirSync(contentDirectory)
-        .filter((file) => file.endsWith(".mdx") && file !== "404.mdx")
-        .map((file) => file.replace(/\.mdx$/, ".html"));
-
+export const buildSitemap: Artifact = ({ articleIndex, compiledPages }) => {
     const urls: string[] = [];
 
-    for (const page of topLevelPages) {
-        urls.push(`  <url>\n    <loc>${escapeXml(`${SITE_URL}/${page}`)}</loc>\n  </url>`);
+    // Non-article pages come straight from the compiled page set, so the
+    // sitemap shares the pipeline's discovery rules (no `_`-prefixed sources,
+    // no drafts) instead of re-scanning the content directory.
+    for (const page of compiledPages) {
+        if (isArticlePage(page)) continue;
+        const href = urlPathFromSource(page.sourcePath);
+        if (href === "/404.html") continue;
+        urls.push(`  <url>\n    <loc>${escapeXml(`${SITE_URL}${href}`)}</loc>\n  </url>`);
     }
 
+    // Articles come from the index (drafts already excluded) with lastmod.
     for (const entry of articleIndex) {
         const lastmod = toISODate(entry.revised || entry.published);
         const lastmodTag = lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : "";

@@ -80,6 +80,63 @@ describe("validateContentContracts", () => {
         );
     });
 
+    it("accepts references to generated image variants of an existing source", () => {
+        const directory = mkdtempSync(join(tmpdir(), "content-contracts-"));
+        const contentDirectory = join(directory, "content");
+        const imagesDirectory = join(directory, "src/images");
+        const pagePath = join(contentDirectory, "page.mdx");
+        mkdirSync(contentDirectory, { recursive: true });
+        mkdirSync(imagesDirectory, { recursive: true });
+        writeFileSync(join(imagesDirectory, "photo.png"), "png-bytes");
+        writeFileSync(
+            pagePath,
+            [
+                '<Figure src="/images/photo.png" />',
+                '<Figure src="/images/photo.webp" />',
+                '<Figure src="/images/photo.avif" />',
+                '<Figure src="/images/photo-400w.webp" />',
+            ].join("\n"),
+        );
+
+        try {
+            assert.doesNotThrow(() =>
+                validateContentContracts({
+                    articleIndex: [],
+                    builtContent: [built(pagePath)],
+                    contentDirectory,
+                    imagesDirectory,
+                }),
+            );
+        } finally {
+            rmSync(directory, { recursive: true, force: true });
+        }
+    });
+
+    it("rejects generated-variant references without a raster source", () => {
+        const directory = mkdtempSync(join(tmpdir(), "content-contracts-"));
+        const contentDirectory = join(directory, "content");
+        const imagesDirectory = join(directory, "src/images");
+        const pagePath = join(contentDirectory, "page.mdx");
+        mkdirSync(contentDirectory, { recursive: true });
+        mkdirSync(imagesDirectory, { recursive: true });
+        writeFileSync(pagePath, '<Figure src="/images/ghost-400w.webp" />');
+
+        try {
+            assert.throws(
+                () =>
+                    validateContentContracts({
+                        articleIndex: [],
+                        builtContent: [built(pagePath)],
+                        contentDirectory,
+                        imagesDirectory,
+                    }),
+                /Missing image reference "\/images\/ghost-400w\.webp"/,
+            );
+        } finally {
+            rmSync(directory, { recursive: true, force: true });
+        }
+    });
+
     it("rejects missing local image references", () => {
         const directory = mkdtempSync(join(tmpdir(), "content-contracts-"));
         const contentDirectory = join(directory, "content");

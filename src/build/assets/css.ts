@@ -5,9 +5,9 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { distDirectory } from "../shared/paths.ts";
 
-const source = new URL("../../styles/style.css", import.meta.url).pathname;
+const source = fileURLToPath(new URL("../../styles/style.css", import.meta.url));
 const destination = join(distDirectory, "style.css");
-const fontsDir = new URL("../../fonts", import.meta.url).pathname;
+const fontsDir = fileURLToPath(new URL("../../fonts", import.meta.url));
 const distFontsDir = join(distDirectory, "fonts");
 
 export async function buildCss(): Promise<void> {

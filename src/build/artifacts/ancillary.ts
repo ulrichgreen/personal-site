@@ -3,6 +3,7 @@ import { buildHeaders } from "./headers.ts";
 import { buildOgImage } from "./og-image.ts";
 import { buildRobots } from "./robots.ts";
 import { buildSitemap } from "./sitemap.ts";
+import { isArticlePage } from "../content/article-index.ts";
 import type { ArtifactContext } from "./context.ts";
 import type { BuiltContent, ArticleIndexEntry } from "../../types/content.ts";
 
@@ -12,9 +13,13 @@ export interface AncillaryBuildSummary {
 
 export async function buildAncillary(
     articleIndex: ArticleIndexEntry[],
-    compiledArticles: BuiltContent[],
+    compiledPages: BuiltContent[],
 ): Promise<AncillaryBuildSummary> {
-    const context: ArtifactContext = { articleIndex, compiledArticles };
+    const context: ArtifactContext = {
+        articleIndex,
+        compiledPages,
+        compiledArticles: compiledPages.filter(isArticlePage),
+    };
     buildSitemap(context);
     buildRobots(context);
     buildHeaders(context);

@@ -39,8 +39,11 @@ export const siteConfig = {
             {
                 label: "HTML",
                 extensions: [".html"],
-                warnAtBytes: 112 * kibibyte,
-                maximumBytes: 128 * kibibyte,
+                // Per page, not summed, so publishing more articles can't
+                // fail the build. Largest page today is ~27 KiB.
+                measure: "largestFile",
+                warnAtBytes: 48 * kibibyte,
+                maximumBytes: 64 * kibibyte,
             },
             {
                 label: "CSS",
@@ -56,7 +59,8 @@ export const siteConfig = {
             },
             {
                 label: "Fonts",
-                extensions: [".woff2", ".woff", ".ttf", ".otf"],
+                // The font pipeline only ships woff2/woff (see assets/css.ts).
+                extensions: [".woff2", ".woff"],
                 warnAtBytes: 288 * kibibyte,
                 maximumBytes: 320 * kibibyte,
             },

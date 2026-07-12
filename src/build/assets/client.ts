@@ -6,17 +6,23 @@ import { distDirectory } from "../shared/paths.ts";
 
 const targets = [
     {
-        entryPoint: new URL("../../client/site.ts", import.meta.url).pathname,
+        entryPoint: fileURLToPath(
+            new URL("../../client/site.ts", import.meta.url),
+        ),
         outfile: join(distDirectory, "site.js"),
     },
     {
-        entryPoint: new URL("../../client/islands.ts", import.meta.url)
-            .pathname,
+        entryPoint: fileURLToPath(
+            new URL("../../client/islands.ts", import.meta.url),
+        ),
         outfile: join(distDirectory, "islands.js"),
     },
 ];
 
-export async function buildClient(): Promise<void> {
+export async function buildClient(
+    options: { dev?: boolean } = {},
+): Promise<void> {
+    const dev = options.dev ?? false;
     await Promise.all(
         targets.map(({ entryPoint, outfile }) =>
             build({
@@ -26,6 +32,8 @@ export async function buildClient(): Promise<void> {
                 format: "iife",
                 platform: "browser",
                 target: ESBUILD_TARGET,
+                // Keep dev output readable for debugging; ship minified.
+                minify: !dev,
                 logLevel: "silent",
             }),
         ),
@@ -33,7 +41,7 @@ export async function buildClient(): Promise<void> {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    buildClient().catch((error) => {
+    buildClient({ dev: process.argv.includes("--dev") }).catch((error) => {
         process.stderr.write(`${String(error)}\n`);
         process.exit(1);
     });

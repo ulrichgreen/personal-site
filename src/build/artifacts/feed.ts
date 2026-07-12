@@ -2,22 +2,18 @@ import type { BuiltContent } from "../../types/content.ts";
 import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from "../../config.ts";
 import { writeDistFile } from "../shared/dist-fs.ts";
 import { slugFromSource } from "../shared/paths.ts";
+import { escapeXml } from "../shared/xml.ts";
 import { renderContentBody } from "../render/render-react-page.tsx";
 import type { ArtifactContext } from "./context.ts";
+
+// Fixed `updated` fallback for a feed with no entries, so builds stay
+// byte-for-byte reproducible instead of embedding the build time.
+const EMPTY_FEED_UPDATED = "1970-01-01T00:00:00Z";
 
 function toISOTimestamp(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
     return date.toISOString().replace(/\.\d{3}Z$/, "Z");
-}
-
-function escapeXml(text: string): string {
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&apos;");
 }
 
 function escapeCdata(text: string): string {
@@ -33,7 +29,7 @@ export async function buildFeed({
             ? toISOTimestamp(
                 articleIndex[0].revised || articleIndex[0].published,
             )
-            : new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+            : EMPTY_FEED_UPDATED;
 
     const contentBySlug = new Map<string, BuiltContent>();
     for (const content of compiledArticles) {
