@@ -1,4 +1,3 @@
-
 function formatDate(value?: string): string {
     if (!value) return "";
 
@@ -46,6 +45,11 @@ export function getArticleTitleTransitionName(
     return `article-title-${normalizedSlug}`;
 }
 
+/**
+ * The article masthead. The stylesheet keys on structure, not classes:
+ * first p = eyebrow, h1 + p without a time = lede, p with a time = meta,
+ * the p after the meta = author's note.
+ */
 export function ArticleHeader({
     title,
     description,
@@ -81,13 +85,12 @@ export function ArticleHeader({
         .join(" · ");
 
     return (
-        <header className="section article-header">
-            <p className="eyebrow label">
+        <header>
+            <p>
                 <span>{kickerSection}</span>
                 <span>{kickerType || "Article"}</span>
             </p>
             <h1
-                className="heading-xl"
                 style={
                     titleTransitionName
                         ? { viewTransitionName: titleTransitionName }
@@ -96,10 +99,8 @@ export function ArticleHeader({
             >
                 {title || ""}
             </h1>
-            {description && (
-                <p className="lede body-lg">{description}</p>
-            )}
-            <p className="article-meta">
+            {description && <p>{description}</p>}
+            <p>
                 {publishedDate && (
                     <time dateTime={publishedIso}>{publishedDate}</time>
                 )}
@@ -111,7 +112,7 @@ export function ArticleHeader({
                     </span>
                 )}
             </p>
-            {note && <p className="article-note caption">{note}</p>}
+            {note && <p>{note}</p>}
         </header>
     );
 }

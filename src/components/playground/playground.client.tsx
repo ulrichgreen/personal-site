@@ -104,23 +104,22 @@ export function Playground({
 
     return (
         <div className="playground">
-            <div className="playground__bar">
-                {title && <span className="playground__title label">{title}</span>}
-                <span className="playground__readout mono" aria-live="polite">
+            <header>
+                {title && <span>{title}</span>}
+                <output>
                     {displayWidth ? `${Math.round(displayWidth)}px` : "full width"}
-                </span>
+                </output>
                 <button
                     type="button"
-                    className="playground__reset label"
                     onClick={() => setWidth(null)}
                     disabled={width === null}
                 >
                     Reset width
                 </button>
-            </div>
-            <div className="playground__viewport" ref={viewportRef}>
+            </header>
+            <div className="viewport" ref={viewportRef}>
                 <div
-                    className="playground__stage"
+                    className="stage"
                     ref={stageRef}
                     style={
                         width === null
@@ -132,19 +131,24 @@ export function Playground({
                 </div>
                 <button
                     type="button"
-                    className="playground__handle"
+                    className="handle"
                     role="slider"
                     aria-label="Drag to resize the example viewport"
                     aria-valuemin={minWidth}
-                    aria-valuemax={maxWidth || undefined}
-                    aria-valuenow={displayWidth ? Math.round(displayWidth) : undefined}
+                    aria-valuemax={Math.round(maxWidth) || minWidth}
+                    aria-valuenow={Math.round(displayWidth) || minWidth}
+                    aria-valuetext={
+                        width === null
+                            ? "full width"
+                            : `${Math.round(displayWidth)} pixels`
+                    }
                     onPointerDown={startDragging}
                     onKeyDown={onHandleKeyDown}
                 >
-                    <span className="playground__grip" aria-hidden="true" />
+                    <span aria-hidden="true" />
                 </button>
             </div>
-            {controls && <div className="playground__controls">{controls}</div>}
+            {controls && <div className="controls">{controls}</div>}
         </div>
     );
 }
@@ -169,10 +173,9 @@ export function RangeControl({
     onInput,
 }: RangeControlProps) {
     return (
-        <label className="control">
-            <span className="control__label label">{label}</span>
+        <label>
+            <span>{label}</span>
             <input
-                className="control__range"
                 type="range"
                 min={min}
                 max={max}
@@ -182,7 +185,7 @@ export function RangeControl({
                     onInput(Number((event.target as HTMLInputElement).value))
                 }
             />
-            <output className="control__value mono">
+            <output>
                 {value}
                 {unit}
             </output>
@@ -198,17 +201,16 @@ interface ToggleProps {
 
 export function Toggle({ label, checked, onChange }: ToggleProps) {
     return (
-        <label className="control control--toggle">
-            <span className="control__label label">{label}</span>
+        <label>
+            <span>{label}</span>
             <input
-                className="control__checkbox"
                 type="checkbox"
                 checked={checked}
                 onChange={(event) =>
                     onChange((event.target as HTMLInputElement).checked)
                 }
             />
-            <span className="control__switch" aria-hidden="true" />
+            <span aria-hidden="true" />
         </label>
     );
 }

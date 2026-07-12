@@ -7,27 +7,26 @@ interface CodeProps {
     title?: string;
 }
 
+/**
+ * Authored code block. Renders the same figure shape the build pipeline
+ * produces for fenced code: a figcaption toolbar (optional title, language
+ * label, copy button), then the pre. The copy button ships disabled and is
+ * enabled by the enhancement script.
+ */
 export function Code({ children, language, title }: CodeProps) {
     return (
-        <figure
-            className="code-block"
-            data-language={language}
-            data-rehype-pretty-code-figure=""
-        >
-            <div className="code-block__toolbar">
-                {title && <span className="code-block__title">{title}</span>}
-                <span className="code-block__language">
-                    {formatCodeLanguage(language)}
-                </span>
+        <figure data-language={language} data-rehype-pretty-code-figure="">
+            <figcaption>
+                {title && <span>{title}</span>}
+                <span>{formatCodeLanguage(language)}</span>
                 <button
-                    className="code-block__copy"
                     type="button"
                     aria-label={`Copy ${language || "text"} code to clipboard`}
                     disabled
                 >
                     Copy
                 </button>
-            </div>
+            </figcaption>
             <pre>
                 <code>{children}</code>
             </pre>

@@ -1,39 +1,26 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { buildContent } from "../src/build/content/compile.ts";
 import { renderPage } from "../src/build/render/render-react-page.tsx";
 import { compileSite } from "../src/build/pipeline.ts";
 
-function extractBlock(source: string, pattern: RegExp, label: string) {
-    const match = source.match(pattern);
-    assert(match?.[1], `Could not find ${label} block.`);
-    return match[1];
-}
-
-function extractCssBlockAfter(source: string, marker: string, label: string) {
-    const markerIndex = source.indexOf(marker);
-    assert(markerIndex >= 0, `Could not find ${label}.`);
-
-    const openIndex = source.indexOf("{", markerIndex);
-    assert(openIndex >= 0, `Could not find ${label} opening brace.`);
-
-    let depth = 0;
-    for (let index = openIndex; index < source.length; index += 1) {
-        const char = source[index];
-        if (char === "{") depth += 1;
-        if (char === "}") depth -= 1;
-        if (depth === 0) {
-            return source.slice(openIndex + 1, index);
-        }
-    }
-
-    assert.fail(`Could not find ${label} closing brace.`);
-}
-
-function extractColor(block: string, name: string) {
-    const match = block.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6});`));
-    assert(match?.[1], `Could not find color token --${name}.`);
-    return match[1];
+/**
+ * Color tokens are authored as light-dark(#light, #dark) pairs in
+ * src/styles/style.css. This extracts both halves so contrast can be
+ * verified for each scheme.
+ */
+function extractColorPair(
+    css: string,
+    name: string,
+): { light: string; dark: string } {
+    const match = css.match(
+        new RegExp(
+            `--${name}:\\s*light-dark\\((#[0-9a-fA-F]{6}),\\s*(#[0-9a-fA-F]{6})\\)`,
+        ),
+    );
+    assert(match, `Could not find light-dark color token --${name}.`);
+    return { light: match[1], dark: match[2] };
 }
 
 function relativeLuminance(hex: string) {
@@ -62,87 +49,71 @@ function contrastRatio(foreground: string, background: string) {
     return (lighter + 0.05) / (darker + 0.05);
 }
 
+function extractCssBlockAfter(source: string, marker: string, label: string) {
+    const markerIndex = source.indexOf(marker);
+    assert(markerIndex >= 0, `Could not find ${label}.`);
+
+    const openIndex = source.indexOf("{", markerIndex);
+    assert(openIndex >= 0, `Could not find ${label} opening brace.`);
+
+    let depth = 0;
+    for (let index = openIndex; index < source.length; index += 1) {
+        const char = source[index];
+        if (char === "{") depth += 1;
+        if (char === "}") depth -= 1;
+        if (depth === 0) {
+            return source.slice(openIndex + 1, index);
+        }
+    }
+
+    assert.fail(`Could not find ${label} closing brace.`);
+}
+
 async function main() {
-    const tokensPath = new URL("../src/styles/tokens.css", import.meta.url)
-        .pathname;
-    const tokens = readFileSync(tokensPath, "utf8");
-    const rootBlock = extractBlock(
-        tokens,
-        /:root\s*\{([\s\S]*?)\n\s*\}/,
-        "root",
+    const cssPath = fileURLToPath(
+        new URL("../src/styles/style.css", import.meta.url),
     );
-    const darkBlock = extractBlock(
-        tokens,
-        /@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{([\s\S]*?)\n\s*\}\s*\}/,
-        "dark mode root",
+    const css = readFileSync(cssPath, "utf8");
+
+    const paper = extractColorPair(css, "paper");
+    const ink = extractColorPair(css, "ink");
+    const inkSoft = extractColorPair(css, "ink-soft");
+    const accent = extractColorPair(css, "accent");
+
+    for (const scheme of ["light", "dark"] as const) {
+        assert(
+            contrastRatio(ink[scheme], paper[scheme]) >= 4.5,
+            `Primary ${scheme}-mode text should meet WCAG AA contrast.`,
+        );
+        assert(
+            contrastRatio(inkSoft[scheme], paper[scheme]) >= 4.5,
+            `Muted ${scheme}-mode text should meet WCAG AA contrast.`,
+        );
+        assert(
+            contrastRatio(accent[scheme], paper[scheme]) >= 4.5,
+            `Accent ${scheme}-mode text should meet WCAG AA contrast.`,
+        );
+    }
+
+    const headerNavBlock = extractCssBlockAfter(
+        css,
+        "body > header nav",
+        "site header nav styles",
+    );
+    assert(
+        !/display:\s*none/.test(headerNavBlock),
+        "Primary navigation should stay visible on all screens.",
     );
 
-    const rootBg = extractColor(rootBlock, "color-surface-base");
-    const rootText = extractColor(rootBlock, "color-text-primary");
-    const rootMuted = extractColor(rootBlock, "color-text-secondary");
-    const rootAccent = extractColor(rootBlock, "color-accent");
-    const darkBg = extractColor(darkBlock, "color-surface-base");
-    const darkText = extractColor(darkBlock, "color-text-primary");
-    const darkMuted = extractColor(darkBlock, "color-text-secondary");
-    const darkAccent = extractColor(darkBlock, "color-accent");
-
     assert(
-        contrastRatio(rootText, rootBg) >= 4.5,
-        "Primary light-mode text should meet WCAG AA contrast.",
-    );
-    assert(
-        contrastRatio(rootMuted, rootBg) >= 4.5,
-        "Muted light-mode text should meet WCAG AA contrast.",
-    );
-    assert(
-        contrastRatio(rootAccent, rootBg) >= 4.5,
-        "Accent light-mode text should meet WCAG AA contrast.",
-    );
-    assert(
-        contrastRatio(darkText, darkBg) >= 4.5,
-        "Primary dark-mode text should meet WCAG AA contrast.",
-    );
-    assert(
-        contrastRatio(darkMuted, darkBg) >= 4.5,
-        "Muted dark-mode text should meet WCAG AA contrast.",
-    );
-    assert(
-        contrastRatio(darkAccent, darkBg) >= 4.5,
-        "Accent dark-mode text should meet WCAG AA contrast.",
-    );
-
-    const componentsCssPath = new URL(
-        "../src/styles/components.css",
-        import.meta.url,
-    ).pathname;
-    const componentsCss = readFileSync(componentsCssPath, "utf8");
-    const mobileBlock = extractCssBlockAfter(
-        componentsCss,
-        "@media (max-width: 820px)",
-        "mobile site-header",
-    );
-
-    const mobileNavBlock = extractCssBlockAfter(
-        mobileBlock,
-        ".site-nav",
-        "small-screen nav styles",
-    );
-    assert(
-        !/display:\s*none;/.test(mobileNavBlock),
-        "Primary navigation should stay visible on small screens.",
-    );
-
-    const basePath = new URL("../src/styles/base.css", import.meta.url)
-        .pathname;
-    const baseCss = readFileSync(basePath, "utf8");
-
-    assert(
-        baseCss.includes(".skip-link"),
+        css.includes(".skip-link"),
         "A visible-on-focus skip link style should exist.",
     );
 
     const { articleIndex } = await compileSite();
-    const homePath = new URL("../content/index.mdx", import.meta.url).pathname;
+    const homePath = fileURLToPath(
+        new URL("../content/index.mdx", import.meta.url),
+    );
     const home = await buildContent(homePath);
     const homeHtml = renderPage(home, articleIndex);
     const skipLinkTag = homeHtml
@@ -162,8 +133,15 @@ async function main() {
     );
     assert(mainTag, "The main landmark should expose the skip-link target.");
 
+    const h1Matches = homeHtml.match(/<h1[\s>]/g) ?? [];
+    assert.equal(
+        h1Matches.length,
+        1,
+        "The home page should have exactly one h1.",
+    );
+
     console.log(
-        "Accessibility verified: text colors meet WCAG AA contrast, skip link exists, and small-screen navigation stays available.",
+        "Accessibility verified: text colors meet WCAG AA contrast in both schemes, skip link exists, the home page has one h1, and navigation stays visible on small screens.",
     );
 }
 

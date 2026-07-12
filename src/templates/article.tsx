@@ -9,15 +9,6 @@ import type { ReactNode } from "preact/compat";
 import type { AssetManifest } from "../build/assets/asset-manifest.ts";
 import type { ArticlePageMeta, SeriesInfo } from "../types/content.ts";
 
-interface ArticleLayoutProps {
-    meta: ArticlePageMeta;
-    pagePath: string;
-    assetManifest: AssetManifest;
-    hasIslands: () => boolean;
-    seriesInfo?: SeriesInfo;
-    children?: ReactNode;
-}
-
 export default function ArticleLayout({
     meta,
     pagePath,
@@ -25,27 +16,27 @@ export default function ArticleLayout({
     hasIslands,
     seriesInfo,
     children,
-}: ArticleLayoutProps) {
+}: {
+    meta: ArticlePageMeta;
+    pagePath: string;
+    assetManifest: AssetManifest;
+    hasIslands: () => boolean;
+    seriesInfo?: SeriesInfo;
+    children?: ReactNode;
+}) {
     return (
         <BaseLayout
             meta={meta}
             pagePath={pagePath}
             assetManifest={assetManifest}
             hasIslands={hasIslands}
-            mainClassName="page page--article"
             seriesName={seriesInfo?.name}
         >
-            <div className="page-header">
-                {meta.section && (
-                    <span className="label">{meta.section}</span>
-                )}
-                <span className="page-header-title body-sm">
-                    {meta.title}
-                </span>
-                <nav className="page-header-nav body-sm" aria-label="Article">
-                    <a href="/index.html">← All articles</a>
-                </nav>
-            </div>
+            <nav aria-label="Breadcrumb">
+                {meta.section && <span>{meta.section}</span>}
+                <span>{meta.title}</span>
+                <a href="/index.html">← All articles</a>
+            </nav>
             <article>
                 <ArticleHeader
                     title={meta.title}
@@ -66,12 +57,12 @@ export default function ArticleLayout({
                     )}
                     seriesName={seriesInfo?.name}
                 />
-                <div className="section article-body">{children}</div>
+                {children}
                 {meta.revisions && meta.revisions.length > 0 && (
                     <RevisionHistory revisions={meta.revisions} />
                 )}
                 {seriesInfo && <SeriesNav seriesInfo={seriesInfo} />}
-                <footer className="section article-footer label">
+                <footer>
                     <a href="/index.html">← All articles</a>
                 </footer>
             </article>

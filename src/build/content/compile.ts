@@ -34,14 +34,6 @@ function getStringProperty(value: unknown): string | undefined {
     return undefined;
 }
 
-function classList(value: unknown): string[] {
-    if (Array.isArray(value)) {
-        return value.filter((entry): entry is string => typeof entry === "string");
-    }
-    if (typeof value === "string") return value.split(/\s+/).filter(Boolean);
-    return [];
-}
-
 function createElement(
     tagName: string,
     properties: Record<string, unknown>,
@@ -103,9 +95,7 @@ function rehypeCodeBlockChrome() {
                 children.some(
                     (child) =>
                         child.type === "element" &&
-                        classList(child.properties?.className).includes(
-                            "code-block__toolbar",
-                        ),
+                        child.tagName === "figcaption",
                 )
             ) {
                 return;
@@ -131,42 +121,30 @@ function rehypeCodeBlockChrome() {
 
             node.properties = {
                 ...node.properties,
-                className: [...classList(node.properties?.className), "code-block"],
                 "data-language": language,
             };
 
+            // The title arrives as a div; it becomes a plain span inside
+            // the figcaption toolbar (the stylesheet keys on structure).
             if (titleNode) {
-                titleNode.properties = {
-                    ...titleNode.properties,
-                    className: [
-                        ...classList(titleNode.properties?.className),
-                        "code-block__title",
-                    ],
-                };
+                titleNode.tagName = "span";
             }
 
-            const toolbar = createElement(
-                "div",
-                { className: ["code-block__toolbar"] },
-                [
-                    ...(titleNode ? [titleNode] : []),
-                    createElement(
-                        "span",
-                        { className: ["code-block__language"] },
-                        [createText(formatCodeLanguage(language))],
-                    ),
-                    createElement(
-                        "button",
-                        {
-                            className: ["code-block__copy"],
-                            type: "button",
-                            "aria-label": `Copy ${language} code to clipboard`,
-                            disabled: true,
-                        },
-                        [createText("Copy")],
-                    ),
-                ],
-            );
+            const toolbar = createElement("figcaption", {}, [
+                ...(titleNode ? [titleNode] : []),
+                createElement("span", {}, [
+                    createText(formatCodeLanguage(language)),
+                ]),
+                createElement(
+                    "button",
+                    {
+                        type: "button",
+                        "aria-label": `Copy ${language} code to clipboard`,
+                        disabled: true,
+                    },
+                    [createText("Copy")],
+                ),
+            ]);
 
             children.splice(preIndex, 0, toolbar);
             node.children = children;
@@ -206,14 +184,23 @@ function assertSupportedMdx(body: string, filePath: string) {
     }
 }
 
-const mdxImport = import("@mdx-js/mdx");
-const shikiImport = import("shiki");
-const siteHighlighterPromise = shikiImport.then(({ createHighlighter }) =>
-    createHighlighter({
+// Created lazily on first use so an import/initialization failure surfaces
+// as a build error instead of an unhandled rejection from a floating
+// module-level promise.
+let siteHighlighterPromise: ReturnType<typeof createSiteHighlighter> | undefined;
+
+async function createSiteHighlighter() {
+    const { createHighlighter } = await import("shiki");
+    return createHighlighter({
         themes: [CODE_THEME],
         langs: ["plaintext"],
-    } as never),
-);
+    } as never);
+}
+
+function getSiteHighlighter() {
+    siteHighlighterPromise ??= createSiteHighlighter();
+    return siteHighlighterPromise;
+}
 
 export async function compileMdx(
     body: string,
@@ -221,7 +208,7 @@ export async function compileMdx(
 ): Promise<{ Content: ContentBodyComponent; headings: ContentHeading[] }> {
     assertSupportedMdx(body, filePath);
 
-    const { evaluate } = await mdxImport;
+    const { evaluate } = await import("@mdx-js/mdx");
     const headings: ContentHeading[] = [];
 
     const module = (await evaluate(
@@ -242,7 +229,7 @@ export async function compileMdx(
                         getHighlighter: async (
                             options: { langs?: unknown[] },
                         ) => {
-                            const highlighter = await siteHighlighterPromise;
+                            const highlighter = await getSiteHighlighter();
                             const langs = options.langs?.filter(
                                 (lang): lang is string => typeof lang === "string",
                             );

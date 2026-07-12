@@ -10,23 +10,20 @@ function formatDate(value: string): string {
     });
 }
 
-function getYear(value: string): number {
-    return new Date(value).getUTCFullYear();
-}
-
 interface YearGroup {
-    year: number;
+    year: string;
     standalone: ArticleIndexEntry[];
     series: Map<string, ArticleIndexEntry[]>;
     seriesOrder: string[];
 }
 
 function groupByYear(entries: ArticleIndexEntry[]): YearGroup[] {
-    const yearMap = new Map<number, YearGroup>();
-    const yearOrder: number[] = [];
+    const yearMap = new Map<string, YearGroup>();
+    const yearOrder: string[] = [];
 
     for (const entry of entries) {
-        const year = getYear(entry.published);
+        // Published dates are schema-validated ISO strings (YYYY-MM-DD).
+        const year = entry.published.slice(0, 4);
         let group = yearMap.get(year);
         if (!group) {
             group = {
@@ -64,13 +61,11 @@ function groupByYear(entries: ArticleIndexEntry[]): YearGroup[] {
 }
 
 function EntryItem({ entry }: { entry: ArticleIndexEntry }) {
-    const isoDate = new Date(entry.published).toISOString().slice(0, 10);
     const titleTransitionName = getArticleTitleTransitionName(entry.slug);
 
     return (
         <li>
             <a
-                className="article-link heading-md"
                 href={entry.href}
                 style={
                     titleTransitionName
@@ -80,12 +75,10 @@ function EntryItem({ entry }: { entry: ArticleIndexEntry }) {
             >
                 {entry.title}
             </a>
-            <time className="label" dateTime={isoDate}>
+            <time dateTime={entry.published}>
                 {formatDate(entry.published)}
             </time>
-            {entry.description && (
-                <p className="article-summary caption">{entry.description}</p>
-            )}
+            {entry.description && <p>{entry.description}</p>}
         </li>
     );
 }
@@ -101,19 +94,16 @@ export function ArticleList({
     const yearGroups = groupByYear(entries);
 
     return (
-        <div className="section article-list">
+        <section id="articles">
             {yearGroups.map((group) => (
-                <section key={group.year} className="article-year">
-                    <h3 className="year-label label">{group.year}</h3>
+                <>
+                    <h3 key={group.year}>{group.year}</h3>
                     <ul>
                         {group.seriesOrder.map((seriesName) => {
                             const seriesEntries =
                                 group.series.get(seriesName) ?? [];
                             return [
-                                <li
-                                    key={`series-${seriesName}`}
-                                    className="series-label label"
-                                >
+                                <li key={`series-${seriesName}`}>
                                     Series · {seriesName}
                                 </li>,
                                 ...seriesEntries.map((entry) => (
@@ -125,8 +115,8 @@ export function ArticleList({
                             <EntryItem key={entry.slug} entry={entry} />
                         ))}
                     </ul>
-                </section>
+                </>
             ))}
-        </div>
+        </section>
     );
 }

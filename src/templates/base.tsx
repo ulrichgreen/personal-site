@@ -14,11 +14,13 @@ interface BaseLayoutProps {
     pagePath: string;
     assetManifest: AssetManifest;
     hasIslands: () => boolean;
-    mainClassName?: string;
     seriesName?: string;
     children?: ReactNode;
 }
 
+// hasIslands() is only accurate because this renders AFTER {children} in the
+// same synchronous render pass. Keep IslandsScript below <main>; moving it
+// earlier (e.g. into <head>) would silently stop shipping islands.js.
 function IslandsScript({
     assetManifest,
     hasIslands,
@@ -32,7 +34,6 @@ export default function BaseLayout({
     pagePath,
     assetManifest,
     hasIslands,
-    mainClassName = "page",
     seriesName,
     children,
 }: BaseLayoutProps) {
@@ -50,10 +51,10 @@ export default function BaseLayout({
             <body>
                 <div id="progress" aria-hidden="true"></div>
                 <a className="skip-link" href="#main-content">
-                    <span className="body-sm">Skip to content</span>
+                    Skip to content
                 </a>
                 <SiteHeader />
-                <main id="main-content" className={mainClassName}>
+                <main id="main-content">
                     {children}
                     <SiteFooter />
                 </main>
