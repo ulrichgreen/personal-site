@@ -12,7 +12,7 @@ Start by following `AGENTS.md` and `.github/copilot-instructions.md`.
 
 Repository context:
 - This is a static site built from small TypeScript modules in `src/`, MDX content in `content/`, and verification scripts in `test/`.
-- `section: writing` content uses `src/templates/article.tsx`; other pages use `src/templates/base.tsx`.
+- Template selection is driven by `layout` frontmatter, inferred from the content path: files under `content/articles/` default to `layout: article` and use `src/templates/article.tsx`; other pages use `src/templates/base.tsx`. `section` is a display label only.
 - Only components exported from `src/content-components.tsx` may be used from MDX.
 - Interactive client code belongs in `src/islands/` and `src/client/`.
 - `dist/` is generated output and must not be edited directly.
