@@ -1,15 +1,19 @@
 #!/bin/bash
 set -e
 
-# This script helps initialize the ideas directory for the idea-refine skill.
+# Checks that the repo's idea lifecycle docs are in place. Refined ideas land
+# in docs/inspiration.md, graduate to docs/future-ideas.md when worth
+# remembering, and move to docs/roadmap.md when they become planned work.
 
-IDEAS_DIR="docs/ideas"
+STATUS="ready"
 
-if [ ! -d "$IDEAS_DIR" ]; then
-  mkdir -p "$IDEAS_DIR"
-  echo "Created directory: $IDEAS_DIR" >&2
-else
-  echo "Directory already exists: $IDEAS_DIR" >&2
-fi
+for doc in docs/inspiration.md docs/future-ideas.md docs/roadmap.md; do
+  if [ -f "$doc" ]; then
+    echo "Found: $doc" >&2
+  else
+    echo "Missing: $doc" >&2
+    STATUS="incomplete"
+  fi
+done
 
-echo "{\"status\": \"ready\", \"directory\": \"$IDEAS_DIR\"}"
+echo "{\"status\": \"$STATUS\", \"lifecycle\": [\"docs/inspiration.md\", \"docs/future-ideas.md\", \"docs/roadmap.md\"]}"

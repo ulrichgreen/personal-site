@@ -160,7 +160,7 @@ Break the plan into discrete, implementable tasks:
 
 ### Phase 4: Implement
 
-Execute tasks one at a time following `incremental-implementation` and `test-driven-development` skills. Use `context-engineering` to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
+Execute tasks one at a time following `incremental-implementation` and `test-driven-development` skills. Load the relevant spec sections and source files at each step rather than flooding the agent with the entire spec.
 
 ## Keeping the Spec Alive
 
@@ -168,7 +168,7 @@ The spec is a living document, not a one-time artifact:
 
 - **Update when decisions change** — If you discover the data model needs to change, update the spec first, then implement.
 - **Update when scope changes** — Features added or cut should be reflected in the spec.
-- **Commit the spec** — The spec belongs in version control alongside the code.
+- **Present the spec in chat by default** — In this repository, share the spec in the conversation for review. Save it as a repo file only when the user asks for one; if a file exists, keep it in version control alongside the code.
 - **Reference the spec in PRs** — Link back to the spec section that each PR implements.
 
 ## Common Rationalizations
@@ -197,4 +197,4 @@ Before proceeding to implementation, confirm:
 - [ ] The human has reviewed and approved the spec
 - [ ] Success criteria are specific and testable
 - [ ] Boundaries (Always/Ask First/Never) are defined
-- [ ] The spec is saved to a file in the repository
+- [ ] The spec has been presented in chat (or saved to a repo file, if the user asked for one)

@@ -95,10 +95,21 @@ export function renderPageWithMetadata(
         seriesInfo,
     );
 
+    const html = `<!doctype html>\n${renderToStaticMarkup(
+        <RenderContext.Provider value={context}>{page}</RenderContext.Provider>,
+    )}`;
+
+    // Guards the render-order invariant hasIslands() depends on: the islands
+    // script tag must appear whenever the page registered islands.
+    if (hasIslands() && !html.includes(`/${assetManifest["islands.js"]}`)) {
+        throw new Error(
+            `${pagePath} registered islands but islands.js was not emitted — ` +
+                "IslandsScript must render after the page children (see templates/base.tsx).",
+        );
+    }
+
     return {
-        html: `<!doctype html>\n${renderToStaticMarkup(
-            <RenderContext.Provider value={context}>{page}</RenderContext.Provider>,
-        )}`,
+        html,
         islands: getIslandUsage(),
     };
 }

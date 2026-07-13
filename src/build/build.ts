@@ -28,13 +28,14 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     if (!dev) cleanDist();
     const [, , imageSummary] = await Promise.all([
         buildCss(),
-        buildClient(),
+        buildClient({ dev }),
         buildImages(),
     ]);
     const manifest = dev ? devAssetManifest : generateAssetManifest();
 
     // Stages 1–3 — discover, compile, index (single source of truth).
-    const { compiled, failed, articleIndex } = await compileSite();
+    // Draft pages survive only in dev builds.
+    const { compiled, failed, articleIndex } = await compileSite({ dev });
 
     // Stage 4 — validate (only meaningful once every page compiled).
     if (failed.length === 0) {
@@ -47,10 +48,7 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     assertCompiledCleanly(failed);
 
     // Stage 6 — ancillary artifacts (feed, sitemap, robots, headers, og-image).
-    const compiledArticles = compiled.filter((c) =>
-        c.sourcePath.includes("/articles/"),
-    );
-    const ancillarySummary = await buildAncillary(articleIndex, compiledArticles);
+    const ancillarySummary = await buildAncillary(articleIndex, compiled);
 
     // Stage 7 — production-only finalization.
     if (!dev) {

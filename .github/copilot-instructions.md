@@ -4,7 +4,7 @@
 
 - This repository is a static site built with small TypeScript modules under `src/`, MDX content under `content/`, and verification scripts under `test/`.
 - The build pipeline starts at `src/build/build.ts` and coordinates content discovery, MDX compilation, static rendering, asset generation, and ancillary artifacts.
-- `section: writing` content routes through `src/templates/article.tsx`; other pages use `src/templates/base.tsx`.
+- Template selection is driven by `layout` frontmatter: files under `content/articles/` default to `layout: article` and render through `src/templates/article.tsx`; other pages use `src/templates/base.tsx` (see `src/build/content/frontmatter.ts`). `section` is a derived display label and does not affect routing.
 - Only components registered in `src/content-components.tsx` may be used from MDX.
 - Interactive client code belongs in `src/islands/` and `src/client/`; do not hydrate the full page.
 - Generated output lives in `dist/`; never edit generated files directly.

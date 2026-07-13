@@ -12,29 +12,17 @@ function formatDate(value: string): string {
     });
 }
 
-function safeISODate(value: string): string {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
-    return date.toISOString().slice(0, 10);
-}
-
 export function RevisionHistory({ revisions }: { revisions: Revision[] }) {
     return (
-        <aside
-            className="section revision-history"
-            aria-label="Revision history"
-        >
-            <p className="revision-history-heading label">Revisions</p>
+        <aside className="revisions" aria-label="Revision history">
+            <p>Revisions</p>
             <ol>
                 {revisions.map((revision) => (
                     <li key={revision.date}>
-                        <time
-                            className="label"
-                            dateTime={safeISODate(revision.date)}
-                        >
+                        <time dateTime={revision.date}>
                             {formatDate(revision.date)}
                         </time>
-                        <p className="caption">{revision.note}</p>
+                        <p>{revision.note}</p>
                     </li>
                 ))}
             </ol>

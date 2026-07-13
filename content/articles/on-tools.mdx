@@ -11,11 +11,7 @@ A tool shapes the work it produces. This is obvious in physical craft. A broad c
 
 ## What the Tool Already Believes
 
-The framework you choose encodes assumptions about what problems are worth solving easily and which ones you are on your own for. The database you choose encodes assumptions about the shape of your data. The language you choose encodes assumptions about what kinds of errors are worth catching at compile time. You are not choosing neutral infrastructure. You are choosing a set of prior opinions about your domain, and you are agreeing to live inside them.
-
-<a className="fn-ref" href="#note-assumptions" aria-label="See note 1">
-    1
-</a>
+The framework you choose encodes assumptions about what problems are worth solving easily and which ones you are on your own for. The database you choose encodes assumptions about the shape of your data. The language you choose encodes assumptions about what kinds of errors are worth catching at compile time. You are not choosing neutral infrastructure. You are choosing a set of prior opinions about your domain, and you are agreeing to live inside them.[^assumptions]
 
 This is not an argument against using tools. Tools are good. The right tool makes a hard thing easy, and time spent fighting the wrong tool is time not spent on the actual problem. The argument is for deliberateness: choosing tools because you understand what they assume and agree with most of it, rather than because they are popular or familiar or because someone in a conference talk made them look easy.
 
@@ -31,11 +27,7 @@ This is not an argument against using tools. Tools are good. The right tool make
 
 ## The Replacement Test
 
-The test I use is whether I could replace the tool if I needed to. Not whether I would, because the cost is usually not worth it, but whether I understand the system well enough that I could. If the answer is no, I probably do not understand my own system well enough. The tool has become load-bearing in a way I have not accounted for.
-
-<a className="fn-ref" href="#note-dependencies" aria-label="See note 2">
-    2
-</a>
+The test I use is whether I could replace the tool if I needed to. Not whether I would, because the cost is usually not worth it, but whether I understand the system well enough that I could. If the answer is no, I probably do not understand my own system well enough. The tool has become load-bearing in a way I have not accounted for.[^dependencies]
 
 That replacement test changes the questions I ask during adoption:
 
@@ -49,16 +41,6 @@ Reach for the boring tool first. Not because novelty is bad, but because boring 
 
 The point is not to avoid ambition. It is to avoid outsourcing understanding. If a tool is good, it should buy leverage without demanding surrender. If it does demand surrender, the cost should be named plainly before the work begins.
 
-## Notes
+[^assumptions]: A framework can save time and still push a team toward a default shape it never chose consciously. That trade can be worth making, but only if it is named.
 
-<ol>
-    <li id="note-assumptions">
-        A framework can save time and still push a team toward a default shape
-        it never chose consciously. That trade can be worth making, but only if
-        it is named.
-    </li>
-    <li id="note-dependencies">
-        This is the practical test behind the site itself: small enough to
-        replace in pieces, clear enough to debug without appealing to magic.
-    </li>
-</ol>
+[^dependencies]: This is the practical test behind the site itself: small enough to replace in pieces, clear enough to debug without appealing to magic.

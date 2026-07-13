@@ -7,28 +7,20 @@ export function TableOfContents() {
     }
 
     return (
-        <aside className="table-of-contents card semi-bleed">
-            <h2 className="table-of-contents__heading label">On this page</h2>
-            <nav
-                className="table-of-contents__nav"
-                aria-label="Table of contents"
-            >
-                <ol className="table-of-contents__list">
-                    {headings.map((heading) => (
-                        <li
-                            key={heading.id}
-                            className={`table-of-contents__item table-of-contents__item--level-${heading.level}`}
-                        >
-                            <a
-                                className="table-of-contents__link body-sm"
-                                href={`#${heading.id}`}
-                            >
-                                {heading.text}
-                            </a>
-                        </li>
-                    ))}
-                </ol>
-            </nav>
+        <aside className="toc">
+            {/* The inner div is the sticky box when the toc sits in the rail. */}
+            <div>
+                <p>On this page</p>
+                <nav aria-label="Table of contents">
+                    <ol>
+                        {headings.map((heading) => (
+                            <li key={heading.id} data-level={heading.level}>
+                                <a href={`#${heading.id}`}>{heading.text}</a>
+                            </li>
+                        ))}
+                    </ol>
+                </nav>
+            </div>
         </aside>
     );
 }

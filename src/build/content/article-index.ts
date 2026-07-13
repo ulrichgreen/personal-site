@@ -6,7 +6,16 @@ import type {
     SeriesInfo,
 } from "../../types/content.ts";
 import { isArticleMeta } from "../../types/content.ts";
-import { slugFromSource } from "../shared/paths.ts";
+import { slugFromSource, urlPathFromSource } from "../shared/paths.ts";
+
+/**
+ * The one predicate for "is this compiled page an article", shared by the
+ * index and the ancillary artifacts (feed, sitemap) so they can never
+ * disagree about which pages count as articles.
+ */
+export function isArticlePage(page: BuiltContent): boolean {
+    return isArticleMeta(page.meta);
+}
 
 function toArticleIndexEntry(
     meta: PageMeta,
@@ -16,14 +25,12 @@ function toArticleIndexEntry(
         return undefined;
     }
 
-    const slug = slugFromSource(sourcePath);
-
     return {
         ...meta,
         title: String(meta.title || ""),
         published: String(meta.published || ""),
-        slug,
-        href: `/articles/${slug}.html`,
+        slug: slugFromSource(sourcePath),
+        href: urlPathFromSource(sourcePath),
         sourcePath,
         draft: meta.draft,
         series: meta.series,

@@ -20,6 +20,21 @@ const MIME: Record<string, string> = {
     ".txt": "text/plain",
 };
 
+const TEXTUAL_MIME_TYPES = new Set([
+    "text/html",
+    "text/css",
+    "application/javascript",
+    "application/json",
+    "application/xml",
+    "image/svg+xml",
+    "text/plain",
+]);
+
+function contentTypeFor(filePath: string): string {
+    const mime = MIME[extname(filePath).toLowerCase()] || "text/plain";
+    return TEXTUAL_MIME_TYPES.has(mime) ? `${mime}; charset=utf-8` : mime;
+}
+
 export interface StaticServerFileResolution {
     status: 200 | 400 | 404;
     filePath?: string;
@@ -111,7 +126,7 @@ export function createStaticSiteServer(
             const notFoundPage = join(directory, "404.html");
             if (existsSync(notFoundPage) && statSync(notFoundPage).isFile()) {
                 const body = readResponseBody(notFoundPage, options.transformHtml);
-                res.writeHead(404, { "Content-Type": "text/html" });
+                res.writeHead(404, { "Content-Type": contentTypeFor(notFoundPage) });
                 res.end(body);
             } else {
                 res.writeHead(404);
@@ -121,9 +136,8 @@ export function createStaticSiteServer(
         }
 
         const filePath = resolved.filePath;
-        const mime = MIME[extname(filePath)] || "text/plain";
         const body = readResponseBody(filePath, options.transformHtml);
-        res.writeHead(200, { "Content-Type": mime });
+        res.writeHead(200, { "Content-Type": contentTypeFor(filePath) });
         res.end(body);
     });
 }

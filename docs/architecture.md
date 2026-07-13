@@ -104,7 +104,7 @@ The asset build runs alongside page compilation.
 
 It produces:
 
-- a single site stylesheet from the files under `src/styles/`
+- the single site stylesheet, `src/styles/style.css`
 - one browser bundle for document-level enhancements
 - one browser bundle for islands
 - copied font assets
@@ -219,7 +219,7 @@ The repository is organized by responsibility.
 - `src/components/` — shared UI components used by templates and content
 - `src/client/` — browser-side enhancement and hydration entry points
 - `src/islands/` — interactive island components and registry
-- `src/styles/` — the site stylesheet layers and component styles
+- `src/styles/` — the single site stylesheet
 - `src/context/` — render-time shared context
 - `src/types/` — shared contracts for content and islands
 - `test/` plus co-located `*.test.ts` files — verification scripts and unit tests
@@ -256,6 +256,6 @@ includes:
 - feed validation
 - generated SEO artifact validation
 
-CI follows the same basic shape: typecheck, build, then test.
+CI (`.github/workflows/ci.yml`) runs `pnpm run verify`, so it follows the same shape: typecheck, build, then test.
 
 That is the architecture: files in, static site out, with a deliberately small runtime and a few explicit guardrails to keep the system understandable over time.

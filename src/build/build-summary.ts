@@ -1,10 +1,9 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
-import { extname, join, relative, sep } from "node:path";
+import { statSync } from "node:fs";
+import { extname, relative, sep } from "node:path";
+import { formatKiB, listFilesRecursive } from "./shared/dist-fs.ts";
 import { distDirectory } from "./shared/paths.ts";
 import type { ImageBuildSummary } from "./assets/images.ts";
 import type { IslandUsage } from "./render/render-react-page.tsx";
-
-const kibibyte = 1024;
 
 export interface LargestOutputFile {
     label: string;
@@ -31,26 +30,6 @@ const largestFileGroups = [
     { label: "Images", extensions: [".avif", ".webp", ".png", ".jpg", ".jpeg", ".svg"] },
 ] as const;
 
-function listFiles(directory: string): string[] {
-    const files: string[] = [];
-    if (!existsSync(directory)) return files;
-
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-        const entryPath = join(directory, entry.name);
-        if (entry.isDirectory()) {
-            files.push(...listFiles(entryPath));
-            continue;
-        }
-        if (entry.isFile()) files.push(entryPath);
-    }
-
-    return files;
-}
-
-function formatKiB(bytes: number): string {
-    return `${(bytes / kibibyte).toFixed(1)} KiB`;
-}
-
 function formatPlural(count: number, singular: string, plural = `${singular}s`): string {
     return `${count} ${count === 1 ? singular : plural}`;
 }
@@ -60,7 +39,7 @@ export function sumOutputBytes(
     directory = distDirectory,
 ): number {
     const allowed = new Set(extensions);
-    return listFiles(directory).reduce((total, filePath) => {
+    return listFilesRecursive(directory).reduce((total, filePath) => {
         if (!allowed.has(extname(filePath))) return total;
         return total + statSync(filePath).size;
     }, 0);
@@ -69,7 +48,7 @@ export function sumOutputBytes(
 export function listLargestOutputFiles(
     directory = distDirectory,
 ): LargestOutputFile[] {
-    const files = listFiles(directory);
+    const files = listFilesRecursive(directory);
 
     return largestFileGroups.flatMap(({ label, extensions }) => {
         const allowed = new Set<string>(extensions);

@@ -22,7 +22,7 @@ function deriveVariant(
 
 export function Figure({ src, alt, caption, width, height }: FigureProps) {
     return (
-        <figure className="figure semi-bleed">
+        <figure>
             <Picture
                 src={src}
                 srcWebp={deriveVariant(src, ".webp")}
@@ -32,11 +32,7 @@ export function Figure({ src, alt, caption, width, height }: FigureProps) {
                 height={height}
                 loading="lazy"
             />
-            {caption && (
-                <figcaption className="figure-caption caption">
-                    {caption}
-                </figcaption>
-            )}
+            {caption && <figcaption>{caption}</figcaption>}
         </figure>
     );
 }

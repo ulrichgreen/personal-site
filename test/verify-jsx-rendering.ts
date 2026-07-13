@@ -32,7 +32,7 @@ async function main() {
     );
     assert(homeHtml.includes('id="progress" aria-hidden="true"'));
     assert(
-        /<header[^>]*class=["'][^"']*\bsite-header\b[^"']*["']/.test(homeHtml),
+        /<header>\s*<nav[^>]*aria-label="Primary"/.test(homeHtml),
         "Site header should be present.",
     );
     assert(
@@ -141,7 +141,11 @@ async function main() {
         /style="view-transition-name:article-title-on-tools/.test(articleHtml),
         "Article title should have a named view transition.",
     );
-    assert(articleHtml.includes('class="page page--article"'));
+    assert(
+        articleHtml.includes('aria-label="Breadcrumb"') &&
+        articleHtml.includes("<article"),
+        "Article page should render the breadcrumb bar and article element.",
+    );
     assert(
         articleHtml.includes('<time datetime="2025-03-01">March 1, 2025</time>'),
         "Article should render the published date in the header.",
@@ -179,7 +183,7 @@ async function main() {
         "Article should render the table of contents navigation.",
     );
     assert(
-        articleHtml.includes('class="table-of-contents card semi-bleed"'),
+        articleHtml.includes('class="toc"'),
         "Article should render static table of contents markup.",
     );
     assert(
@@ -211,8 +215,9 @@ async function main() {
     const scriptingHtml = renderPage(scripting, articleIndex);
 
     assert(
-        scriptingHtml.includes('class="code-block__copy"') &&
-        scriptingHtml.includes("disabled"),
+        /<figcaption>[^]*?<button[^>]*aria-label="Copy[^"]*"[^>]*disabled/.test(
+            scriptingHtml,
+        ),
         "Code copy controls should be static HTML, disabled until enhanced.",
     );
 
@@ -375,7 +380,7 @@ async function main() {
     );
 
     assert(
-        /class="section semi-bleed card [^"]+"/.test(markupHtml),
+        markupHtml.includes('aria-label="The Web Trilogy series navigation"'),
         "Series article should render the series-nav component.",
     );
     assert(

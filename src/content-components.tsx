@@ -3,7 +3,6 @@ import { ArticleList } from "./components/article-list/article-list.tsx";
 import { Callout } from "./components/callout/callout.tsx";
 import { Code } from "./components/code/code.tsx";
 import { Figure } from "./components/figure/figure.tsx";
-import { Hero } from "./components/hero/hero.tsx";
 import { Manifesto } from "./components/manifesto/manifesto.tsx";
 import { TableOfContents } from "./components/table-of-contents/table-of-contents.tsx";
 import { Island } from "./islands/island.tsx";
@@ -44,7 +43,6 @@ export function getContentComponents(
         Callout,
         Code,
         Figure,
-        Hero,
         Manifesto,
         TableOfContents,
         ...islandComponents,

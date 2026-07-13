@@ -15,13 +15,9 @@ interface CalloutProps {
 
 export function Callout({ type = "note", children }: CalloutProps) {
     return (
-        <aside
-            className="callout card semi-bleed"
-            data-type={type}
-            aria-label={`${calloutLabels[type]} callout`}
-        >
-            <p className="callout-label label">{calloutLabels[type]}</p>
-            <div className="body-md">{children}</div>
+        <aside data-type={type} aria-label={`${calloutLabels[type]} callout`}>
+            <p>{calloutLabels[type]}</p>
+            <div>{children}</div>
         </aside>
     );
 }

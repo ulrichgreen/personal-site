@@ -1,12 +1,17 @@
 import matter from "gray-matter";
-import { createInterface } from "node:readline";
 import { z } from "zod";
 import type { PageMeta, FrontmatterPayload } from "../../types/content.ts";
 
+// gray-matter parses unquoted YAML dates as Date objects; normalize those to
+// YYYY-MM-DD, then require that exact shape so lexical date comparisons and
+// downstream date parsing (index, feed, sitemap) stay reliable.
 const yamlDateString = z.preprocess(
     (value) =>
         value instanceof Date ? value.toISOString().slice(0, 10) : value,
-    z.string().trim().min(1),
+    z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "expected an ISO date (YYYY-MM-DD)"),
 );
 
 const revisionSchema = z.object({
@@ -23,9 +28,6 @@ const contentMetaSchema = z
         published: yamlDateString.optional(),
         revised: yamlDateString.optional(),
         draft: z.boolean().optional(),
-        words: z
-            .union([z.number().positive(), z.string().trim().min(1)])
-            .optional(),
         note: z.string().trim().min(1).optional(),
         series: z.string().trim().min(1).optional(),
         seriesOrder: z.number().int().positive().optional(),
@@ -128,7 +130,6 @@ export function parseFrontmatter(
                 published: validated.published!,
                 revised: validated.revised,
                 draft: validated.draft,
-                words: validated.words,
                 note: validated.note,
                 revisions: validated.revisions,
                 series: validated.series,
@@ -141,35 +142,10 @@ export function parseFrontmatter(
                 section: validated.section,
                 published: validated.published,
                 revised: validated.revised,
-                words: validated.words,
             };
 
     return {
         meta: typedMeta,
         body: content,
     };
-}
-
-function main() {
-    const chunks: string[] = [];
-    const rl = createInterface({ input: process.stdin, terminal: false });
-
-    rl.on("line", (line) => chunks.push(line));
-    rl.on("close", () => {
-        try {
-            process.stdout.write(
-                JSON.stringify(parseFrontmatter(chunks.join("\n"))),
-            );
-        } catch (error) {
-            process.stderr.write(`${String(error)}\n`);
-            process.exit(1);
-        }
-    });
-}
-
-if (
-    process.argv[1] &&
-    new URL(process.argv[1], "file:").href === import.meta.url
-) {
-    main();
 }

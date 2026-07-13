@@ -12,19 +12,15 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
     const current = currentIndex + 1;
 
     return (
-        <nav
-            className="section semi-bleed card series-nav"
-            aria-label={`${name} series navigation`}
-        >
-            <div className="series-head">
-                <p className="label">Series</p>
-                <p className="series-name heading-sm">{name}</p>
-                <p className="series-progress label">
+        <nav aria-label={`${name} series navigation`}>
+            <header>
+                <p>Series</p>
+                <p>{name}</p>
+                <p>
                     Part {current} of {total}
                 </p>
-            </div>
+            </header>
             <div
-                className="series-track"
                 role="progressbar"
                 aria-valuenow={current}
                 aria-valuemin={1}
@@ -33,7 +29,7 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
             >
                 <div style={{ width: `${(current / total) * 100}%` }} />
             </div>
-            <ol className="series-list">
+            <ol>
                 {entries.map((entry, index) => {
                     const isCurrent = entry.order === currentOrder;
                     return (
@@ -41,37 +37,29 @@ export function SeriesNav({ seriesInfo }: { seriesInfo: SeriesInfo }) {
                             key={entry.slug}
                             aria-current={isCurrent ? "page" : undefined}
                         >
-                            <span className="ord label">
-                                {String(index + 1).padStart(2, "0")}
-                            </span>
+                            <span>{String(index + 1).padStart(2, "0")}</span>
                             {isCurrent ? (
-                                <span className="body-sm">{entry.title}</span>
+                                <span>{entry.title}</span>
                             ) : (
-                                <a className="body-sm" href={entry.href}>
-                                    {entry.title}
-                                </a>
+                                <a href={entry.href}>{entry.title}</a>
                             )}
                         </li>
                     );
                 })}
             </ol>
             {(prev || next) && (
-                <div className="series-arrows label">
+                <p>
                     {prev ? (
-                        <a className="series-prev" href={prev.href}>
-                            ← {prev.title}
-                        </a>
+                        <a href={prev.href}>← {prev.title}</a>
                     ) : (
                         <span />
                     )}
                     {next ? (
-                        <a className="series-next" href={next.href}>
-                            {next.title} →
-                        </a>
+                        <a href={next.href}>{next.title} →</a>
                     ) : (
                         <span />
                     )}
-                </div>
+                </p>
             )}
         </nav>
     );

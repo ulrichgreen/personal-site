@@ -1,7 +1,7 @@
 {
     "name": "ulrich.green",
     "version": "24.0.0",
-    "description": "",
+    "description": "Source for ulrich.green — a hand-rolled static site: TypeScript build, Preact SSR, MDX content, selective islands.",
     "scripts": {
         "build": "node --import tsx ./src/build/build.ts",
         "start": "node --import tsx ./src/build/build.ts && node --import tsx ./src/build/start.ts",
@@ -15,7 +15,7 @@
         "watch": "node --import tsx ./src/build/dev.ts"
     },
     "keywords": [],
-    "author": "",
+    "author": "Ulrich Green <hey@ulrich.green>",
     "license": "ISC",
     "engines": {
         "node": ">=24"

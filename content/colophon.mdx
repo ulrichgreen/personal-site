@@ -18,17 +18,17 @@ images, series metadata, revisions, and footnotes.
 
 ## Build
 
-`pnpm build` drives the whole thing. Content from `content/` goes through a TypeScript pipeline: frontmatter parsing, MDX evaluation, then build-time rendering into static HTML. CSS is bundled from partials in `src/styles/`. The browser code is split between `src/client/site.ts` for progressive enhancement and `src/client/islands.ts` for island hydration. The output still lands in `dist/`.
+`pnpm build` drives the whole thing. Content from `content/` goes through a TypeScript pipeline: frontmatter parsing, MDX evaluation, then build-time rendering into static HTML. CSS compiles from one stylesheet, `src/styles/style.css`. The browser code is split between `src/client/site.ts` for progressive enhancement and `src/client/islands.ts` for island hydration. The output still lands in `dist/`.
 
 There is still a watch mode. `pnpm dev` runs a tiny dev server with rebuilds and live reload. The build is larger than it used to be, but it still fits in your head.
 
 ## Design
 
-The visual design is still raw CSS. The source is still split into partials under `src/styles/`, and it still compiles to one stylesheet. The 8px baseline grid is still the backbone. Custom properties still carry the spacing scale, type scale, and palette. The site still leans on typography before graphics.
+The visual design is still raw CSS — now a single stylesheet, `src/styles/style.css`, that leans on the cascade instead of a class system. Elements are styled directly, colors are `light-dark()` pairs, and one named-column grid handles every page width. The 8px baseline grid is still the backbone. Custom properties still carry the spacing scale, type scale, and palette. The site still leans on typography before graphics.
 
 <Figure
     src="/images/IMG_1514.png"
-    alt="Portrait used in the home-page hero."
+    alt="Portrait of Ulrich Green."
     width={320}
     height={400}
     caption="Raster source images live in `src/images/`. The build copies the original and emits matching WebP and AVIF variants alongside it."

@@ -78,6 +78,56 @@ describe("measurePerformanceBudgets", () => {
         }
     });
 
+    it("measures only the largest matching file when measure is largestFile", () => {
+        const directory = mkdtempSync(join(tmpdir(), "budget-test-"));
+        try {
+            mkdirSync(join(directory, "articles"));
+            writeFileSync(join(directory, "index.html"), bytes(1000));
+            writeFileSync(join(directory, "articles", "post.html"), bytes(2000));
+
+            const [largest, total] = measurePerformanceBudgets(directory, [
+                {
+                    label: "HTML",
+                    extensions: [".html"],
+                    measure: "largestFile",
+                    warnAtBytes: 1500,
+                    maximumBytes: 4000,
+                },
+                {
+                    label: "HTML",
+                    extensions: [".html"],
+                    warnAtBytes: 1500,
+                    maximumBytes: 4000,
+                },
+            ]);
+
+            assert.equal(largest.bytes, 2000);
+            assert.equal(largest.status, "warn");
+            assert.equal(total.bytes, 3000);
+        } finally {
+            rmSync(directory, { recursive: true, force: true });
+        }
+    });
+
+    it("reports zero bytes instead of throwing when the directory is missing", () => {
+        const results = measurePerformanceBudgets(
+            join(tmpdir(), "budget-test-does-not-exist"),
+            [
+                {
+                    label: "HTML",
+                    extensions: [".html"],
+                    warnAtBytes: 1024,
+                    maximumBytes: 2048,
+                },
+            ],
+        );
+
+        assert.deepEqual(
+            results.map(({ bytes, status }) => ({ bytes, status })),
+            [{ bytes: 0, status: "pass" }],
+        );
+    });
+
     it("marks budgets as failed once they exceed the maximum", () => {
         const directory = mkdtempSync(join(tmpdir(), "budget-test-"));
         try {

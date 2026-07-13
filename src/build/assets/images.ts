@@ -6,13 +6,14 @@ import {
     readdirSync,
     statSync,
 } from "node:fs";
-import { extname, join, basename } from "node:path";
+import { basename, dirname, extname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { distDirectory } from "../shared/paths.ts";
 
-const imagesDir = new URL("../../images", import.meta.url).pathname;
+const imagesDir = fileURLToPath(new URL("../../images", import.meta.url));
 const distImagesDir = join(distDirectory, "images");
 
-const RASTER_EXTS = new Set([".jpg", ".jpeg", ".png"]);
+export const RASTER_EXTS = new Set([".jpg", ".jpeg", ".png"]);
 const PASSTHROUGH_EXTS = new Set([".svg", ".avif", ".webp"]);
 
 interface ProcessedImage {
@@ -31,70 +32,82 @@ export async function processImage(
 ): Promise<ProcessedImage> {
     const name = basename(sourcePath, extname(sourcePath));
     const ext = extname(sourcePath).toLowerCase();
-    const outputs: string[] = [];
-
-    // Always copy the original
     const destOriginal = join(destDir, basename(sourcePath));
-    copyFileSync(sourcePath, destOriginal);
-    outputs.push(destOriginal);
 
-    if (!RASTER_EXTS.has(ext)) {
-        return { source: sourcePath, outputs };
+    // Every planned output for this source, so freshness can be checked
+    // up front and the whole set skipped when nothing changed.
+    const jobs: { path: string; run: () => void | Promise<unknown> }[] = [
+        { path: destOriginal, run: () => copyFileSync(sourcePath, destOriginal) },
+    ];
+
+    if (RASTER_EXTS.has(ext)) {
+        const metadata = await sharp(sourcePath).metadata();
+
+        // Full-size variants, plus half-width ones for large images (> 640px).
+        const widths: (number | undefined)[] = [undefined];
+        if (metadata.width && metadata.width > 640) {
+            widths.push(Math.round(metadata.width / 2));
+        }
+
+        for (const width of widths) {
+            const suffix = width === undefined ? "" : `-${width}w`;
+            const resized = () => {
+                const image = sharp(sourcePath);
+                return width === undefined ? image : image.resize(width);
+            };
+
+            const webpPath = join(destDir, `${name}${suffix}.webp`);
+            jobs.push({
+                path: webpPath,
+                run: () => resized().webp({ quality: 80, effort: 6 }).toFile(webpPath),
+            });
+
+            const avifPath = join(destDir, `${name}${suffix}.avif`);
+            jobs.push({
+                path: avifPath,
+                run: () => resized().avif({ quality: 65, effort: 6 }).toFile(avifPath),
+            });
+        }
     }
 
-    const image = sharp(sourcePath);
-    const metadata = await image.metadata();
-
-    // Generate WebP variant
-    const webpPath = join(destDir, `${name}.webp`);
-    await sharp(sourcePath)
-        .webp({ quality: 80, effort: 6 })
-        .toFile(webpPath);
-    outputs.push(webpPath);
-
-    // Generate AVIF variant
-    const avifPath = join(destDir, `${name}.avif`);
-    await sharp(sourcePath)
-        .avif({ quality: 65, effort: 6 })
-        .toFile(avifPath);
-    outputs.push(avifPath);
-
-    // Generate a smaller variant if image is large (> 640px wide)
-    if (metadata.width && metadata.width > 640) {
-        const smallWidth = Math.round(metadata.width / 2);
-
-        const smallWebpPath = join(destDir, `${name}-${smallWidth}w.webp`);
-        await sharp(sourcePath)
-            .resize(smallWidth)
-            .webp({ quality: 80, effort: 6 })
-            .toFile(smallWebpPath);
-        outputs.push(smallWebpPath);
-
-        const smallAvifPath = join(destDir, `${name}-${smallWidth}w.avif`);
-        await sharp(sourcePath)
-            .resize(smallWidth)
-            .avif({ quality: 65, effort: 6 })
-            .toFile(smallAvifPath);
-        outputs.push(smallAvifPath);
+    // Incremental skip: re-encode only when some output is missing or older
+    // than the source.
+    const sourceMtimeMs = statSync(sourcePath).mtimeMs;
+    const upToDate = jobs.every(
+        ({ path }) => existsSync(path) && statSync(path).mtimeMs >= sourceMtimeMs,
+    );
+    if (!upToDate) {
+        for (const job of jobs) {
+            await job.run();
+        }
     }
 
-    return { source: sourcePath, outputs };
+    return { source: sourcePath, outputs: jobs.map((job) => job.path) };
 }
 
-export async function buildImages(): Promise<ImageBuildSummary> {
-    if (!existsSync(imagesDir)) {
+export async function buildImages(
+    sourceDir = imagesDir,
+    destDir = distImagesDir,
+): Promise<ImageBuildSummary> {
+    if (!existsSync(sourceDir)) {
         return { sourceCount: 0, outputCount: 0 };
     }
 
-    mkdirSync(distImagesDir, { recursive: true });
-
     const allExts = new Set([...RASTER_EXTS, ...PASSTHROUGH_EXTS]);
-    const files = readdirSync(imagesDir).filter((f) =>
-        allExts.has(extname(f).toLowerCase()),
-    );
+    const files = readdirSync(sourceDir, { recursive: true, withFileTypes: true })
+        .filter(
+            (entry) =>
+                entry.isFile() && allExts.has(extname(entry.name).toLowerCase()),
+        )
+        .map((entry) => join(entry.parentPath, entry.name));
 
     const results = await Promise.all(
-        files.map((file) => processImage(join(imagesDir, file), distImagesDir)),
+        files.map((file) => {
+            // Mirror the source subdirectory layout under dist/images.
+            const outputDir = join(destDir, dirname(relative(sourceDir, file)));
+            mkdirSync(outputDir, { recursive: true });
+            return processImage(file, outputDir);
+        }),
     );
 
     const totalOutputs = results.reduce((sum, r) => sum + r.outputs.length, 0);

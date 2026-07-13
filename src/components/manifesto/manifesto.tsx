@@ -1,26 +1,22 @@
-
 import { SITE_AUTHOR } from "../../config.ts";
 
 /**
- * Homepage manifesto block. Renders the site's central statement
- * as three typographic movements: opening declaration, body paragraph,
- * and closing resolution.
+ * Homepage manifesto block: opening declaration (the page's h1),
+ * body paragraph, and closing resolution.
  */
 export function Manifesto() {
     return (
-        <section className="manifesto section" aria-label="About">
-            <p className="manifesto-line heading-display">
-                It's just text files.
-            </p>
+        <section id="about" aria-label="About">
+            <h1>It's just text files.</h1>
 
-            <p className="manifesto-body body-lg">
+            <p>
                 The web never stopped being simple. Under every website: text
                 files. Usually too many. My name is {SITE_AUTHOR}. I build text
                 files for a living. It's a surprisingly short list of materials.
                 Worth choosing the characters carefully.
             </p>
 
-            <p className="manifesto-line heading-display">
+            <p>
                 Just some <em>very well considered</em> text files.
             </p>
         </section>

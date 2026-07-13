@@ -9,15 +9,25 @@ import { rebuildPages } from "./pipeline.ts";
 import { createStaticSiteServer } from "./serve.ts";
 const LIVE_RELOAD_SCRIPT = `<script>
 (() => {
-    if (window.__siteLiveReloadSocket) {
+    if (window.__siteLiveReload) {
         return;
     }
+    window.__siteLiveReload = true;
 
-    const socket = new WebSocket(\`ws://\${location.host}\`);
-    socket.addEventListener("message", () => {
-        location.reload();
-    });
-    window.__siteLiveReloadSocket = socket;
+    let wasConnected = false;
+    function connect() {
+        const socket = new WebSocket(\`ws://\${location.host}\`);
+        socket.addEventListener("open", () => {
+            // Reconnecting means the dev server restarted; reload to pick up
+            // whatever it rebuilt in the meantime.
+            if (wasConnected) location.reload();
+            wasConnected = true;
+        });
+        socket.addEventListener("message", () => location.reload());
+        // A failed connection also fires "close", so this covers errors too.
+        socket.addEventListener("close", () => setTimeout(connect, 1000));
+    }
+    connect();
 })();
 </script>`;
 
@@ -135,7 +145,8 @@ export function startDevServer(): void {
                     } else {
                         const tasks: Promise<unknown>[] = [];
                         if (kinds.has("styles")) tasks.push(buildCss());
-                        if (kinds.has("client")) tasks.push(buildClient());
+                        if (kinds.has("client"))
+                            tasks.push(buildClient({ dev: true }));
                         if (kinds.has("render")) {
                             // Template/build code changed: rebuild pages in a
                             // fresh subprocess so updated modules are used.
@@ -176,7 +187,7 @@ export function startDevServer(): void {
     }
 
     chokidar
-        .watch(["content", "src"], { ignoreInitial: true })
+        .watch(["content", "src", "site.config.ts"], { ignoreInitial: true })
         .on("all", (_event, path) => {
             process.stdout.write(`  ~ ${path}\n`);
             pendingChanges.add(path);
@@ -185,7 +196,7 @@ export function startDevServer(): void {
 
     void runBuild();
 
-    server.listen(DEV_PORT, () =>
+    server.listen(DEV_PORT, "127.0.0.1", () =>
         process.stdout.write(`\n  http://localhost:${DEV_PORT}\n\n`),
     );
 }

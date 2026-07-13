@@ -5,7 +5,7 @@ function isInsideIsland(node: Element | null): boolean {
 function bootCodeBlocks() {
     const figures = Array.from(
         document.querySelectorAll<HTMLElement>(
-            "[data-rehype-pretty-code-figure], .code-block",
+            "[data-rehype-pretty-code-figure]",
         ),
     ).filter((figure) => !isInsideIsland(figure));
 
@@ -23,17 +23,12 @@ function bootCodeBlocks() {
             pre.dataset.language || figure.dataset.language || "text";
         figure.dataset.language = language;
 
-        let toolbar = figure.querySelector<HTMLElement>(".code-block__toolbar");
-        if (!toolbar) continue;
-
         const copyButton =
-            toolbar.querySelector<HTMLButtonElement>(".code-block__copy");
+            figure.querySelector<HTMLButtonElement>("figcaption button");
         if (!copyButton) continue;
 
-        copyButton.setAttribute(
-            "aria-label",
-            `Copy ${language} code to clipboard`,
-        );
+        const idleLabel = `Copy ${language} code to clipboard`;
+        copyButton.setAttribute("aria-label", idleLabel);
         copyButton.dataset.state = "idle";
 
         if (!navigator.clipboard?.writeText) {
@@ -43,27 +38,28 @@ function bootCodeBlocks() {
 
         copyButton.disabled = false;
 
+        let resetTimer = 0;
+        const setState = (state: string, text: string, label: string) => {
+            copyButton.dataset.state = state;
+            copyButton.textContent = text;
+            copyButton.setAttribute("aria-label", label);
+            window.clearTimeout(resetTimer);
+            if (state !== "idle") {
+                resetTimer = window.setTimeout(() => {
+                    setState("idle", "Copy", idleLabel);
+                }, 2200);
+            }
+        };
+
         copyButton.addEventListener("click", async () => {
             const source = code.textContent?.replace(/\n$/, "") || "";
             if (!source) return;
 
             try {
                 await navigator.clipboard.writeText(source);
-                copyButton.dataset.state = "copied";
-                copyButton.textContent = "Copied";
-
-                window.setTimeout(() => {
-                    copyButton.dataset.state = "idle";
-                    copyButton.textContent = "Copy";
-                }, 2200);
+                setState("copied", "Copied", "Code copied to clipboard");
             } catch {
-                copyButton.dataset.state = "error";
-                copyButton.textContent = "Failed";
-
-                window.setTimeout(() => {
-                    copyButton.dataset.state = "idle";
-                    copyButton.textContent = "Copy";
-                }, 2200);
+                setState("error", "Failed", "Copying code failed");
             }
         });
     }
@@ -145,56 +141,55 @@ function bootHeadingReveal() {
     }
 }
 
-export function bootEnhancements() {
-    if (!document.body) return;
-    if (document.body.dataset.enhancementsBooted === "true") return;
-    document.body.dataset.enhancementsBooted = "true";
-
-    for (const reference of document.querySelectorAll<HTMLElement>(".fn-ref")) {
-        reference.classList.add("caption");
+/* Footnotes: on wide screens a click floats the note into the margin
+   beside its reference (and a second click dismisses it); on narrow
+   screens it toggles an inline note after the paragraph instead. */
+function footnoteText(footnote: HTMLElement): string {
+    const clone = footnote.cloneNode(true) as HTMLElement;
+    for (const backref of clone.querySelectorAll("[data-footnote-backref]")) {
+        backref.remove();
     }
+    return clone.textContent?.trim() || "";
+}
 
-    bootCodeBlocks();
-    bootReadingProgress();
-    bootHeadingReveal();
-
+function bootFootnotes() {
     const hasWideMargin = window.matchMedia("(min-width: 900px)");
 
     document.addEventListener("click", (event) => {
         const target = event.target;
         if (!(target instanceof Element) || isInsideIsland(target)) return;
 
-        const ref = target.closest<HTMLAnchorElement>(".fn-ref");
+        const ref = target.closest<HTMLAnchorElement>("[data-footnote-ref]");
         if (!ref) return;
+
+        const targetId = ref.getAttribute("href")?.replace(/^#/, "");
+        if (!targetId) return;
+
+        const footnote = document.getElementById(targetId);
+        if (!footnote) return;
 
         event.preventDefault();
 
-        const targetId = ref.getAttribute("href") || ref.dataset.fn;
-        if (!targetId) return;
-
-        const footnote = document.getElementById(targetId.replace(/^#/, ""));
-        if (!footnote) return;
-
         if (hasWideMargin.matches) {
             let note = document.querySelector<HTMLElement>(
-                `.margin-note[data-for="${targetId.replace(/^#/, "")}"]`,
+                `.margin-note[data-for="${targetId}"]`,
             );
-            if (!note) {
-                note = document.createElement("aside");
-                note.className = "margin-note caption";
-                note.dataset.for = targetId.replace(/^#/, "");
-                note.dataset.ref = ref.textContent?.trim() || "";
-                note.textContent = footnote.textContent || "";
-
-                const article = ref.closest("article");
-                if (article) {
-                    article.style.position = "relative";
-                    article.appendChild(note);
-                }
+            if (note) {
+                note.remove();
+                return;
             }
 
             const article = ref.closest("article");
-            if (!article || !note) return;
+            if (!article) return;
+
+            note = document.createElement("aside");
+            note.className = "margin-note";
+            note.dataset.for = targetId;
+            note.dataset.ref = ref.textContent?.trim() || "";
+            note.textContent = footnoteText(footnote);
+
+            article.style.position = "relative";
+            article.appendChild(note);
 
             const refRect = ref.getBoundingClientRect();
             const articleRect = article.getBoundingClientRect();
@@ -202,17 +197,29 @@ export function bootEnhancements() {
             return;
         }
 
-        let inline = document.getElementById(
-            `inline-${targetId.replace(/^#/, "")}`,
-        );
+        let inline = document.getElementById(`inline-${targetId}`);
         if (!inline) {
-            inline = document.createElement("div");
-            inline.className = "fn-inline caption";
-            inline.id = `inline-${targetId.replace(/^#/, "")}`;
-            inline.textContent = footnote.textContent || "";
-            ref.insertAdjacentElement("afterend", inline);
+            // Insert after the reference's block ancestor: a block note
+            // inside the paragraph would be invalid markup.
+            const block = ref.closest("p, li, blockquote") ?? ref;
+            inline = document.createElement("aside");
+            inline.className = "fn-inline";
+            inline.id = `inline-${targetId}`;
+            inline.textContent = footnoteText(footnote);
+            block.insertAdjacentElement("afterend", inline);
         }
 
         inline.classList.toggle("is-open");
     });
+}
+
+export function bootEnhancements() {
+    if (!document.body) return;
+    if (document.body.dataset.enhancementsBooted === "true") return;
+    document.body.dataset.enhancementsBooted = "true";
+
+    bootCodeBlocks();
+    bootReadingProgress();
+    bootHeadingReveal();
+    bootFootnotes();
 }

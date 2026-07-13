@@ -23,7 +23,6 @@ export function Island({ name, props, hydrate }: IslandProps) {
 
     return (
         <div
-            className="island-root"
             data-island={name}
             data-island-id={id}
             data-island-props={JSON.stringify(props)}

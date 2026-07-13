@@ -63,7 +63,6 @@ export function GridPlayground({
                 {boxes.map((n) => (
                     <div
                         key={n}
-                        className="grid-demo__box"
                         style={n % 4 === 0 ? { gridColumn: "span 2" } : undefined}
                     >
                         {n}

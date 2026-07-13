@@ -8,6 +8,9 @@ import type { ArticleIndexEntry, BuiltContent } from "../../types/content.ts";
  */
 export interface ArtifactContext {
     articleIndex: ArticleIndexEntry[];
+    /** Every page the build renders (drafts already excluded in production). */
+    compiledPages: BuiltContent[];
+    /** The article subset of {@link compiledPages}. */
     compiledArticles: BuiltContent[];
 }
 

@@ -18,8 +18,8 @@ Refines raw ideas into sharp, actionable concepts worth building through structu
 This skill is primarily an interactive dialogue. Invoke it with an idea, and the agent will guide you through the process.
 
 ```bash
-# Optional: Initialize the ideas directory
-bash /mnt/skills/user/idea-refine/scripts/idea-refine.sh
+# Optional: Check that the idea lifecycle docs are in place
+bash .github/skills/idea-refine/scripts/idea-refine.sh
 ```
 
 **Trigger Phrases:**
@@ -29,12 +29,14 @@ bash /mnt/skills/user/idea-refine/scripts/idea-refine.sh
 
 ## Output
 
-The final output is a markdown one-pager saved to `docs/ideas/[idea-name].md` (after user confirmation), containing:
+The final output is a markdown one-pager, presented in chat, containing:
 - Problem Statement
 - Recommended Direction
 - Key Assumptions
 - MVP Scope
 - Not Doing list
+
+If the user wants to keep the result, file it through the repo's idea lifecycle: a wide-field spark belongs in `docs/inspiration.md`, an idea worth remembering but not building yet in `docs/future-ideas.md`, and concrete planned work in `docs/roadmap.md`.
 
 ## Detailed Instructions
 
@@ -66,7 +68,7 @@ When the user invokes this skill with an idea (`$ARGUMENTS`), guide them through
    - What's been tried before?
    - Why now?
 
-   Use the `AskUserQuestion` tool to gather this input. Do NOT proceed until you understand who this is for and what success looks like.
+   Ask these questions directly in the conversation. Do NOT proceed until you understand who this is for and what success looks like.
 
 3. **Generate 5-8 idea variations** using these lenses:
    - **Inversion:** "What if we did the opposite?"
@@ -137,7 +139,7 @@ Produce a concrete artifact — a markdown one-pager that moves work forward:
 
 **The "Not Doing" list is arguably the most valuable part.** Focus is about saying no to good ideas. Make the trade-offs explicit.
 
-Ask the user if they'd like to save this to `docs/ideas/[idea-name].md` (or a location of their choosing). Only save if they confirm.
+Ask the user whether the result should land in the repo's idea lifecycle: `docs/inspiration.md` for a spark worth keeping, `docs/future-ideas.md` for an idea worth remembering but not building yet, or `docs/roadmap.md` once it is concrete planned work. Only write to a file if they confirm.
 
 ### Anti-patterns to Avoid
 

@@ -99,7 +99,7 @@ If a dependency stops serving those constraints, it is replaceable.
 ### lightningcss
 
 - **Why it was chosen:** the site wants one compiled stylesheet with modern CSS processing and minimal ceremony.
-- **How it fits the architecture:** it bundles and minifies the layered CSS source in `src/styles/` into the single stylesheet the built site ships.
+- **How it fits the architecture:** it compiles and minifies `src/styles/style.css` — the one stylesheet the built site ships — lowering modern syntax like `light-dark()` and nesting for the browser targets.
 
 ### esbuild
 

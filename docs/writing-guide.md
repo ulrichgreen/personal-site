@@ -39,14 +39,6 @@ Use for short inline examples when fenced code is not the right fit.
 </Code>
 ```
 
-### `Hero`
-
-Reserved for the home-page lead section.
-
-```mdx
-<Hero portrait={{ src: "/images/IMG_1514.png", width: 320, height: 400, alt: "" }} />
-```
-
 ### `Manifesto`
 
 Use for the short manifesto block on the home page. It renders the site's core principles from the shared component system.

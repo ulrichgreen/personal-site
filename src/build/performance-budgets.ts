@@ -1,6 +1,7 @@
-import { readdirSync, statSync } from "node:fs";
-import { extname, join } from "node:path";
+import { statSync } from "node:fs";
+import { extname } from "node:path";
 import { siteConfig } from "../../site.config.ts";
+import { formatKiB, listFilesRecursive } from "./shared/dist-fs.ts";
 import { distDirectory } from "./shared/paths.ts";
 
 export interface PerformanceBudget {
@@ -8,6 +9,10 @@ export interface PerformanceBudget {
     extensions: readonly string[];
     warnAtBytes: number;
     maximumBytes: number;
+    /** Sum every matching file ("total", default) or take only the single
+     *  largest one ("largestFile") — for per-page budgets that shouldn't
+     *  fail just because more pages exist. */
+    measure?: "total" | "largestFile";
 }
 
 export interface PerformanceBudgetResult extends PerformanceBudget {
@@ -15,32 +20,19 @@ export interface PerformanceBudgetResult extends PerformanceBudget {
     status: "pass" | "warn" | "fail";
 }
 
-const kibibyte = 1024;
-
 export const performanceBudgets = siteConfig.performance
     .budgets satisfies readonly PerformanceBudget[];
 
-function listFiles(directory: string): string[] {
-    const files: string[] = [];
+function measureBytes(paths: string[], budget: PerformanceBudget): number {
+    const allowed = new Set(budget.extensions);
+    const sizes = paths
+        .filter((filePath) => allowed.has(extname(filePath)))
+        .map((filePath) => statSync(filePath).size);
 
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-        const entryPath = join(directory, entry.name);
-        if (entry.isDirectory()) {
-            files.push(...listFiles(entryPath));
-            continue;
-        }
-        if (entry.isFile()) files.push(entryPath);
+    if (budget.measure === "largestFile") {
+        return sizes.length > 0 ? Math.max(...sizes) : 0;
     }
-
-    return files;
-}
-
-function sumBytes(paths: string[], extensions: readonly string[]): number {
-    const allowed = new Set(extensions);
-    return paths.reduce((total, filePath) => {
-        if (!allowed.has(extname(filePath))) return total;
-        return total + statSync(filePath).size;
-    }, 0);
+    return sizes.reduce((total, size) => total + size, 0);
 }
 
 function resolveBudgetStatus(
@@ -52,17 +44,13 @@ function resolveBudgetStatus(
     return "pass";
 }
 
-function formatKiB(bytes: number): string {
-    return `${(bytes / kibibyte).toFixed(1)} KiB`;
-}
-
 export function measurePerformanceBudgets(
     directory = distDirectory,
     budgets: readonly PerformanceBudget[] = performanceBudgets,
 ): PerformanceBudgetResult[] {
-    const files = listFiles(directory);
+    const files = listFilesRecursive(directory);
     return budgets.map((budget) => {
-        const bytes = sumBytes(files, budget.extensions);
+        const bytes = measureBytes(files, budget);
         return {
             ...budget,
             bytes,
