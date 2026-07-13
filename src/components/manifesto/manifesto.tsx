@@ -1,12 +1,14 @@
 import { SITE_AUTHOR } from "../../config.ts";
 
 /**
- * Homepage manifesto block: opening declaration (the page's h1),
- * body paragraph, and closing resolution.
+ * Homepage manifesto block: eyebrow, opening declaration (the
+ * page's h1), body paragraph, and closing resolution.
  */
 export function Manifesto() {
     return (
         <section id="about" aria-label="About">
+            <p>Notes on design, engineering &amp; the web</p>
+
             <h1>It's just text files.</h1>
 
             <p>
