@@ -15,6 +15,7 @@ This folder holds the project's planning and reference documents. Each file has 
 | `roadmap.md`           | Planned work, in rough priority order.                                                                                   |
 | `future-ideas.md`      | Ideas worth remembering but not worth building yet.                                                                      |
 | `inspiration.md`       | A wide field of vision-aligned ideas to pick from and refine, one step earlier than `future-ideas.md`.                   |
+| `article-drafts/`      | Candidate articles — title, description, why-it-lands, and outline per file — to graze, promote into `content/articles/`, or prune. |
 
 ## Ground Rules
 

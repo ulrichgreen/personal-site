@@ -1,0 +1,19 @@
+# Your Next Reader Is a Machine
+
+> Agents don't skim, guess context, or forgive. Whatever your codebase claims about itself — its types, its registry, its docs — is now executed as truth. Honesty became an engineering property.
+
+**Description.** Design systems, APIs, and codebases have acquired a new reader: coding agents that consume registries, type signatures, and docs *operationally*. This essay argues two consequences. First, honesty of machine-readable surfaces becomes load-bearing: an index that overstates ("matched", when only partially matched) feeds agents confident wrong code — better an honest "matched, no variants" than a flattering lie, and the discipline of making a catalog admit exactly what it serves is real engineering work. Second, enforcement beats instruction: a lint rule that catches the agent's mistake does more for reliability than any prompt — the guardrail is the teacher. With a closing provocation: agent experience approximates developer experience so well that an agent's token-cost to do a task in your codebase is a crude, objective measure of your design quality.
+
+**Why it lands.** Most "AI and your codebase" writing is about generating code; almost none is about being *read*. Readers who own design systems or platforms will recognize the inversion immediately: their registry/docs surfaces were marketing to humans and are now instructions to machines, and every overstatement has become a defect with a blast radius. "DX ≈ AX" gives the piece its quotable spine — everything that made code legible to tired humans (clear names, one obvious path, enforced conventions) is exactly what makes it cheap for agents, so the machine reader is, usefully, a mirror.
+
+## Outline
+
+1. **The new reader.** It reads the whole registry, believes the types, follows the docs literally, and writes a hundred call sites before lunch. Your surfaces were never consumed this trustingly, at this scale, by anything.
+2. **Overstatement is now a defect class.** The catalog entry that claims capability it half-has; the "supported" flag that means "mostly"; the example that no longer compiles. A human pauses and checks; an agent ships it. The fix is honesty engineering: statuses that admit partiality, coverage claims audited against what's actually served.
+3. **A worked example: the component registry.** From flattering index to trustworthy contract: deterministic lookups, a committed data snapshot with a freshness gate, fuzzy matching that only ever shortlists — never invents — and statuses that downgrade themselves honestly. The trust model is the product.
+4. **Enforcement is the teacher.** Prompts and docs ask nicely; the type checker and the lint rule *insist*. An agent inside a well-fenced codebase is reliable for fence reasons, not model reasons — every convention you can enforce is a mistake class you've deleted for both kinds of reader.
+5. **DX ≈ AX.** Agents thrive on exactly what junior engineers thrive on: one obvious way, named concepts, locality, conventions that hold. Nothing about legibility is new — what's new is that illegibility now has a meter running.
+6. **Token cost as a design signal.** If an agent burns enormous context to make a routine change, your architecture made the change expensive — for everyone, always; the agent just prices it. A crude metric, and crude metrics that point the right direction are how improvement starts.
+7. **Close.** You don't have to care about the machines. Care that the machines are the first reader honest enough to bill you for your own complexity.
+
+**Notes.** Derived from the registry-honesty work and DX≈AX observations in the private corpus: generalize the registry example. Related: `confidently-wrong.md` (the docs half of the same shift), `five-registries-one-shape.md` (honesty section grows into this).
