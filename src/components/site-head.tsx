@@ -73,20 +73,6 @@ export function SiteHead({
                 rel="icon"
                 href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%233e6349'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%23f7f4eb' font-family='Georgia, serif'>U</text></svg>"
             />
-            <link
-                rel="preload"
-                href="/fonts/Fraunces-Regular.woff2"
-                as="font"
-                type="font/woff2"
-                crossOrigin="anonymous"
-            />
-            <link
-                rel="preload"
-                href="/fonts/JetBrainsMono-Regular.woff2"
-                as="font"
-                type="font/woff2"
-                crossOrigin="anonymous"
-            />
             <link rel="stylesheet" href={cssHref || "/style.css"} />
             <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href="/feed.xml" />
             {pagePath?.startsWith("/articles/") && (

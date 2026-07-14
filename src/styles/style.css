@@ -7,24 +7,8 @@
 
 /* ─── Fonts ──────────────────────────────────────────────── */
 
-/* Fraunces carries the display voice: titles, section headings,
-   pull quotes. Latin subset only; body text stays a system serif. */
-@font-face {
-    font-family: "Fraunces";
-    src: url("/fonts/Fraunces-Regular.woff2") format("woff2");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Fraunces";
-    src: url("/fonts/Fraunces-Italic.woff2") format("woff2");
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-}
-
+/* JetBrains Mono is self-hosted for one job: code. Everything
+   else — display, body, labels — is the reader's system fonts. */
 @font-face {
     font-family: "JetBrains Mono";
     src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
@@ -59,11 +43,16 @@
     --line-strong: light-dark(#cfcbb6, #3e4537);
     --accent: light-dark(#3e6349, #a5c9ab);
 
-    /* Type. Two serifs on purpose: Fraunces for the display voice,
-       the reader's own book serif for running text, mono for labels. */
-    --display: "Fraunces", ui-serif, "New York", Georgia, serif;
+    /* Type, all system stacks except code. The display stack asks
+       for the high-contrast serifs a platform already ships (Didot,
+       Bodoni) before settling on the book serif; body text is the
+       reader's own serif; labels are the system's own monospace.
+       JetBrains Mono (--mono) is reserved for code. */
+    --display: "Didot", "Bodoni MT", "New York", ui-serif, Georgia, serif;
     --serif: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
     --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Menlo, monospace;
+    --mono-ui: ui-monospace, "SF Mono", "Cascadia Code", Consolas, Menlo,
+        monospace;
 
     --text-xs: 0.7rem;
     --text-sm: 0.8rem;
@@ -74,7 +63,7 @@
     --text-display: clamp(2.7rem, 1.85rem + 3.7vw, 4.7rem);
 
     /* Small-label voice, used all over the chrome. */
-    --label: 400 var(--text-xs) / 1.4 var(--mono);
+    --label: 400 var(--text-xs) / 1.4 var(--mono-ui);
 
     /* Rhythm on an 8px base, plus two fluid gaps. The section gap
        is generous on purpose: whitespace is the main ornament. */
@@ -88,8 +77,9 @@
     --section: clamp(4rem, 2.5rem + 7vw, 8rem);
 
     /* Page grid */
-    --measure: 64ch;
+    --measure: 70ch;
     --rail: 18rem;
+    --step: clamp(1.25rem, 4vw, 4.5rem);
     --gutter: clamp(1.5rem, 5vw, 4rem);
 
     /* Motion */
@@ -122,19 +112,29 @@ select {
 }
 
 /* ─── The page grid ──────────────────────────────────────── */
-/* One grid, three named column pairs: prose (the measure),
-   wide (prose plus a rail either side), bleed (edge to edge).
-   main and article are subgrids, so any descendant can claim
-   a wider column without new wrappers or negative margins. */
+/* One grid, four named column pairs — a fixed menu of widths so
+   nothing picks its own number:
+
+     prose  the measure; where text lives
+     wide   half bleed: prose plus one --step either side —
+            code blocks, figures, interactive examples
+     full   prose plus a rail either side — the toc and margin
+            notes live in the rails
+     bleed  edge to edge — footer, breadcrumb
+
+   main and article are subgrids, so any descendant can claim a
+   wider column without new wrappers or negative margins. */
 
 body {
     display: grid;
     grid-template-columns:
         [bleed-start] minmax(var(--gutter), 1fr)
-        [wide-start] minmax(0, var(--rail))
+        [full-start] minmax(0, calc(var(--rail) - var(--step)))
+        [wide-start] minmax(0, var(--step))
         [prose-start] min(var(--measure), calc(100% - 2 * var(--gutter)))
-        [prose-end] minmax(0, var(--rail))
-        [wide-end] minmax(var(--gutter), 1fr)
+        [prose-end] minmax(0, var(--step))
+        [wide-end] minmax(0, calc(var(--rail) - var(--step)))
+        [full-end] minmax(var(--gutter), 1fr)
         [bleed-end];
     align-content: start;
     min-height: 100dvh;
@@ -287,7 +287,7 @@ blockquote {
     text-align: center;
     font-family: var(--display);
     font-style: italic;
-    margin-block: var(--s5);
+    margin-block: clamp(3rem, 2rem + 3.5vw, 5.5rem);
     padding-block: var(--s4);
 
     &::before,
@@ -767,8 +767,9 @@ article > h2 {
     }
 }
 
-/* Consecutive paragraphs indent instead of spacing out. */
-article > :is(p, ul, ol, blockquote) + p {
+/* Consecutive paragraphs indent instead of spacing out. Text
+   after a pull quote is a continuation, so it gets neither. */
+article > :is(p, ul, ol) + p {
     text-indent: 1.5em;
     margin-block-start: calc(-1 * var(--s1));
 }
@@ -1190,7 +1191,7 @@ pre {
         }
 
         & output {
-            font-family: var(--mono);
+            font-family: var(--mono-ui);
             font-size: var(--text-sm);
             color: var(--ink-faint);
         }
@@ -1280,7 +1281,7 @@ pre {
 
         & output {
             min-width: 4ch;
-            font-family: var(--mono);
+            font-family: var(--mono-ui);
             font-size: var(--text-sm);
             color: var(--ink-faint);
         }
@@ -1336,7 +1337,7 @@ pre {
         place-items: center;
         min-block-size: 3rem;
         padding: var(--s2);
-        font-family: var(--mono);
+        font-family: var(--mono-ui);
         color: var(--paper);
         background-color: var(--accent);
     }
