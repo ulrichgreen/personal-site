@@ -1,8 +1,8 @@
 import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from "../config.ts";
 
 const OG_IMAGE_URL = `${SITE_URL}/og-image.svg`;
-const LIGHT_THEME_COLOR = "#fffbf4";
-const DARK_THEME_COLOR = "#171611";
+const LIGHT_THEME_COLOR = "#f7f4eb";
+const DARK_THEME_COLOR = "#161a15";
 
 function safeISODate(value: string): string | undefined {
     const date = new Date(value);
@@ -71,14 +71,7 @@ export function SiteHead({
             />
             <link
                 rel="icon"
-                href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%2311120d'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%23fffbf4' font-family='system-ui'>U</text></svg>"
-            />
-            <link
-                rel="preload"
-                href="/fonts/JetBrainsMono-Regular.woff2"
-                as="font"
-                type="font/woff2"
-                crossOrigin="anonymous"
+                href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%233e6349'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%23f7f4eb' font-family='Georgia, serif'>U</text></svg>"
             />
             <link rel="stylesheet" href={cssHref || "/style.css"} />
             <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href="/feed.xml" />

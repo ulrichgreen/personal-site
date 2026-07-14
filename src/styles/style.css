@@ -7,18 +7,12 @@
 
 /* ─── Fonts ──────────────────────────────────────────────── */
 
+/* JetBrains Mono is self-hosted for one job: code. Everything
+   else — display, body, labels — is the reader's system fonts. */
 @font-face {
     font-family: "JetBrains Mono";
     src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
     font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "JetBrains Mono";
-    src: url("/fonts/JetBrainsMono-Bold.woff2") format("woff2");
-    font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
@@ -36,45 +30,56 @@
 :root {
     color-scheme: light dark;
 
-    /* Palette. Every color is a light/dark pair; nothing else
-       in the sheet mentions a scheme. */
-    --paper: light-dark(#fffbf4, #171611);
-    --paper-raised: light-dark(#f5efe4, #211f19);
-    --ink: light-dark(#11120d, #f3ede2);
-    --ink-soft: light-dark(#5f5c50, #c4bbab);
-    --ink-faint: light-dark(#908a7c, #8c8473);
-    --line: light-dark(#e7dfcf, #38332a);
-    --line-strong: light-dark(#d8cfbc, #4b4438);
-    --accent: light-dark(#b7522e, #e07a50);
+    /* Palette: bone paper, ink with a green cast, pine accent —
+       the site is called ulrich.green, so the color says the name.
+       Every color is a light/dark pair; nothing else in the sheet
+       mentions a scheme. */
+    --paper: light-dark(#f7f4eb, #161a15);
+    --paper-raised: light-dark(#eeeadc, #1e231c);
+    --ink: light-dark(#20241e, #e9e6d9);
+    --ink-soft: light-dark(#5d6353, #b4baa7);
+    --ink-faint: light-dark(#82876f, #848b76);
+    --line: light-dark(#e2ded0, #2b3129);
+    --line-strong: light-dark(#cfcbb6, #3e4537);
+    --accent: light-dark(#3e6349, #a5c9ab);
 
-    /* Type */
+    /* Type, all system stacks except code. The display stack asks
+       for the high-contrast serifs a platform already ships (Didot,
+       Bodoni) before settling on the book serif; body text is the
+       reader's own serif; labels are the system's own monospace.
+       JetBrains Mono (--mono) is reserved for code. */
+    --display: "Didot", "Bodoni MT", "New York", ui-serif, Georgia, serif;
     --serif: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
     --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Menlo, monospace;
+    --mono-ui: ui-monospace, "SF Mono", "Cascadia Code", Consolas, Menlo,
+        monospace;
 
     --text-xs: 0.7rem;
     --text-sm: 0.8rem;
     --text-md: 0.875rem;
     --text-lg: clamp(1.2rem, 1.08rem + 0.55vw, 1.45rem);
-    --text-xl: clamp(1.55rem, 1.25rem + 1.3vw, 2.2rem);
-    --text-2xl: clamp(2rem, 1.55rem + 1.9vw, 3rem);
-    --text-display: clamp(2.3rem, 1.7rem + 2.6vw, 3.6rem);
+    --text-xl: clamp(1.6rem, 1.3rem + 1.35vw, 2.3rem);
+    --text-2xl: clamp(2.2rem, 1.6rem + 2.5vw, 3.5rem);
+    --text-display: clamp(2.7rem, 1.85rem + 3.7vw, 4.7rem);
 
     /* Small-label voice, used all over the chrome. */
-    --label: 400 var(--text-xs) / 1.4 var(--mono);
+    --label: 400 var(--text-xs) / 1.4 var(--mono-ui);
 
-    /* Rhythm on an 8px base, plus two fluid gaps. */
+    /* Rhythm on an 8px base, plus two fluid gaps. The section gap
+       is generous on purpose: whitespace is the main ornament. */
     --s1: 8px;
     --s2: 16px;
     --s3: 24px;
     --s4: 32px;
     --s5: 40px;
     --s6: 48px;
-    --gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-    --section: clamp(3rem, 2rem + 5vw, 5.5rem);
+    --gap: clamp(1.75rem, 1.15rem + 2.5vw, 3rem);
+    --section: clamp(4rem, 2.5rem + 7vw, 8rem);
 
     /* Page grid */
-    --measure: 64ch;
+    --measure: 70ch;
     --rail: 18rem;
+    --step: clamp(1.25rem, 4vw, 4.5rem);
     --gutter: clamp(1.5rem, 5vw, 4rem);
 
     /* Motion */
@@ -107,19 +112,29 @@ select {
 }
 
 /* ─── The page grid ──────────────────────────────────────── */
-/* One grid, three named column pairs: prose (the measure),
-   wide (prose plus a rail either side), bleed (edge to edge).
-   main and article are subgrids, so any descendant can claim
-   a wider column without new wrappers or negative margins. */
+/* One grid, four named column pairs — a fixed menu of widths so
+   nothing picks its own number:
+
+     prose  the measure; where text lives
+     wide   half bleed: prose plus one --step either side —
+            code blocks, figures, interactive examples
+     full   prose plus a rail either side — the toc and margin
+            notes live in the rails
+     bleed  edge to edge — footer, breadcrumb
+
+   main and article are subgrids, so any descendant can claim a
+   wider column without new wrappers or negative margins. */
 
 body {
     display: grid;
     grid-template-columns:
         [bleed-start] minmax(var(--gutter), 1fr)
-        [wide-start] minmax(0, var(--rail))
+        [full-start] minmax(0, calc(var(--rail) - var(--step)))
+        [wide-start] minmax(0, var(--step))
         [prose-start] min(var(--measure), calc(100% - 2 * var(--gutter)))
-        [prose-end] minmax(0, var(--rail))
-        [wide-end] minmax(var(--gutter), 1fr)
+        [prose-end] minmax(0, var(--step))
+        [wide-end] minmax(0, calc(var(--rail) - var(--step)))
+        [full-end] minmax(var(--gutter), 1fr)
         [bleed-end];
     align-content: start;
     min-height: 100dvh;
@@ -172,19 +187,20 @@ html {
 /* ─── Prose elements ─────────────────────────────────────── */
 
 h1 {
+    font-family: var(--display);
     font-size: var(--text-2xl);
-    line-height: 1.05;
+    line-height: 1.08;
     font-weight: 400;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     text-wrap: balance;
 }
 
 h2 {
+    font-family: var(--display);
     font-size: var(--text-xl);
-    line-height: 1.2;
+    line-height: 1.25;
     font-weight: 400;
     font-style: italic;
-    letter-spacing: -0.01em;
     margin-block-start: var(--s6);
     text-wrap: balance;
 }
@@ -263,32 +279,52 @@ code {
     border-radius: 3px;
 }
 
+/* Pull quotes are set as type, not boxes: centered display italic
+   between two short hairlines. */
 blockquote {
     justify-self: center;
-    max-width: 44ch;
-    padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 3rem);
-    background: var(--paper-raised);
-    border-radius: 6px;
+    max-width: 38ch;
+    text-align: center;
+    font-family: var(--display);
     font-style: italic;
-    margin-block: var(--s2);
+    margin-block: clamp(3rem, 2rem + 3.5vw, 5.5rem);
+    padding-block: var(--s4);
+
+    &::before,
+    &::after {
+        content: "";
+        display: block;
+        inline-size: 3rem;
+        border-block-start: 1px solid var(--line-strong);
+        margin-inline: auto;
+    }
+
+    &::before {
+        margin-block-end: var(--s4);
+    }
+
+    &::after {
+        margin-block-start: var(--s4);
+    }
 
     & p {
-        font-size: var(--text-lg);
-        line-height: 1.45;
-        letter-spacing: -0.01em;
+        font-size: clamp(1.35rem, 1.15rem + 0.9vw, 1.8rem);
+        line-height: 1.4;
+        hyphens: none;
     }
 }
 
 hr {
     border: none;
-    margin-block: var(--s4);
+    margin-block: var(--s6);
     color: var(--ink-faint);
     text-align: center;
 
     &::before {
         content: "· · ·";
         font-size: 1.25em;
-        letter-spacing: 0.5em;
+        letter-spacing: 0.75em;
+        margin-inline-start: 0.75em; /* recenters the tracked glyphs */
     }
 }
 
@@ -347,16 +383,32 @@ ul {
     transition: width 0.1s linear;
 }
 
-/* Header: two link groups with the wordmark between them. */
+/* Header: two link groups with the wordmark between them. On
+   narrow screens the wordmark takes the first row, centered, and
+   the links gather beneath it. */
 body > header nav {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--s2) var(--s3);
-    padding-block: var(--s4);
+    gap: var(--s2) var(--s4);
+    padding-block: var(--s5);
     font: var(--label);
-    letter-spacing: 0.14em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
+}
+
+@media (max-width: 639.9px) {
+    body > header nav {
+        justify-content: center;
+        gap: var(--s2) var(--s3);
+
+        & .logo {
+            order: -1;
+            flex-basis: 100%;
+            justify-content: center;
+            margin-inline: 0;
+        }
+    }
 }
 
 /* The wordmark: {u} unfolds to the full name on hover. */
@@ -397,42 +449,73 @@ body > header nav {
     }
 }
 
+/* Footer: a full-bleed raised band, everything centered and quiet.
+   Wordmark, one-line tagline, then the footer nav. */
 main > footer {
+    grid-column: bleed;
     margin-block-start: var(--section);
-    padding-block: var(--s3) var(--s4);
-    border-block-start: 1px solid var(--line);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+    padding: var(--section) var(--gutter);
+    background-color: var(--paper-raised);
+    display: grid;
+    justify-items: center;
     gap: var(--s2);
+    text-align: center;
     color: var(--ink-soft);
-    font-size: var(--text-md);
+
+    & > span {
+        font-family: var(--display);
+        font-style: italic;
+        font-size: var(--text-lg);
+        color: var(--ink);
+    }
+
+    & small {
+        font: var(--label);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+    }
 
     & nav {
         display: flex;
-        gap: var(--s3);
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--s2) var(--s4);
+        margin-block-start: var(--s3);
+        font: var(--label);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
     }
 }
 
 /* ─── Home ───────────────────────────────────────────────── */
-/* The manifesto: statement, body, echo. */
+/* The manifesto: eyebrow, statement, body, echo. */
 
 #about {
     margin-block-start: var(--section);
 
+    /* Eyebrow: the one line of chrome before the statement. */
+    & > p:first-child {
+        font: var(--label);
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-block-end: var(--gap);
+    }
+
     & h1,
     & > p:last-child {
+        font-family: var(--display);
         font-size: var(--text-display);
-        line-height: 1.05;
+        line-height: 1.06;
         font-weight: 400;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.01em;
         max-width: 18ch;
         text-wrap: balance;
     }
 
     & h1 + p {
-        max-width: 52ch;
+        max-width: 46ch;
         margin-block: var(--gap);
         font-size: var(--text-lg);
         line-height: 1.8;
@@ -440,6 +523,7 @@ main > footer {
     }
 
     & em {
+        font-family: var(--display);
         color: var(--accent);
     }
 }
@@ -466,7 +550,7 @@ main > footer {
         grid-template-columns: minmax(0, 1fr) auto;
         gap: var(--s1) var(--s3);
         align-items: baseline;
-        padding-block: var(--s2);
+        padding-block: var(--s3);
         margin: 0;
 
         & + li {
@@ -476,9 +560,9 @@ main > footer {
         & > a {
             color: var(--ink);
             text-decoration: none;
-            font-size: 1.3rem;
+            font-family: var(--display);
+            font-size: clamp(1.3rem, 1.2rem + 0.5vw, 1.55rem);
             line-height: 1.25;
-            letter-spacing: -0.01em;
 
             &:is(:hover, :focus-visible) {
                 color: var(--accent);
@@ -573,38 +657,51 @@ main > nav[aria-label="Breadcrumb"] {
     }
 }
 
+/* The masthead is centered, magazine-style: eyebrow, title, lede,
+   meta, then a short rule to hand off to the text. */
 article > header {
-    margin-block-end: var(--s4);
+    margin-block: var(--gap) var(--s6);
+    text-align: center;
 
     /* Eyebrow: kicker line above the title. */
     & > p:first-child {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;
         gap: 0.75rem;
         font: var(--label);
-        letter-spacing: 0.14em;
+        letter-spacing: 0.3em;
         text-transform: uppercase;
         color: var(--ink-faint);
-        margin-block-end: var(--s3);
+        margin-block-end: var(--gap);
+
+        & > * + *::before {
+            content: "·";
+            margin-inline-end: 0.75rem;
+            color: var(--line-strong);
+        }
     }
 
     & h1 {
-        margin-block-end: var(--s4);
+        margin-block-end: var(--gap);
     }
 
     /* Lede: the description, when present. */
     & > h1 + p:not(:has(time)) {
-        max-width: 46ch;
+        max-width: 44ch;
+        margin-inline: auto;
         font-size: var(--text-lg);
         line-height: 1.6;
         color: var(--ink-soft);
-        margin-block-end: var(--s4);
+        margin-block-end: var(--gap);
+        text-wrap: balance;
     }
 
     /* Meta: dates and length, dot-separated. */
     & > p:has(time) {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;
         align-items: baseline;
         gap: 0.5rem 0.9rem;
         font-size: var(--text-md);
@@ -626,26 +723,36 @@ article > header {
     & > p:has(time) + p {
         margin-block-start: var(--s3);
         max-width: 52ch;
+        margin-inline: auto;
         font-size: var(--text-sm);
         color: var(--ink-soft);
     }
+
+    /* The hand-off rule. */
+    &::after {
+        content: "";
+        display: block;
+        inline-size: 3rem;
+        border-block-start: 1px solid var(--line-strong);
+        margin: var(--section) auto 0;
+    }
 }
 
-/* Numbered sections: § 01, § 02 … */
+/* Numbered sections: a small mono "— 01" mark above a centered
+   heading, so each section opens like a chapter. */
 article > h2 {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    margin-block: var(--s6) var(--s2);
+    text-align: center;
+    margin-block: var(--section) var(--s3);
 
     &::before {
         counter-increment: section;
-        content: "§ " counter(section, decimal-leading-zero);
-        flex-shrink: 0;
+        content: "— " counter(section, decimal-leading-zero);
+        display: block;
         color: var(--accent);
         font: var(--label);
         font-style: normal;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.3em;
+        margin-block-end: var(--s2);
     }
 }
 
@@ -654,13 +761,15 @@ article > h2 {
     article > header + p::first-letter {
         -webkit-initial-letter: 3;
         initial-letter: 3;
-        margin-right: 0.06em;
+        font-family: var(--display);
+        margin-right: 0.08em;
         color: var(--accent);
     }
 }
 
-/* Consecutive paragraphs indent instead of spacing out. */
-article > :is(p, ul, ol, blockquote) + p {
+/* Consecutive paragraphs indent instead of spacing out. Text
+   after a pull quote is a continuation, so it gets neither. */
+article > :is(p, ul, ol) + p {
     text-indent: 1.5em;
     margin-block-start: calc(-1 * var(--s1));
 }
@@ -669,8 +778,9 @@ article > footer {
     margin-block-start: var(--section);
     padding-block-start: var(--s5);
     border-block-start: 1px solid var(--line);
+    text-align: center;
     font: var(--label);
-    letter-spacing: 0.14em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
 }
 
@@ -726,7 +836,7 @@ article > nav {
     margin-block-start: var(--section);
     padding: clamp(1.25rem, 3vw, 2rem);
     background-color: var(--paper-raised);
-    border-radius: 6px;
+    border-radius: 3px;
 
     & header {
         display: flex;
@@ -915,7 +1025,7 @@ figure {
     margin-block: clamp(2rem, 6vw, 3rem);
 
     & img {
-        border-radius: 6px;
+        border-radius: 3px;
     }
 
     & figcaption {
@@ -930,7 +1040,7 @@ aside[data-type] {
     padding: clamp(1.25rem, 3vw, 2rem);
     background-color: var(--paper-raised);
     border-inline-start: 3px solid var(--accent);
-    border-radius: 6px;
+    border-radius: 3px;
     margin-block: var(--s2);
 
     & > p:first-child {
@@ -948,9 +1058,9 @@ aside[data-type] {
    Syntax token colors (--c*) are what the shiki theme emits. */
 
 :root {
-    --code-surface: light-dark(#faf5ea, #1d1b15);
-    --ct: light-dark(#3d3528, #ddd3c3);
-    --cc: light-dark(#867965, #938775);
+    --code-surface: light-dark(#f1eddf, #1b201a);
+    --ct: light-dark(#3a3d33, #d5d3c2);
+    --cc: light-dark(#83876f, #8b9078);
     --ck: light-dark(#9f4e39, #e29679);
     --cf: light-dark(#7d5f16, #e2c072);
     --cs: light-dark(#326b5d, #8fd4c3);
@@ -967,7 +1077,7 @@ aside[data-type] {
     margin-block: var(--s3);
     background: var(--code-surface);
     border-block: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 3px;
     font-family: var(--mono);
 
     & figcaption,
@@ -1081,7 +1191,7 @@ pre {
         }
 
         & output {
-            font-family: var(--mono);
+            font-family: var(--mono-ui);
             font-size: var(--text-sm);
             color: var(--ink-faint);
         }
@@ -1171,7 +1281,7 @@ pre {
 
         & output {
             min-width: 4ch;
-            font-family: var(--mono);
+            font-family: var(--mono-ui);
             font-size: var(--text-sm);
             color: var(--ink-faint);
         }
@@ -1227,7 +1337,7 @@ pre {
         place-items: center;
         min-block-size: 3rem;
         padding: var(--s2);
-        font-family: var(--mono);
+        font-family: var(--mono-ui);
         color: var(--paper);
         background-color: var(--accent);
     }
@@ -1256,6 +1366,7 @@ pre {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+    #about > p:first-child,
     #about h1,
     main > h1,
     article > header {
