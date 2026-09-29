@@ -1,6 +1,7 @@
 import { buildFeed } from "./feed.ts";
 import { buildHeaders } from "./headers.ts";
 import { buildOgImage } from "./og-image.ts";
+import { buildRedirects } from "./redirects.ts";
 import { buildRobots } from "./robots.ts";
 import { buildSitemap } from "./sitemap.ts";
 import { isArticlePage } from "../content/article-index.ts";
@@ -23,6 +24,7 @@ export async function buildAncillary(
     buildSitemap(context);
     buildRobots(context);
     buildHeaders(context);
+    buildRedirects(context);
     buildOgImage(context);
     const feedEntries = await buildFeed(context);
     return { feedEntries };

@@ -80,6 +80,14 @@ function main() {
         "_headers Cache-Control should include immutable for hashed assets.",
     );
 
+    // _redirects
+    const redirects = requireDist("_redirects");
+
+    assert(
+        /^\/ \/index\.html 200$/m.test(redirects),
+        "_redirects should serve index.html at the root.",
+    );
+
     // og-image.svg
     const ogImage = requireDist("og-image.svg");
 
@@ -102,7 +110,7 @@ function main() {
     );
 
     console.log(
-        "SEO artifacts verified: robots.txt, sitemap.xml, _headers, and og-image.svg are well-formed.",
+        "SEO artifacts verified: robots.txt, sitemap.xml, _headers, _redirects, and og-image.svg are well-formed.",
     );
     process.exit(0);
 }
