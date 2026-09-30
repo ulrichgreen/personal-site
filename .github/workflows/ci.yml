@@ -86,8 +86,15 @@ jobs:
           name: dist
           path: dist/
 
+      # Until ~/.dotfiles/infra turns site_ci_deploys on, there's no token, and ulrich.green deploys
+      # from the Mac: wrangler login, deploy, logout (deploy/node_modules/.bin/wrangler)
       - name: Deploy to Cloudflare
-        run: deploy/node_modules/.bin/wrangler deploy
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::notice::Not deployed: this repo has no Cloudflare token yet, so ulrich.green deploys from the Mac"
+            exit 0
+          fi
+          deploy/node_modules/.bin/wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
