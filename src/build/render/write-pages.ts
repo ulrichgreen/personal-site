@@ -30,6 +30,7 @@ export function writePages(
     compiled: BuiltContent[],
     articleIndex: ArticleIndexEntry[],
     assetManifest: AssetManifest,
+    frontPageOnly = false,
 ): WrittenPageSummary {
     const seriesMap = buildSeriesMap(articleIndex);
     const islands: IslandUsage = {};
@@ -51,6 +52,7 @@ export function writePages(
             articleIndex,
             assetManifest,
             seriesInfo,
+            frontPageOnly,
         );
         if (Object.keys(rendered.islands).length > 0) {
             islandPages += 1;

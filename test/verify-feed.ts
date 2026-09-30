@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { FRONT_PAGE_ONLY } from "../src/config.ts";
 
 const feedPath = fileURLToPath(new URL("../dist/feed.xml", import.meta.url));
 
 function main() {
+    if (FRONT_PAGE_ONLY) {
+        console.log("Atom feed skipped: only the front page is published (frontPageOnly in site.config.ts).");
+        return;
+    }
+
     if (!existsSync(feedPath)) {
         console.error(
             `verify-feed.ts: feed.xml not found at ${feedPath}. Run "pnpm build" first.`,

@@ -4,6 +4,8 @@ import { indexArticles } from "./content/article-index.ts";
 import { compilePages, type CompileResult } from "./content/compile.ts";
 import { cleanGeneratedPages, discoverSourceFiles } from "./content/discover.ts";
 import { writePages, type WrittenPageSummary } from "./render/write-pages.ts";
+import { urlPathFromSource } from "./shared/paths.ts";
+import { FRONT_PAGE_ONLY } from "../config.ts";
 import { isArticleMeta } from "../types/content.ts";
 import type { ArticleIndexEntry, BuiltContent } from "../types/content.ts";
 
@@ -17,16 +19,30 @@ export interface CompiledSite {
 /**
  * Drafts are a dev-only preview feature: dev builds render them at their URL
  * (still unlisted), production builds exclude them entirely — not written to
- * dist, absent from index, feed, and sitemap.
+ * dist, absent from index, feed, and sitemap. A front-page-only production
+ * build (FRONT_PAGE_ONLY in site.config.ts) goes further and keeps only the
+ * front page and the 404.
  */
 export function selectRenderablePages(
     compiled: BuiltContent[],
     dev: boolean,
+    frontPageOnly = false,
 ): BuiltContent[] {
     if (dev) return compiled;
-    return compiled.filter(
+    const published = compiled.filter(
         (page) => !(isArticleMeta(page.meta) && page.meta.draft),
     );
+    if (!frontPageOnly) return published;
+    return published.filter((page) =>
+        frontPagePaths.has(urlPathFromSource(page.sourcePath)),
+    );
+}
+
+const frontPagePaths = new Set(["/index.html", "/404.html"]);
+
+/** Whether a build publishes only the front page: production builds, while FRONT_PAGE_ONLY is on. */
+export function isFrontPageOnly(dev: boolean): boolean {
+    return FRONT_PAGE_ONLY && !dev;
 }
 
 /** Stages 1–3 of the pipeline: discover sources, compile MDX, index articles. */
@@ -35,7 +51,8 @@ export async function compileSite(
 ): Promise<CompiledSite> {
     const sourceFiles = discoverSourceFiles();
     const { compiled: allCompiled, failed } = await compilePages(sourceFiles);
-    const compiled = selectRenderablePages(allCompiled, options.dev ?? false);
+    const dev = options.dev ?? false;
+    const compiled = selectRenderablePages(allCompiled, dev, isFrontPageOnly(dev));
     const articleIndex = indexArticles(compiled);
     return { sourceFiles, compiled, failed, articleIndex };
 }

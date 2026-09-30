@@ -18,7 +18,7 @@ import { cleanGeneratedPages } from "./content/discover.ts";
 import { validateContentContracts } from "./content/contracts.ts";
 import { enforcePerformanceBudgets } from "./performance-budgets.ts";
 import { writePages } from "./render/write-pages.ts";
-import { assertCompiledCleanly, compileSite } from "./pipeline.ts";
+import { assertCompiledCleanly, compileSite, isFrontPageOnly } from "./pipeline.ts";
 
 export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     const start = performance.now();
@@ -44,11 +44,12 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
 
     // Stage 5 — render pages to disk.
     cleanGeneratedPages();
-    const pageSummary = writePages(compiled, articleIndex, manifest);
+    const frontPageOnly = isFrontPageOnly(dev);
+    const pageSummary = writePages(compiled, articleIndex, manifest, frontPageOnly);
     assertCompiledCleanly(failed);
 
     // Stage 6 — ancillary artifacts (feed, sitemap, robots, headers, og-image).
-    const ancillarySummary = await buildAncillary(articleIndex, compiled);
+    const ancillarySummary = await buildAncillary(articleIndex, compiled, frontPageOnly);
 
     // Stage 7 — production-only finalization.
     if (!dev) {

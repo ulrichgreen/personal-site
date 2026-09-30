@@ -18,7 +18,10 @@ export interface RenderedPage {
     islands: IslandUsage;
 }
 
-function createRenderContext(content: BuiltContent): {
+function createRenderContext(
+    content: BuiltContent,
+    frontPageOnly = false,
+): {
     context: RenderContextValue;
     hasIslands: () => boolean;
     getIslandUsage: () => IslandUsage;
@@ -37,6 +40,7 @@ function createRenderContext(content: BuiltContent): {
             headings: content.headings,
             registerIsland,
             hasIslands,
+            frontPageOnly,
         },
         hasIslands,
         getIslandUsage,
@@ -75,9 +79,11 @@ export function renderPageWithMetadata(
     articleIndex: ArticleIndexEntry[],
     assetManifest: AssetManifest = devAssetManifest,
     seriesInfo?: SeriesInfo,
+    frontPageOnly = false,
 ): RenderedPage {
     const { context, hasIslands, getIslandUsage } = createRenderContext(
         content,
+        frontPageOnly,
     );
 
     const pagePath = urlPathFromSource(content.sourcePath);

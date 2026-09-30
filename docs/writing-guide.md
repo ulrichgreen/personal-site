@@ -91,6 +91,18 @@ Use for editorial images with captions.
 />
 ```
 
+### `FullSiteOnly`
+
+Wraps content that links into the rest of the site. While `frontPageOnly` is on in `site.config.ts`, production builds publish only the front page and the 404 and leave this content out; dev builds always show it. Leave blank lines inside so the Markdown still parses.
+
+```mdx
+<FullSiteOnly>
+
+Read the [colophon](./colophon.html) to learn how this site was built.
+
+</FullSiteOnly>
+```
+
 ## Images
 
 Source images live in `src/images/`.
