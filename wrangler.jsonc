@@ -1,0 +1,16 @@
+// ulrich.green on Cloudflare: a Worker that serves dist/ and nothing else. The deploy job in
+// .github/workflows/ci.yml uploads it once verify has passed on main. The domain, and the token the
+// deploy uses (the secret CLOUDFLARE_API_TOKEN and the variable CLOUDFLARE_ACCOUNT_ID), are set up
+// outside this repository, so there are no routes here: a deploy leaves the domain alone.
+{
+    "name": "personal-site",
+    "compatibility_date": "2026-09-29",
+    "assets": {
+        "directory": "./dist",
+        // Every page keeps its .html URL, as the links and the sitemap have it; _redirects serves the root
+        "html_handling": "none",
+        "not_found_handling": "404-page"
+    },
+    "workers_dev": false,
+    "preview_urls": false
+}
