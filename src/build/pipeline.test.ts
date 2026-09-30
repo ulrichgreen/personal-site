@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -40,6 +40,29 @@ describe("selectRenderablePages", () => {
             );
         } finally {
             rmSync(directory, { recursive: true, force: true });
+        }
+    });
+
+    it("keeps only the front page and the 404 in a front-page-only production build", async () => {
+        const root = mkdtempSync(join(tmpdir(), "pipeline-"));
+        const directory = join(root, "content");
+        try {
+            mkdirSync(directory);
+            const paths = ["index.mdx", "404.mdx", "cv.mdx"].map((file) => join(directory, file));
+            for (const path of paths) {
+                writeFileSync(path, "---\ntitle: Page\n---\nBody.\n");
+            }
+
+            const { compiled, failed } = await compilePages(paths);
+            assert.equal(failed.length, 0);
+
+            assert.deepEqual(
+                selectRenderablePages(compiled, false, true).map((page) => page.sourcePath),
+                paths.slice(0, 2),
+            );
+            assert.equal(selectRenderablePages(compiled, true, true).length, 3);
+        } finally {
+            rmSync(root, { recursive: true, force: true });
         }
     });
 });

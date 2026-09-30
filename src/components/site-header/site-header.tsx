@@ -1,9 +1,16 @@
+import { useRenderContext } from "../../context/render-context.tsx";
+
 export function SiteHeader() {
+    const { frontPageOnly } = useRenderContext();
     return (
         <header>
             <nav aria-label="Primary">
-                <a href="/index.html">Home</a>
-                <a href="/#articles">Articles</a>
+                {!frontPageOnly && (
+                    <>
+                        <a href="/index.html">Home</a>
+                        <a href="/#articles">Articles</a>
+                    </>
+                )}
                 <a
                     href="/index.html"
                     className="logo"
@@ -15,8 +22,12 @@ export function SiteHeader() {
                     </span>
                     <span aria-hidden="true">{"}"}</span>
                 </a>
-                <a href="/cv.html">CV</a>
-                <a href="/colophon.html">Colophon</a>
+                {!frontPageOnly && (
+                    <>
+                        <a href="/cv.html">CV</a>
+                        <a href="/colophon.html">Colophon</a>
+                    </>
+                )}
             </nav>
         </header>
     );

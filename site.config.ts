@@ -24,6 +24,9 @@ export const siteConfig = {
         author: "Ulrich Green",
         domain: "ulrich.green",
         locale: "en",
+        // While the content is unfinished, production builds publish only the front page (and the
+        // 404), with no links to the rest. Dev builds still render every page. false launches it all.
+        frontPageOnly: true,
     },
     dev: {
         port: 3009,

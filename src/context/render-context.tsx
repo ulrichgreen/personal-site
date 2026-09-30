@@ -6,6 +6,8 @@ export interface RenderContextValue {
     headings: ContentHeading[];
     registerIsland: (entry: RegisterIslandInput) => string;
     hasIslands: () => boolean;
+    /** Only the front page is published, so nothing may link to the other pages. */
+    frontPageOnly: boolean;
 }
 
 function missingContext(): never {
@@ -16,6 +18,7 @@ export const RenderContext = createContext<RenderContextValue>({
     headings: [],
     registerIsland: missingContext,
     hasIslands: () => false,
+    frontPageOnly: false,
 });
 
 export function useRenderContext(): RenderContextValue {

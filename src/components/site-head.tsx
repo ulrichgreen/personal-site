@@ -1,4 +1,5 @@
 import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from "../config.ts";
+import { useRenderContext } from "../context/render-context.tsx";
 
 const OG_IMAGE_URL = `${SITE_URL}/og-image.svg`;
 const LIGHT_THEME_COLOR = "#f7f4eb";
@@ -27,6 +28,7 @@ export function SiteHead({
     cssHref?: string;
     seriesName?: string;
 }) {
+    const { frontPageOnly } = useRenderContext();
     const canonicalUrl = pagePath ? `${SITE_URL}${pagePath}` : undefined;
     const ogType = pagePath?.startsWith("/articles/") ? "article" : "website";
 
@@ -74,7 +76,9 @@ export function SiteHead({
                 href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%233e6349'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%23f7f4eb' font-family='Georgia, serif'>U</text></svg>"
             />
             <link rel="stylesheet" href={cssHref || "/style.css"} />
-            <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href="/feed.xml" />
+            {!frontPageOnly && (
+                <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href="/feed.xml" />
+            )}
             {pagePath?.startsWith("/articles/") && (
                 <script
                     type="application/ld+json"

@@ -15,6 +15,7 @@ export interface AncillaryBuildSummary {
 export async function buildAncillary(
     articleIndex: ArticleIndexEntry[],
     compiledPages: BuiltContent[],
+    frontPageOnly = false,
 ): Promise<AncillaryBuildSummary> {
     const context: ArtifactContext = {
         articleIndex,
@@ -26,6 +27,7 @@ export async function buildAncillary(
     buildHeaders(context);
     buildRedirects(context);
     buildOgImage(context);
-    const feedEntries = await buildFeed(context);
+    // Nothing to syndicate while only the front page is published
+    const feedEntries = frontPageOnly ? 0 : await buildFeed(context);
     return { feedEntries };
 }
