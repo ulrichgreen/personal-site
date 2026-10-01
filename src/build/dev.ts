@@ -51,11 +51,7 @@ type RebuildKind = "content" | "styles" | "client" | "render" | "full";
 
 function classifyChange(changedPath: string): RebuildKind {
     if (changedPath.startsWith("content")) return "content";
-    if (
-        changedPath.startsWith("src/styles") ||
-        changedPath.startsWith("src/fonts")
-    )
-        return "styles";
+    if (changedPath.startsWith("src/styles")) return "styles";
     if (changedPath.startsWith("src/client")) return "client";
 
     if (RENDER_PATH_PREFIXES.some((prefix) => changedPath.startsWith(prefix))) {

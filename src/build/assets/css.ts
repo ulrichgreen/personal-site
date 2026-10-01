@@ -1,5 +1,5 @@
 import { bundle } from "lightningcss";
-import { copyFileSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { LIGHTNING_CSS_TARGET } from "../../config.ts";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,12 +7,9 @@ import { distDirectory } from "../shared/paths.ts";
 
 const source = fileURLToPath(new URL("../../styles/style.css", import.meta.url));
 const destination = join(distDirectory, "style.css");
-const fontsDir = fileURLToPath(new URL("../../fonts", import.meta.url));
-const distFontsDir = join(distDirectory, "fonts");
 
 export async function buildCss(): Promise<void> {
     mkdirSync(distDirectory, { recursive: true });
-    mkdirSync(distFontsDir, { recursive: true });
 
     const { code } = bundle({
         filename: source,
@@ -21,12 +18,6 @@ export async function buildCss(): Promise<void> {
     });
 
     writeFileSync(destination, Buffer.from(code).toString("utf8"));
-
-    for (const file of readdirSync(fontsDir).filter((f) =>
-        f.endsWith(".woff2"),
-    )) {
-        copyFileSync(join(fontsDir, file), join(distFontsDir, file));
-    }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

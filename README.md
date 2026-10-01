@@ -4,7 +4,7 @@ A personal site. The writing is the product; everything else is support structur
 
 The generator is hand-rolled: a small TypeScript build pipeline using Preact for server-side rendering, constrained MDX for authoring, esbuild, Lightning CSS, and sharp. That is deliberate. The site exists to remember that the web is mostly text files — HTML, CSS, URLs, and a little restraint get you a long way — and a build a person can read in one sitting is part of the point. See `docs/manifesto.md` for the full argument.
 
-Content lives in `content/` (MDX), site code in `src/`, tests in `test/`. The build writes plain HTML, CSS, fonts, images, and a couple of focused browser bundles to `dist/`.
+Content lives in `content/` (MDX), site code in `src/`, tests in `test/`. The build writes plain HTML, CSS, images, and a couple of focused browser bundles to `dist/`.
 
 ## Quick Start
 

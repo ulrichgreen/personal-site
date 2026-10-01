@@ -9,9 +9,6 @@ export const buildHeaders: Artifact = () => {
         "/*.js",
         "  Cache-Control: public, max-age=31536000, immutable",
         "",
-        "/fonts/*",
-        "  Cache-Control: public, max-age=31536000, immutable",
-        "",
     ].join("\n");
 
     writeDistFile("_headers", headers);
