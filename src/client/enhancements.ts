@@ -92,55 +92,6 @@ function bootReadingProgress() {
     window.addEventListener("resize", requestSync);
 }
 
-function bootHeadingReveal() {
-    const headings = Array.from(
-        document.querySelectorAll<HTMLElement>(
-            "#main-content h2, #main-content h3",
-        ),
-    ).filter((heading) => !isInsideIsland(heading));
-
-    if (headings.length === 0) return;
-
-    const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-    );
-
-    if (prefersReducedMotion.matches) return;
-
-    for (const heading of headings) {
-        heading.classList.add("scroll-reveal-heading");
-    }
-
-    if (!("IntersectionObserver" in window)) {
-        for (const heading of headings) {
-            heading.classList.add("is-visible");
-        }
-        return;
-    }
-
-    const observer = new IntersectionObserver(
-        (entries) => {
-            for (const entry of entries) {
-                if (!entry.isIntersecting) continue;
-
-                const heading = entry.target;
-                if (!(heading instanceof HTMLElement)) continue;
-
-                heading.classList.add("is-visible");
-                observer.unobserve(heading);
-            }
-        },
-        {
-            threshold: 0.18,
-            rootMargin: "0px 0px -8% 0px",
-        },
-    );
-
-    for (const heading of headings) {
-        observer.observe(heading);
-    }
-}
-
 /* Footnotes: on wide screens a click floats the note into the margin
    beside its reference (and a second click dismisses it); on narrow
    screens it toggles an inline note after the paragraph instead. */
@@ -220,6 +171,5 @@ export function bootEnhancements() {
 
     bootCodeBlocks();
     bootReadingProgress();
-    bootHeadingReveal();
     bootFootnotes();
 }

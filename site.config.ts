@@ -60,13 +60,6 @@ export const siteConfig = {
                 warnAtBytes: 36 * kibibyte,
                 maximumBytes: 41 * kibibyte,
             },
-            {
-                label: "Fonts",
-                // The font pipeline only ships woff2/woff (see assets/css.ts).
-                extensions: [".woff2", ".woff"],
-                warnAtBytes: 288 * kibibyte,
-                maximumBytes: 320 * kibibyte,
-            },
         ],
     },
 } as const;

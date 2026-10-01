@@ -19,7 +19,7 @@ There are two main kinds of source material:
 `pnpm build` reads the content tree, compiles pages, renders layouts, bundles assets, and writes the finished site to `dist/`.
 `pnpm start` runs that build and then serves the generated site from `dist/` on localhost.
 
-The output is plain HTML, CSS, fonts, images, and a couple of focused browser bundles. The site does not depend on client-side routing or full-page hydration to exist.
+The output is plain HTML, CSS, images, and a couple of focused browser bundles. The site does not depend on client-side routing or full-page hydration to exist.
 
 ## Build Pipeline
 
@@ -107,7 +107,6 @@ It produces:
 - the single site stylesheet, `src/styles/style.css`
 - one browser bundle for document-level enhancements
 - one browser bundle for islands
-- copied font assets
 - optimised image variants (AVIF, WebP, and resized versions) from source images in `src/images/`
 
 In production, emitted CSS and JavaScript filenames are fingerprinted so rendered pages can reference cache-friendly assets through a generated manifest.

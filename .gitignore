@@ -5,3 +5,6 @@ package-lock.json
 
 # wrangler dev's local state
 .wrangler/
+
+# Local screenshots of the site
+screenshots/
