@@ -87,9 +87,16 @@ jobs:
           path: dist/
 
       # Until ~/.dotfiles/infra turns site_ci_deploys on, there's no token, and ulrich.green deploys
-      # from the Mac: wrangler login, deploy, logout (deploy/node_modules/.bin/wrangler)
+      # from the Mac: wrangler login, deploy, logout (deploy/node_modules/.bin/wrangler).
+      # Deploys run one at a time, but in the order their verify jobs finished, and an old run can be
+      # re-run: so only main's tip deploys. A newer push's own run deploys that one if it passes.
       - name: Deploy to Cloudflare
         run: |
+          tip="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$tip" != "$GITHUB_SHA" ]; then
+            echo "::notice::Not deployed: main has moved on to ${tip:0:7}, and its own run deploys it"
+            exit 0
+          fi
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "::notice::Not deployed: this repo has no Cloudflare token yet, so ulrich.green deploys from the Mac"
             exit 0
