@@ -45,7 +45,7 @@ export default function ArticleLayout({
                     kickerType={
                         seriesInfo
                             ? `Part ${seriesInfo.currentOrder}`
-                            : "Article"
+                            : undefined
                     }
                     published={meta.published}
                     revised={meta.revised}

@@ -80,15 +80,13 @@ export function ArticleHeader({
     const revisedDate = formatDate(revised);
     const publishedDate = formatDate(published);
     const kickerSection = seriesName || section || "Articles";
-    const lengthLabel = [readingTime, words ? `${String(words)} words` : ""]
-        .filter(Boolean)
-        .join(" · ");
+    const wordCount = words ? `${String(words)} words` : "";
 
     return (
         <header>
             <p>
                 <span>{kickerSection}</span>
-                <span>{kickerType || "Article"}</span>
+                {kickerType && <span>{kickerType}</span>}
             </p>
             <h1
                 style={
@@ -104,7 +102,8 @@ export function ArticleHeader({
                 {publishedDate && (
                     <time dateTime={publishedIso}>{publishedDate}</time>
                 )}
-                {lengthLabel && <span>{lengthLabel}</span>}
+                {readingTime && <span>{readingTime}</span>}
+                {wordCount && <span>{wordCount}</span>}
                 {revisedDate && (
                     <span>
                         Revised{" "}
