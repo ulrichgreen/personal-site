@@ -58,12 +58,22 @@
     --measure: 70ch;
     --rail: clamp(14rem, 8rem + 12vw, 26rem);
     --step: clamp(1.25rem, 4vw, 4.5rem);
-    --gutter: clamp(1.5rem, 5vw, 4rem);
+    --gutter: clamp(1.25rem, 5vw, 4rem);
+
+    /* Body leading. Short lines need less of it: on a phone the eye
+       travels a short way back, and loose lines fall apart. */
+    --leading: 1.7;
 
     /* Motion */
     --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --quick: 150ms;
     --slow: 250ms;
+}
+
+@media (max-width: 699.9px) {
+    :root {
+        --leading: 1.6;
+    }
 }
 
 /* ─── Reset, the short version ───────────────────────────── */
@@ -122,6 +132,7 @@ body {
     font-family: var(--serif);
     line-height: 1.5;
     font-feature-settings: "liga" 1, "kern" 1, "onum" 1;
+    overflow-wrap: break-word;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
 }
@@ -150,16 +161,28 @@ article {
     }
 }
 
-/* Wide things: images, code, interactive examples. */
-article > :is(figure, [data-island]) {
+/* Wide things: images, code, interactive examples. On a phone there
+   is no room either side of the text, so images and code go edge to
+   edge, insetting their text to line up with the prose. Interactive
+   examples stay inset: a phone's screen edge belongs to its gestures. */
+article > figure,
+article > [data-island] {
     grid-column: wide;
 }
 
+@media (max-width: 699.9px) {
+    article > figure {
+        grid-column: bleed;
+    }
+}
+
 /* The root size grows with the viewport, so on big screens the
-   whole page scales up instead of floating in empty space. */
+   whole page scales up instead of floating in empty space. Phones
+   get 18px: the size of a comfortable book held close. */
 html {
-    font-size: clamp(17px, 15px + 0.3vw, 22px);
+    font-size: clamp(18px, 15px + 0.3vw, 22px);
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--accent) 15%, transparent);
     scroll-behavior: smooth;
 }
 
@@ -211,7 +234,7 @@ h3 {
 }
 
 p {
-    line-height: 1.7;
+    line-height: var(--leading);
     hanging-punctuation: first last;
     hyphens: auto;
     text-wrap: pretty;
@@ -292,6 +315,28 @@ blockquote {
     }
 }
 
+/* Phones: the quote still stops the eye, but smaller and closer,
+   so it doesn't fill the screen on its own. */
+@media (max-width: 699.9px) {
+    blockquote {
+        margin-block: var(--s5);
+        padding-block: var(--s2);
+
+        &::before {
+            margin-block-end: var(--s3);
+        }
+
+        &::after {
+            margin-block-start: var(--s3);
+        }
+
+        & p {
+            font-size: 1.25rem;
+            line-height: 1.45;
+        }
+    }
+}
+
 hr {
     border: none;
     margin-block: var(--s6);
@@ -312,11 +357,21 @@ ul {
 
     & li {
         line-height: 1.6;
+        hyphens: auto;
 
         & + li {
             margin-block-start: var(--s1);
         }
     }
+}
+
+/* Footnote markers ride above the line without pushing it apart. */
+sup {
+    position: relative;
+    inset-block-start: -0.5em;
+    font-size: 0.75em;
+    line-height: 0;
+    vertical-align: baseline;
 }
 
 ::selection {
@@ -367,15 +422,31 @@ body > header {
     grid-column: full;
 }
 
+/* The links carry their own vertical padding so each is a full
+   44px tap target; the nav's padding is reduced to match. */
 body > header nav {
+    --tap: 0.75rem;
+
     display: flex;
     align-items: baseline;
     flex-wrap: wrap;
-    gap: var(--s1) var(--s3);
-    padding-block: var(--s4);
+    column-gap: clamp(var(--s2), 4.5vw, var(--s3));
+    padding-block: calc(clamp(var(--s3), 4vw, var(--s4)) - var(--tap));
     font: var(--label);
     letter-spacing: 0.06em;
     text-transform: uppercase;
+
+    & a {
+        padding-block: var(--tap);
+    }
+}
+
+/* Too narrow for one row: the wordmark takes its own line rather
+   than leaving the last link stranded under it. */
+@media (max-width: 359.9px) {
+    .logo {
+        flex-basis: 100%;
+    }
 }
 
 /* The wordmark: {u} unfolds to the full name on hover. */
@@ -448,11 +519,15 @@ main > footer {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: var(--s2) var(--s4);
-        margin-block-start: var(--s3);
+        column-gap: var(--s4);
+        margin-block-start: var(--s1);
         font: var(--label);
         letter-spacing: 0.06em;
         text-transform: uppercase;
+
+        & a {
+            padding-block: var(--s2);
+        }
     }
 }
 
@@ -711,6 +786,45 @@ main > nav[aria-label="Breadcrumb"] {
 
     & a {
         white-space: nowrap;
+        /* A taller tap target without a taller bar. */
+        padding-block: var(--s2);
+        margin-block: calc(-1 * var(--s2));
+    }
+}
+
+/* Phones: a slim bar, since it stays on screen the whole read (a
+   phone on its side is short, so it gets the slim bar too). The
+   section label goes (the back link already names it), and where
+   scroll-driven animation exists the title fades in only as the
+   headline slides under the bar, instead of repeating it on arrival. */
+@media (max-width: 699.9px), (max-height: 479.9px) {
+    main > nav[aria-label="Breadcrumb"] {
+        padding-block: 0.625rem;
+    }
+}
+
+@media (max-width: 699.9px) {
+    main > nav[aria-label="Breadcrumb"] span:first-of-type {
+        display: none;
+    }
+}
+
+@media (max-width: 699.9px) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        main {
+            timeline-scope: --headline;
+        }
+
+        article > header h1 {
+            view-timeline: --headline block;
+            view-timeline-inset: 2.75rem 0;
+        }
+
+        main > nav[aria-label="Breadcrumb"] span + span {
+            animation: fade-in linear both;
+            animation-timeline: --headline;
+            animation-range: exit 0% exit 100%;
+        }
     }
 }
 
@@ -778,12 +892,18 @@ article > header {
         text-wrap: balance;
     }
 
-    /* Meta: dates and length, dot-separated. */
+    /* Meta: dates and length, dot-separated. Every item leads with
+       its dot, and the line is pulled left by one dot and clipped
+       there, so a wrapped line never starts with a stray separator. */
     & > p:has(time) {
+        --sep: 1.4em;
+
         display: flex;
         flex-wrap: wrap;
         align-items: baseline;
-        gap: 0.5rem 0.9rem;
+        row-gap: 0.25rem;
+        margin-inline-start: calc(-1 * var(--sep));
+        clip-path: inset(-0.5em 0 -0.5em var(--sep));
         font-size: var(--text-md);
         color: var(--ink-soft);
 
@@ -792,9 +912,11 @@ article > header {
             color: inherit;
         }
 
-        & > * + *::before {
+        & > *::before {
             content: "·";
-            margin-inline-end: 0.9rem;
+            display: inline-block;
+            inline-size: var(--sep);
+            text-align: center;
             color: var(--ink-faint);
         }
     }
@@ -812,11 +934,17 @@ article > h2 {
     margin-block: var(--s6) var(--s2);
 }
 
-/* Consecutive paragraphs indent instead of spacing out. Text
-   after a pull quote is a continuation, so it gets neither. */
-article > :is(p, ul, ol) + p {
+/* Consecutive paragraphs indent instead of spacing out, so the
+   line spacing never breaks. Text after a list or a pull quote
+   starts a fresh run, so it gets the ordinary gap and no indent. */
+article > p + p {
     text-indent: 1.5em;
-    margin-block-start: calc(-1 * var(--s1));
+    margin-block-start: 0;
+}
+
+/* Anchored headings and notes land below the sticky breadcrumb. */
+article [id] {
+    scroll-margin-block-start: 5rem;
 }
 
 article > footer {
@@ -827,6 +955,12 @@ article > footer {
     font: var(--label);
     letter-spacing: 0.06em;
     text-transform: uppercase;
+
+    & a {
+        display: inline-block;
+        padding: var(--s2);
+        margin: calc(-1 * var(--s2));
+    }
 }
 
 /* ─── Table of contents ──────────────────────────────────── */
@@ -835,7 +969,7 @@ article > footer {
    for the article's whole flow, and the inner nav sticks. */
 
 .toc {
-    & > p {
+    & div > p {
         font: var(--label);
         letter-spacing: 0.06em;
         text-transform: uppercase;
@@ -851,6 +985,18 @@ article > footer {
 
     & li[data-level="3"] {
         padding-inline-start: var(--s3);
+    }
+}
+
+/* Phones: each entry is a full-height tap target. */
+@media (max-width: 699.9px) {
+    .toc li {
+        margin: 0;
+
+        & a {
+            display: block;
+            padding-block: 0.4rem;
+        }
     }
 }
 
@@ -931,6 +1077,7 @@ article > nav {
 
             & > span:first-child {
                 font: var(--label);
+                font-variant-numeric: tabular-nums;
                 color: var(--ink-faint);
             }
         }
@@ -953,6 +1100,23 @@ article > nav {
         font: var(--label);
         letter-spacing: 0.06em;
         text-transform: uppercase;
+
+        & a {
+            padding-block: var(--s2);
+            margin-block: calc(-1 * var(--s2));
+        }
+    }
+}
+
+/* Phones: the series name and the count share one line; the box
+   itself says it is a series. */
+@media (max-width: 699.9px) {
+    article > nav header {
+        column-gap: var(--s2);
+
+        & p:first-child {
+            display: none;
+        }
     }
 }
 
@@ -1000,10 +1164,13 @@ article > nav {
 /* Authored as plain [^1] Markdown; the enhancement script turns
    them into margin notes (wide screens) or inline notes (narrow). */
 
+/* The padding makes a finger-sized target around a tiny numeral;
+   the negative margin keeps it from pushing the text apart. */
 [data-footnote-ref] {
     color: var(--accent);
     cursor: pointer;
-    padding: 0 0.15em;
+    padding: 0.6em 0.4em;
+    margin-inline: -0.25em;
     text-decoration: none;
 }
 
@@ -1079,6 +1246,18 @@ figure {
     }
 }
 
+@media (max-width: 699.9px) {
+    article > figure:not([data-rehype-pretty-code-figure]) {
+        & img {
+            border-radius: 0;
+        }
+
+        & figcaption {
+            padding-inline: var(--gutter);
+        }
+    }
+}
+
 /* ─── Callouts ───────────────────────────────────────────── */
 
 aside[data-type] {
@@ -1095,6 +1274,10 @@ aside[data-type] {
         color: var(--accent);
         margin-block-end: var(--s1);
     }
+
+    & > div > * + * {
+        margin-block-start: var(--s2);
+    }
 }
 
 /* ─── Code blocks ────────────────────────────────────────── */
@@ -1104,6 +1287,7 @@ aside[data-type] {
 
 :root {
     --code-surface: light-dark(#f1eddf, #1b201a);
+    --code-shadow: light-dark(rgb(32 36 30 / 0.14), rgb(0 0 0 / 0.5));
     --ct: light-dark(#3a3d33, #d5d3c2);
     --cc: light-dark(#83876f, #8b9078);
     --ck: light-dark(#9f4e39, #e29679);
@@ -1153,7 +1337,9 @@ aside[data-type] {
             flex-shrink: 0;
             border: 0;
             background: none;
-            padding: 0;
+            /* The whole toolbar height is the tap target. */
+            padding: 0.8rem var(--s1);
+            margin: -0.8rem calc(-1 * var(--s1));
             color: var(--ink-soft);
             font-size: inherit;
             letter-spacing: 0.06em;
@@ -1183,11 +1369,19 @@ aside[data-type] {
         }
     }
 
+    /* Lines too long for the box scroll sideways; a soft shadow at
+       an edge says there is more that way. The surface-colored covers
+       scroll with the code and hide each shadow at the matching end. */
     & pre {
         margin: 0;
         padding: var(--s3);
         overflow-x: auto;
         tab-size: 2;
+        background:
+            linear-gradient(to right, var(--code-surface) 40%, transparent) left / 1.5rem 100% no-repeat local,
+            linear-gradient(to left, var(--code-surface) 40%, transparent) right / 1.5rem 100% no-repeat local,
+            radial-gradient(farthest-side at 0 50%, var(--code-shadow), transparent) left / 0.6rem 100% no-repeat scroll,
+            radial-gradient(farthest-side at 100% 50%, var(--code-shadow), transparent) right / 0.6rem 100% no-repeat scroll;
 
         & code {
             display: block;
@@ -1199,6 +1393,18 @@ aside[data-type] {
             font-size: clamp(0.72rem, 0.68rem + 0.16vw, 0.78rem);
             line-height: 1.75;
             font-variant-ligatures: none;
+        }
+    }
+}
+
+/* Phones: the block runs edge to edge (see the page grid), with its
+   code and toolbar in line with the text. */
+@media (max-width: 699.9px) {
+    article > [data-rehype-pretty-code-figure] {
+        border-radius: 0;
+
+        & :is(figcaption, [data-rehype-pretty-code-title], pre) {
+            padding-inline: var(--gutter);
         }
     }
 }
@@ -1396,6 +1602,12 @@ pre {
 
 @view-transition {
     navigation: auto;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
 }
 
 @keyframes fade-up {
