@@ -1,0 +1,1007 @@
+/* Poster — half the screen is a statement.
+
+   On wide screens the window splits: a fixed field of green on the
+   left carries the page's one big line (the manifesto, the article
+   title, the name) in very heavy type, and the right is a calm
+   paper column for reading. Phones get the poster as a green block
+   on top. Heavy system sans for display, the book serif for the
+   words, code on black. */
+
+@import "_shared.css";
+
+:root {
+    color-scheme: light dark;
+
+    --field: light-dark(#22c768, #0f3f26);
+    --on-field: light-dark(#06190d, #b8f5cc);
+    --on-field-soft: light-dark(#0d3a1f, #7fd3a0);
+
+    --paper: light-dark(#fbfaf5, #101210);
+    --paper-raised: light-dark(#f1efe6, #181b18);
+    --ink: light-dark(#121311, #eaede7);
+    --ink-soft: light-dark(#4b4f48, #b0b7ad);
+    --ink-faint: light-dark(#6f736a, #788176);
+    --line: light-dark(#e2dfd3, #272b27);
+    --line-strong: light-dark(#121311, #eaede7);
+    --accent: light-dark(#138246, #4fd98b);
+
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --serif: ui-serif, "New York", Charter, "Iowan Old Style", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --label: 700 0.7rem / 1.4 var(--sans);
+
+    --panel: clamp(22rem, 44vw, 46rem);
+    --pad: clamp(1.25rem, 3.5vw, 3.5rem);
+    --measure: 36rem;
+
+    --code-surface: light-dark(#111311, #070807);
+    --code-shadow: rgb(0 0 0 / 0.6);
+    --ct: #e7ebe4;
+    --cc: #7b8478;
+    --ck: #ff8a6b;
+    --cf: #ffd479;
+    --cs: #6ee59c;
+    --cn: #8fc8ff;
+    --cv: #e7ebe4;
+    --cy: #d8b4fe;
+    --cg: #6ee59c;
+    --ca: #6ee59c;
+    --cp: #9aa396;
+}
+
+html {
+    font-size: clamp(17px, 15px + 0.28vw, 21px);
+}
+
+body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* ─── Type ───────────────────────────────────────────────── */
+
+h1,
+h2,
+h3 {
+    font-family: var(--sans);
+    font-weight: 800;
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: clamp(3rem, 1rem + 6vw, 7.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    font-weight: 900;
+    overflow-wrap: normal;
+}
+
+h2 {
+    font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.9rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+h3 {
+    font-size: 1.15rem;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+}
+
+p {
+    line-height: 1.62;
+    text-wrap: pretty;
+}
+
+a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--field);
+    text-decoration-thickness: 0.2em;
+    text-underline-offset: 0.12em;
+    text-decoration-skip-ink: none;
+
+    &:hover {
+        background-color: var(--field);
+        color: var(--on-field);
+        text-decoration: none;
+    }
+}
+
+:is(nav, footer, #articles) a {
+    text-decoration: none;
+}
+
+small,
+time,
+figcaption {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    padding: 0.1em 0.3em;
+    background-color: var(--paper-raised);
+}
+
+ul,
+ol {
+    padding-inline-start: 1.3em;
+
+    & li + li {
+        margin-block-start: 0.4em;
+    }
+}
+
+ul > li::marker {
+    content: "■  ";
+    font-size: 0.75em;
+    color: var(--field);
+}
+
+hr {
+    border: 0;
+    border-block-start: 4px solid var(--line-strong);
+}
+
+.label,
+#articles h3,
+#articles li time,
+main > nav[aria-label="Breadcrumb"] {
+    font: var(--label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* ─── The field ──────────────────────────────────────────── */
+/* Header and hero sit on the green. On wide screens the field is
+   fixed to the left half and the reading column scrolls beside it. */
+
+body > header {
+    background-color: var(--field);
+    color: var(--on-field);
+    padding: 1.25rem var(--pad) 0;
+}
+
+body > header nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 1.25rem;
+    font: var(--label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+
+    & a {
+        padding-block: 0.6rem;
+        color: var(--on-field);
+
+        &:hover {
+            background: none;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 0.3em;
+        }
+    }
+}
+
+.logo {
+    order: -1;
+    margin-inline-end: auto;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -0.03em !important;
+    text-transform: none;
+
+    & [aria-hidden] {
+        font-weight: 500;
+        opacity: 0.6;
+    }
+
+    & i {
+        font-style: normal;
+    }
+}
+
+@media (max-width: 599.9px) {
+    .logo {
+        flex-basis: 100%;
+        padding-block-end: 0 !important;
+    }
+}
+
+/* The hero: whatever is the page's big statement. */
+#about,
+article > header,
+main > h1 {
+    background-color: var(--field);
+    color: var(--on-field);
+}
+
+/* ─── Phones and tablets: the poster on top ──────────────── */
+
+main > * {
+    inline-size: min(100% - 2 * var(--pad), var(--measure));
+    margin-inline: auto;
+}
+
+main > :is(#about, nav, article, footer) {
+    inline-size: auto;
+    margin-inline: 0;
+}
+
+main > nav[aria-label="Breadcrumb"] ~ *,
+article > * {
+    inline-size: min(100% - 2 * var(--pad), var(--measure));
+    margin-inline: auto;
+}
+
+main > article {
+    inline-size: auto;
+    margin-inline: 0;
+}
+
+article > header {
+    inline-size: auto;
+    margin-inline: 0;
+}
+
+#about,
+article > header,
+main > h1 {
+    padding: clamp(2.5rem, 10vw, 5rem) var(--pad) clamp(2rem, 6vw, 3rem);
+}
+
+main > h1 {
+    inline-size: auto;
+    margin: 0;
+}
+
+/* ─── Wide: the split ────────────────────────────────────── */
+
+@media (min-width: 960px) {
+    body {
+        padding-inline-start: var(--panel);
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset-block: 0;
+        inset-inline-start: 0;
+        inline-size: var(--panel);
+        background-color: var(--field);
+        z-index: 0;
+    }
+
+    body > header {
+        position: fixed;
+        inset-block-start: 0;
+        inset-inline-start: 0;
+        inline-size: var(--panel);
+        z-index: 10;
+        background: none;
+    }
+
+    /* The statement pins to the bottom of the field. Its type is
+       sized to the field (container units), so the longest word
+       always fits. */
+    #about,
+    article > header,
+    main > h1 {
+        container-type: inline-size;
+        position: fixed;
+        inset-block-end: 0;
+        inset-inline-start: 0;
+        inline-size: var(--panel) !important;
+        max-block-size: calc(100dvh - 4rem);
+        overflow: hidden;
+        z-index: 5;
+        margin: 0 !important;
+        padding: 2rem var(--pad) clamp(2rem, 5vh, 3.5rem);
+        background: none;
+    }
+
+    main {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+/* ─── Home ───────────────────────────────────────────────── */
+
+#about {
+    & > p:first-child {
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-block-end: 1.25rem;
+    }
+
+    & h1 {
+        font-size: clamp(3.4rem, 1rem + 11vw, 6rem);
+        line-height: 0.86;
+        letter-spacing: -0.06em;
+    }
+
+    & h1 + p {
+        margin-block-start: 1.5rem;
+        max-inline-size: 30em;
+        font-family: var(--sans);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--on-field-soft);
+    }
+
+    & > p:last-child {
+        margin-block-start: 1rem;
+        font-family: var(--sans);
+        font-size: 1.1rem;
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+    }
+
+    & em {
+        font-style: normal;
+        background-color: var(--on-field);
+        color: var(--field);
+        padding-inline: 0.15em;
+        box-decoration-break: clone;
+    }
+}
+
+@media (min-width: 960px) {
+    #about h1 {
+        font-size: min(21cqi, 16vh);
+    }
+}
+
+main > hr {
+    display: none;
+}
+
+/* The index, set like a poster's line-up: big heavy titles. */
+#articles {
+    padding-block-start: clamp(2rem, 6vw, 4.5rem);
+
+    & h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-block-end: 0.5rem;
+        color: var(--ink);
+
+        &::after {
+            content: "";
+            flex: 1;
+            border-block-start: 4px solid var(--line-strong);
+        }
+    }
+
+    & ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    & li {
+        margin: 0;
+        padding-block: 1.1rem 1.3rem;
+        border-block-end: 1px solid var(--line);
+
+        &::marker {
+            content: none;
+        }
+
+        & > a {
+            display: inline;
+            font-family: var(--sans);
+            font-size: clamp(1.7rem, 1.2rem + 1.6vw, 2.6rem);
+            font-weight: 900;
+            line-height: 0.98;
+            letter-spacing: -0.045em;
+            color: var(--ink);
+            box-decoration-break: clone;
+
+            &:hover {
+                background-color: var(--field);
+                color: var(--on-field);
+            }
+        }
+
+        & time {
+            display: block;
+            margin-block: 0.6rem 0.25rem;
+            color: var(--accent);
+        }
+
+        & p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--ink-soft);
+        }
+    }
+
+    /* A row without a link is a series label: a green tab. */
+    & li:not(:has(a)) {
+        padding-block: 1.25rem 0;
+        border: 0;
+
+        &,
+        & + li {
+            border-block-start: 0;
+        }
+    }
+
+    & li:not(:has(a)) {
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        &::first-line {
+            background-color: var(--field);
+        }
+    }
+}
+
+main > section ~ p {
+    margin-block-start: 2rem;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+}
+
+/* ─── Footer ─────────────────────────────────────────────── */
+
+main > footer {
+    margin-block-start: clamp(4rem, 8vw, 7rem);
+    padding: 2rem var(--pad) 2.5rem;
+    background-color: var(--ink);
+    color: var(--paper);
+    display: grid;
+    gap: 0.5rem;
+
+    & > span {
+        font-family: var(--sans);
+        font-size: clamp(2.2rem, 1rem + 4vw, 4.5rem);
+        font-weight: 900;
+        line-height: 0.9;
+        letter-spacing: -0.06em;
+        color: var(--field);
+    }
+
+    & small {
+        font-family: var(--sans);
+        color: color-mix(in srgb, var(--paper) 65%, var(--ink));
+    }
+
+    & nav {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 1.25rem;
+        margin-block-start: 0.75rem;
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        & a {
+            padding-block: 0.5rem;
+            color: var(--paper);
+
+            &:hover {
+                background: none;
+                color: var(--field);
+            }
+        }
+    }
+}
+
+/* ─── Standalone pages ───────────────────────────────────── */
+
+main > h1 {
+    font-size: clamp(3.2rem, 1rem + 10vw, 6rem);
+    line-height: 0.86;
+    letter-spacing: -0.06em;
+}
+
+@media (min-width: 960px) {
+    main > h1 {
+        font-size: min(20cqi, 18vh);
+    }
+
+    main > h1 + p {
+        margin-block-start: clamp(2.5rem, 7vw, 5rem) !important;
+    }
+}
+
+main > h1 + p {
+    margin-block-start: 2rem;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+main > :is(p, ul, ol, figure, blockquote) {
+    margin-block-start: 1.1rem;
+}
+
+main > h2 {
+    margin-block: 2.75rem 0;
+}
+
+main > hr {
+    display: block;
+    margin-block: 2.5rem;
+}
+
+main:has(#about) > hr {
+    display: none;
+}
+
+/* ─── Article ────────────────────────────────────────────── */
+
+main > nav[aria-label="Breadcrumb"] {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding-block: 1.25rem;
+    color: var(--ink-faint);
+
+    & span + span {
+        flex: 1;
+        color: var(--ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    & a {
+        color: var(--ink);
+        white-space: nowrap;
+    }
+}
+
+/* Phones: the bar stays on the green, so the poster reads as one
+   block, and it sticks as a green strip while reading. */
+@media (max-width: 959.9px) {
+    main > nav[aria-label="Breadcrumb"] {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 20;
+        padding: 0.9rem var(--pad);
+        background-color: var(--field);
+        color: var(--on-field);
+
+        & span:first-child {
+            display: none;
+        }
+
+        & span + span,
+        & a {
+            color: var(--on-field);
+        }
+    }
+
+    article > header {
+        padding-block-start: 1.5rem;
+    }
+}
+
+@media (min-width: 960px) {
+    main > nav[aria-label="Breadcrumb"] {
+        inline-size: auto;
+        margin-inline: 0;
+        padding-inline: var(--pad);
+        border-block-end: 1px solid var(--line);
+    }
+}
+
+article {
+    padding-block-end: 1rem;
+
+    & > * + * {
+        margin-block-start: 1.1rem;
+    }
+}
+
+article > header {
+    & > p:first-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-block-end: 1.25rem;
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        & > span {
+            padding: 0.3em 0.6em;
+            background-color: var(--on-field);
+            color: var(--field);
+        }
+
+        & > span + span {
+            background: none;
+            color: var(--on-field);
+            box-shadow: inset 0 0 0 2px var(--on-field);
+        }
+    }
+
+    & > h1 + p:not(:has(time)) {
+        margin-block-start: 1.5rem;
+        max-inline-size: 28em;
+        font-family: var(--sans);
+        font-size: clamp(1rem, 0.9rem + 0.3vw, 1.2rem);
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: -0.01em;
+    }
+
+    & > p:has(time) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 1.25rem;
+        margin-block-start: 1.25rem;
+        padding-block-start: 0.9rem;
+        border-block-start: 2px solid var(--on-field);
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        & time {
+            font: inherit;
+            color: inherit;
+        }
+    }
+
+    & > p:has(time) + p {
+        margin-block-start: 0.75rem;
+        font-family: var(--sans);
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 960px) {
+    article > header h1 {
+        font-size: min(15cqi, 13vh);
+        line-height: 0.88;
+    }
+
+    article {
+        padding-block-start: clamp(1.5rem, 4vw, 3rem);
+    }
+}
+
+article > h2 {
+    margin-block: 2.75rem 0 !important;
+}
+
+article > h2 + * {
+    margin-block-start: 0.75rem !important;
+}
+
+article > h3 {
+    margin-block-start: 2rem !important;
+}
+
+[id] {
+    scroll-margin-block-start: 3rem;
+}
+
+/* Pull quotes: heavy sans, highlighted in the field color. */
+blockquote {
+    margin-block: 2rem !important;
+
+    & p {
+        display: inline;
+        padding: 0.05em 0.2em;
+        background-color: var(--field);
+        color: var(--on-field);
+        font-family: var(--sans);
+        font-size: clamp(1.4rem, 1.1rem + 1vw, 2rem);
+        font-weight: 900;
+        line-height: 1.45;
+        letter-spacing: -0.035em;
+        box-decoration-break: clone;
+    }
+}
+
+/* Code on black, edge to edge of the column. */
+[data-rehype-pretty-code-figure] {
+    inline-size: auto !important;
+    margin-block: 1.75rem !important;
+    margin-inline: 0 !important;
+    background-color: var(--code-surface);
+    color: var(--ct);
+    font-family: var(--mono);
+
+    & figcaption {
+        padding: 0.6rem var(--pad);
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--field);
+        border-block-end: 1px solid rgb(255 255 255 / 0.1);
+
+        & button {
+            color: rgb(255 255 255 / 0.7);
+
+            &:hover {
+                color: #fff;
+            }
+        }
+    }
+
+    & pre {
+        padding: 1.25rem var(--pad);
+
+        & code {
+            font-size: clamp(0.72rem, 0.68rem + 0.12vw, 0.8rem);
+            line-height: 1.7;
+        }
+    }
+}
+
+@media (min-width: 960px) {
+    [data-rehype-pretty-code-figure] {
+        & figcaption,
+        & pre {
+            padding-inline: max(var(--pad), (100% - var(--measure)) / 2);
+        }
+    }
+}
+
+figure:not([data-rehype-pretty-code-figure]) {
+    & img {
+        width: 100%;
+    }
+
+    & figcaption {
+        margin-block-start: 0.6rem;
+        font-family: var(--sans);
+        font-size: 0.8rem;
+    }
+}
+
+aside[data-type] {
+    padding: 1.1rem 1.25rem;
+    background-color: var(--field);
+    color: var(--on-field);
+    font-family: var(--sans);
+    font-size: 0.95rem;
+
+    & > p:first-child {
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-block-end: 0.4rem;
+    }
+
+    & > div > * + * {
+        margin-block-start: 0.6rem;
+    }
+}
+
+.toc {
+    padding-block: 1rem;
+    border-block: 4px solid var(--line-strong);
+    border-block-end-width: 1px;
+    font-family: var(--sans);
+
+    & div > p {
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-block-end: 0.5rem;
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    & li + li {
+        margin-block-start: 0.2rem;
+    }
+}
+
+/* Series: a black card with the parts as heavy headlines. */
+article > nav {
+    margin-block-start: 3.5rem !important;
+    padding: 1.5rem;
+    background-color: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+
+    & header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        align-items: baseline;
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        & p:first-child {
+            color: var(--field);
+        }
+
+        & p:last-child {
+            margin-inline-start: auto;
+            color: color-mix(in srgb, var(--paper) 60%, var(--ink));
+        }
+    }
+
+    & > div {
+        height: 6px;
+        margin-block: 0.9rem 1.25rem;
+        background-color: rgb(255 255 255 / 0.15);
+
+        & > div {
+            height: 100%;
+            background-color: var(--field);
+        }
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 0.35rem;
+
+        & li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.035em;
+
+            & > span:first-child {
+                font: var(--label);
+                letter-spacing: 0.08em;
+                color: color-mix(in srgb, var(--paper) 55%, var(--ink));
+            }
+
+            & a {
+                color: var(--paper);
+            }
+        }
+
+        & li[aria-current] {
+            color: var(--field);
+
+            & > span:first-child {
+                color: var(--field);
+            }
+        }
+    }
+
+    & > p {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-block-start: 1.25rem;
+        padding-block-start: 1rem;
+        border-block-start: 1px solid rgb(255 255 255 / 0.15);
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        & a {
+            color: var(--paper);
+
+            &:hover {
+                color: var(--on-field);
+            }
+        }
+    }
+}
+
+.revisions {
+    font-family: var(--sans);
+
+    & > p {
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        font-size: 0.9rem;
+    }
+}
+
+article > footer {
+    margin-block-start: 2.5rem !important;
+    font: var(--label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+section[data-footnotes] {
+    margin-block-start: 3rem !important;
+    padding-block-start: 1rem;
+    border-block-start: 4px solid var(--line-strong);
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+
+    & h2 {
+        font: var(--label);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink);
+    }
+}
+
+/* With the field on the left there is no free margin, so notes open
+   as cards under their reference. */
+.margin-note {
+    position: absolute;
+    inset-inline: max(var(--pad), (100% - var(--measure)) / 2);
+    z-index: 3;
+    margin-block-start: 1.8em;
+    padding: 0.8rem 1rem;
+    background-color: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    line-height: 1.5;
+
+    &::before {
+        content: attr(data-ref) "  ";
+        font-weight: 900;
+        color: var(--field);
+    }
+}
+
+.fn-inline {
+    margin-block: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    background-color: var(--paper-raised);
+    border-inline-start: 4px solid var(--field);
+    font-family: var(--sans);
+    font-size: 0.88rem;
+}
+
+.grid-demo > * {
+    background-color: var(--field);
+    color: var(--on-field);
+}
+
+::selection {
+    background-color: var(--field);
+    color: var(--on-field);
+}
+
+@media print {
+    body {
+        padding: 0;
+    }
+
+    body::before {
+        display: none;
+    }
+
+    #about,
+    article > header,
+    main > h1,
+    body > header {
+        position: static !important;
+        inline-size: auto !important;
+        background: none;
+        color: #000;
+    }
+}

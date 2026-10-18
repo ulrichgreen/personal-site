@@ -1,0 +1,1046 @@
+/* Broadsheet — the front page of a newspaper.
+
+   A centered masthead between rules, a lead story, the archive as
+   columns of headlines, and articles set like long reads: a big
+   centered headline over an italic deck, justified text with a
+   drop cap, crossheads, and pull quotes that break into the margin.
+   Short standalone pages run in two columns. All in the reader's
+   book serif; color is ink, with one green for kickers. */
+
+@import "_shared.css";
+
+:root {
+    color-scheme: light dark;
+
+    --paper: light-dark(#f4f0e6, #171614);
+    --paper-raised: light-dark(#ebe5d6, #201e1b);
+    --ink: light-dark(#141311, #ece7db);
+    --ink-soft: light-dark(#3f3b35, #c3bdb0);
+    --ink-faint: light-dark(#726b61, #8c8579);
+    --line: light-dark(#c9c0ad, #3b3732);
+    --line-strong: light-dark(#141311, #ece7db);
+    --accent: light-dark(#1e5c3a, #86c9a0);
+
+    --serif: ui-serif, "New York", Charter, "Iowan Old Style", Georgia, serif;
+    --sans: var(--serif);
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --label: 600 0.72rem / 1.4 var(--serif);
+
+    --page: 78rem;
+    --measure: 34rem;
+    --margin: clamp(1.1rem, 4vw, 3rem);
+
+    --code-surface: transparent;
+    --code-shadow: light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.6));
+    --ct: light-dark(#141311, #ece7db);
+    --cc: light-dark(#8a8274, #847d71);
+    --ck: light-dark(#8c1c13, #f08a7a);
+    --cf: light-dark(#141311, #ffffff);
+    --cs: light-dark(#1e5c3a, #86c9a0);
+    --cn: light-dark(#8c1c13, #f0a090);
+    --cv: light-dark(#3f3b35, #c3bdb0);
+    --cy: light-dark(#5b4a2e, #d6c29c);
+    --cg: light-dark(#1e5c3a, #86c9a0);
+    --ca: light-dark(#141311, #ece7db);
+    --cp: light-dark(#7a7368, #8c8579);
+}
+
+html {
+    font-size: clamp(17px, 15px + 0.25vw, 20px);
+}
+
+body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1rem;
+    line-height: 1.5;
+    font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
+}
+
+/* Small caps label voice for kickers, datelines and nav. */
+:root {
+    --caps: 600 0.7rem / 1.4 var(--serif);
+}
+
+/* ─── Type ───────────────────────────────────────────────── */
+
+h1,
+h2,
+h3 {
+    font-weight: 700;
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: clamp(2.5rem, 1rem + 5vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: 1.2rem;
+    line-height: 1.25;
+}
+
+h3 {
+    font-size: 1rem;
+    line-height: 1.3;
+}
+
+p {
+    line-height: 1.55;
+}
+
+a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--ink-faint);
+    text-underline-offset: 0.18em;
+
+    &:hover {
+        color: var(--accent);
+        text-decoration-color: currentColor;
+    }
+}
+
+:is(nav, footer, #articles) a {
+    text-decoration: none;
+}
+
+small,
+time,
+figcaption {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+}
+
+ul,
+ol {
+    padding-inline-start: 1.25em;
+
+    & li + li {
+        margin-block-start: 0.35em;
+    }
+}
+
+ul > li::marker {
+    content: "■  ";
+    font-size: 0.6em;
+    color: var(--accent);
+}
+
+hr {
+    border: 0;
+    border-block-start: 3px double var(--line-strong);
+    block-size: 0;
+}
+
+.kicker,
+#about > p:first-child,
+article > header > p:first-child {
+    font: var(--caps);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+/* ─── Masthead ───────────────────────────────────────────── */
+/* The nav already puts the wordmark between the links, so the
+   masthead keeps the source order: two links either side of a
+   centered nameplate, a motto in a ruled strip beneath. */
+
+body > header {
+    max-inline-size: var(--page);
+    margin-inline: auto;
+    padding-inline: var(--margin);
+}
+
+body > header nav {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto auto;
+    column-gap: 1.5rem;
+    align-items: center;
+    padding-block-start: 0.5rem;
+    border-block-end: 1px solid var(--line-strong);
+    font: var(--caps);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+
+    & a {
+        grid-row: 1;
+        padding-block: 0.75rem;
+        color: var(--ink-soft);
+
+        &:hover {
+            color: var(--accent);
+        }
+    }
+
+    & a:nth-child(4) {
+        grid-column: 4;
+    }
+
+    & a:nth-child(5) {
+        grid-column: 5;
+    }
+}
+
+.logo {
+    grid-row: 2 !important;
+    grid-column: 1 / -1;
+    justify-self: center;
+    padding-block: clamp(0.5rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.25rem) !important;
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 1rem + 6.5vw, 6.75rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    text-transform: none;
+    color: var(--ink) !important;
+
+    & [aria-hidden] {
+        font-weight: 400;
+        color: var(--ink-faint);
+    }
+
+    & i {
+        font-style: normal;
+    }
+}
+
+/* Inside pages get a smaller nameplate, so the headline is the
+   biggest thing on the page. */
+body:has(article) .logo {
+    font-size: clamp(2.2rem, 1rem + 3vw, 3.5rem);
+    padding-block: 0.25rem 0.6rem !important;
+}
+
+body > header::after {
+    content: "Text files, carefully considered";
+    display: block;
+    padding-block: 0.45rem;
+    border-block-end: 4px double var(--line-strong);
+    text-align: center;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+}
+
+@media (max-width: 599.9px) {
+    body > header nav {
+        grid-template-columns: repeat(4, auto);
+        justify-content: space-between;
+        column-gap: 0.5rem;
+
+        & a:nth-child(1) { grid-column: 1; }
+        & a:nth-child(2) { grid-column: 2; }
+        & a:nth-child(4) { grid-column: 3; }
+        & a:nth-child(5) { grid-column: 4; }
+    }
+}
+
+/* ─── Page frame ─────────────────────────────────────────── */
+
+main {
+    display: block;
+    max-inline-size: var(--page);
+    margin-inline: auto;
+    padding-inline: var(--margin);
+}
+
+/* ─── Home: the front page ───────────────────────────────── */
+
+#about {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 2rem;
+    padding-block-start: clamp(1.75rem, 4vw, 3rem);
+
+    & > * {
+        grid-column: 1 / -1;
+    }
+
+    & > p:first-child {
+        margin-block-end: 0.75rem;
+    }
+
+    & h1 {
+        font-size: clamp(3rem, 1rem + 7.5vw, 8rem);
+        line-height: 0.95;
+        letter-spacing: -0.035em;
+        padding-block-end: clamp(1.25rem, 2.5vw, 2rem);
+        border-block-end: 1px solid var(--line-strong);
+    }
+
+    /* The body copy: the lead's first paragraph, with a drop cap. */
+    & h1 + p {
+        margin-block-start: 1.25rem;
+        hyphens: auto;
+        font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem);
+        line-height: 1.5;
+        text-wrap: pretty;
+
+        &::first-letter {
+            float: inline-start;
+            font-size: 4.1em;
+            line-height: 0.8;
+            font-weight: 700;
+            padding-block-start: 0.08em;
+            margin-inline-end: 0.08em;
+        }
+    }
+
+    /* The sign-off is the pull quote beside it. */
+    & > p:last-child {
+        margin-block-start: 1.25rem;
+        padding-block: 1rem;
+        border-block: 3px solid var(--line-strong);
+        border-block-end-width: 1px;
+        font-size: clamp(1.4rem, 1rem + 1.2vw, 2rem);
+        line-height: 1.15;
+        font-style: italic;
+        text-wrap: balance;
+    }
+
+    & em {
+        color: var(--accent);
+    }
+}
+
+@media (min-width: 900px) {
+    #about {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+
+        & h1 + p {
+            grid-column: 1 / 8;
+            text-align: justify;
+        }
+
+        & > p:last-child {
+            grid-column: 9 / -1;
+            grid-row: 3;
+            align-self: start;
+            margin-block-start: 1.5rem;
+        }
+    }
+}
+
+main > hr {
+    margin-block: clamp(2rem, 4vw, 3rem) 0;
+}
+
+/* The archive: a section flag for each year, then the stories in
+   ruled columns. */
+#articles {
+    margin-block-start: 0.75rem;
+
+    & h3 {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-block: 0 1.25rem;
+        font: var(--caps);
+        letter-spacing: 0.3em;
+        color: var(--ink);
+
+        &::before,
+        &::after {
+            content: "";
+            flex: 1;
+            border-block-start: 1px solid var(--line-strong);
+        }
+    }
+
+    & ul {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+        gap: 0 2rem;
+    }
+
+    & li {
+        margin: 0;
+        padding-block: 1rem 1.5rem;
+        border-block-start: 1px solid var(--line);
+
+        &::marker {
+            content: none;
+        }
+
+        & > a {
+            display: block;
+            font-size: clamp(1.25rem, 1rem + 0.6vw, 1.6rem);
+            line-height: 1.12;
+            font-weight: 700;
+            letter-spacing: -0.012em;
+            text-wrap: balance;
+
+            &:hover {
+                color: var(--accent);
+            }
+        }
+
+        & time {
+            display: block;
+            margin-block: 0.5rem 0.4rem;
+            font: var(--caps);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        & p {
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: var(--ink-soft);
+            hyphens: auto;
+        }
+    }
+
+    /* A row without a link is a series flag across the columns. */
+    & li:not(:has(a)) {
+        grid-column: 1 / -1;
+        padding-block: 0.5rem;
+        border-block: 3px solid var(--line-strong);
+        border-block-end: 1px solid var(--line-strong);
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    & li:not(:has(a)) + li,
+    & li:not(:has(a)) + li + li,
+    & li:not(:has(a)) + li + li + li {
+        border-block-start: 0;
+    }
+}
+
+/* Three columns on wide screens, with vertical rules down the
+   middle of each gap; the series flag covers them. */
+@media (min-width: 900px) {
+    #articles ul {
+        --third: calc((100% - 4rem) / 3);
+
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        background-image:
+            linear-gradient(var(--line), var(--line)),
+            linear-gradient(var(--line), var(--line));
+        background-size: 1px 100%;
+        background-position:
+            calc(var(--third) + 1rem) 0,
+            calc(2 * var(--third) + 3rem) 0;
+        background-repeat: no-repeat;
+    }
+
+    #articles li:not(:has(a)) {
+        background-color: var(--paper);
+    }
+}
+
+main > section ~ p {
+    margin-block-start: 1.5rem;
+    text-align: center;
+    font-style: italic;
+    color: var(--ink-soft);
+}
+
+/* ─── Footer ─────────────────────────────────────────────── */
+
+main > footer {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    margin-block-start: clamp(4rem, 8vw, 6rem);
+    padding-block: 1.5rem 3rem;
+    border-block-start: 4px double var(--line-strong);
+    text-align: center;
+
+    & > span {
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    & small {
+        font-style: italic;
+    }
+
+    & nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        column-gap: 1.5rem;
+        margin-block-start: 0.5rem;
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+
+        & a {
+            padding-block: 0.5rem;
+            color: var(--ink-soft);
+
+            &:hover {
+                color: var(--accent);
+            }
+        }
+    }
+}
+
+/* ─── Standalone pages: two columns ──────────────────────── */
+
+main:not(:has(article, #about)) {
+    max-inline-size: 60rem;
+
+    & > h1 {
+        margin-block-start: clamp(2rem, 5vw, 3.5rem);
+        text-align: center;
+        font-size: clamp(2.75rem, 1rem + 6vw, 5.5rem);
+    }
+
+    & > h1 + p {
+        margin-block: 1rem 2rem;
+        text-align: center;
+        font: var(--caps);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+
+        & a {
+            color: var(--accent);
+        }
+    }
+
+    & > h2 {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-block: 2rem 1rem;
+        font: var(--caps);
+        font-size: 0.78rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+
+        &::before,
+        &::after {
+            content: "";
+            flex: 1;
+            border-block-start: 1px solid var(--line-strong);
+        }
+
+        & > a {
+            display: none;
+        }
+    }
+
+    & > p {
+        hyphens: auto;
+    }
+
+    & > p + p {
+        text-indent: 1.25em;
+    }
+
+    & > h2 + p::first-letter {
+        float: inline-start;
+        font-size: 3.2em;
+        line-height: 0.82;
+        font-weight: 700;
+        padding-block-start: 0.06em;
+        margin-inline-end: 0.06em;
+    }
+
+    & > hr + p:last-of-type {
+        margin-block-start: 2rem;
+        text-align: center;
+    }
+
+    & > figure {
+        margin-block: 1.5rem;
+    }
+}
+
+@media (min-width: 900px) {
+    main:not(:has(article, #about)) {
+        columns: 2;
+        column-gap: 2.5rem;
+        column-rule: 1px solid var(--line);
+
+        & > :is(h1, h1 + p, hr, h2, figure, footer, hr + p) {
+            column-span: all;
+        }
+
+        & > p {
+            break-inside: avoid-column;
+        }
+    }
+}
+
+/* ─── Article ────────────────────────────────────────────── */
+
+/* The section flag: sticky, ruled top and bottom. */
+main > nav[aria-label="Breadcrumb"] {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 100;
+    display: flex;
+    gap: 1.25rem;
+    align-items: baseline;
+    padding-block: 0.55rem;
+    background-color: var(--paper);
+    border-block-end: 1px solid var(--line-strong);
+    font-size: 0.85rem;
+
+    & span:first-child {
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    & span + span {
+        flex: 1;
+        font-style: italic;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    & a {
+        font: var(--caps);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+}
+
+article {
+    max-inline-size: var(--measure);
+    margin-inline: auto;
+    padding-block: clamp(2rem, 5vw, 3.5rem) 0;
+}
+
+/* The headline breaks out of the text column. */
+article > header {
+    inline-size: min(56rem, 100vw - 2 * var(--margin));
+    margin-inline: calc(50% - min(28rem, 50vw - var(--margin)));
+    margin-block-end: 2.25rem;
+    text-align: center;
+
+    & > p:first-child {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-block-end: 1.25rem;
+
+        & > * + *::before {
+            content: "·";
+            margin-inline-end: 0.5rem;
+        }
+    }
+
+    & h1 {
+        margin-inline: auto;
+        max-inline-size: 15em;
+    }
+
+    & > h1 + p:not(:has(time)) {
+        max-inline-size: 34em;
+        margin: 1.5rem auto 0;
+        font-size: clamp(1.15rem, 1rem + 0.5vw, 1.4rem);
+        line-height: 1.4;
+        font-style: italic;
+        color: var(--ink-soft);
+        text-wrap: balance;
+    }
+
+    /* The byline strip. */
+    & > p:has(time) {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.25rem 1.25rem;
+        max-inline-size: var(--measure);
+        margin: 1.75rem auto 0;
+        padding-block: 0.55rem;
+        border-block: 1px solid var(--line-strong);
+        font: var(--caps);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+
+        & time {
+            font: inherit;
+            color: var(--ink);
+        }
+    }
+
+    & > p:has(time) + p {
+        max-inline-size: var(--measure);
+        margin: 1rem auto 0;
+        font-size: 0.9rem;
+        font-style: italic;
+        color: var(--ink-soft);
+    }
+}
+
+/* Body copy: indented, no space between paragraphs, and justified
+   wherever the line is long enough to take it. */
+article > p {
+    hyphens: auto;
+    hanging-punctuation: first last;
+}
+
+@media (min-width: 600px) {
+    article > p,
+    main:not(:has(article, #about)) > p {
+        text-align: justify;
+    }
+}
+
+article > p + p {
+    text-indent: 1.25em;
+}
+
+article > * + :not(p) ,
+article > :not(p) + p {
+    margin-block-start: 1.25rem;
+}
+
+article > header + p {
+    margin-block-start: 0;
+
+    &::first-letter {
+        float: inline-start;
+        font-size: 4.3em;
+        line-height: 0.8;
+        font-weight: 700;
+        padding-block-start: 0.07em;
+        margin-inline-end: 0.07em;
+        color: var(--ink);
+    }
+}
+
+/* Crossheads. */
+article > h2 {
+    margin-block: 2rem 0.75rem !important;
+    text-align: center;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+
+    &::before {
+        content: "";
+        display: block;
+        inline-size: 2.5rem;
+        margin: 0 auto 1rem;
+        border-block-start: 1px solid var(--line-strong);
+    }
+}
+
+article > h2 + p {
+    margin-block-start: 0 !important;
+}
+
+article > h3 {
+    font-style: italic;
+}
+
+/* Pull quotes break into the left margin on wide screens. */
+blockquote {
+    margin-block: 1.5rem;
+    padding-block: 0.9rem 1rem;
+    border-block: 3px solid var(--line-strong);
+    border-block-end-width: 1px;
+    text-align: center;
+
+    & p {
+        font-size: clamp(1.3rem, 1rem + 0.8vw, 1.6rem);
+        line-height: 1.2;
+        font-style: italic;
+        font-weight: 700;
+        text-wrap: balance;
+        text-align: inherit;
+        hyphens: none;
+        text-indent: 0 !important;
+    }
+}
+
+@media (min-width: 1100px) {
+    article > blockquote {
+        float: inline-start;
+        clear: both;
+        inline-size: 17rem;
+        margin: 0.4rem 2rem 1rem -9rem;
+        text-align: start;
+    }
+}
+
+[data-rehype-pretty-code-figure] {
+    clear: both;
+    margin-block: 1.5rem;
+    border: 1px solid var(--line-strong);
+    font-family: var(--mono);
+
+    & figcaption {
+        padding: 0.45rem 1rem;
+        border-block-end: 1px solid var(--line-strong);
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink);
+    }
+
+    & pre {
+        padding: 1rem;
+
+        & code {
+            font-size: clamp(0.7rem, 0.66rem + 0.12vw, 0.78rem);
+            line-height: 1.65;
+        }
+    }
+}
+
+figure:not([data-rehype-pretty-code-figure]) {
+    & img {
+        width: 100%;
+        filter: grayscale(1) contrast(1.05);
+    }
+
+    & figcaption {
+        margin-block-start: 0.4rem;
+        padding-block-start: 0.4rem;
+        border-block-start: 1px solid var(--line);
+        font-size: 0.8rem;
+        font-style: italic;
+    }
+}
+
+aside[data-type] {
+    clear: both;
+    margin-block: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--line-strong);
+    border-block-start-width: 3px;
+
+    & > p:first-child {
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-block-end: 0.4rem;
+    }
+
+    & > div > * + * {
+        margin-block-start: 0.6rem;
+    }
+}
+
+.toc {
+    margin-block: 1.5rem;
+    padding-block: 0.75rem;
+    border-block: 3px solid var(--line-strong);
+    border-block-end-width: 1px;
+
+    & div > p {
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-block-end: 0.4rem;
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        columns: 2 12rem;
+        column-gap: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    & li {
+        break-inside: avoid;
+    }
+}
+
+[data-island] {
+    clear: both;
+    margin-block: 1.5rem;
+}
+
+/* Series: "More in this series" as three ruled columns. */
+article > nav {
+    clear: both;
+    margin-block-start: 3.5rem !important;
+    padding-block-start: 0.5rem;
+    border-block-start: 4px double var(--line-strong);
+
+    & header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        align-items: baseline;
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+
+        & p:first-child {
+            color: var(--accent);
+        }
+
+        & p:last-child {
+            margin-inline-start: auto;
+            color: var(--ink-faint);
+        }
+    }
+
+    & > div {
+        display: none;
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        margin-block-start: 0.75rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+        gap: 1rem 1.5rem;
+
+        & li {
+            margin: 0;
+            display: grid;
+            gap: 0.2rem;
+            padding-block-start: 0.6rem;
+            border-block-start: 1px solid var(--line);
+            font-weight: 700;
+            line-height: 1.2;
+
+            & > span:first-child {
+                font: var(--caps);
+                letter-spacing: 0.12em;
+                color: var(--ink-faint);
+            }
+        }
+
+        & li[aria-current] {
+            border-block-start: 3px solid var(--accent);
+            padding-block-start: calc(0.6rem - 2px);
+
+            & > span:first-child {
+                color: var(--accent);
+            }
+
+            & > span:last-child {
+                font-style: italic;
+            }
+        }
+    }
+
+    & > p {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-block-start: 1.25rem;
+        font-size: 0.9rem;
+        font-style: italic;
+    }
+}
+
+.revisions {
+    clear: both;
+
+    & > p {
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        font-size: 0.9rem;
+    }
+}
+
+article > footer {
+    clear: both;
+    margin-block-start: 2.5rem !important;
+    text-align: center;
+    font: var(--caps);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+section[data-footnotes] {
+    clear: both;
+    margin-block-start: 2.5rem !important;
+    padding-block-start: 0.75rem;
+    border-block-start: 1px solid var(--line-strong);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+
+    & h2 {
+        font: var(--caps);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+}
+
+.margin-note {
+    position: absolute;
+    inset-inline-start: calc(100% + 2rem);
+    inline-size: 13rem;
+    padding-block-start: 0.4rem;
+    border-block-start: 1px solid var(--line-strong);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    font-style: italic;
+    color: var(--ink-soft);
+
+    &::before {
+        content: attr(data-ref) ". ";
+        font-style: normal;
+        font-weight: 700;
+        color: var(--accent);
+    }
+}
+
+@media (max-width: 1099.9px) {
+    .margin-note {
+        inset-inline: 0;
+        inline-size: auto;
+        z-index: 2;
+        margin-block-start: 1.6em;
+        padding: 0.6rem 0.9rem;
+        background-color: var(--paper);
+        border: 1px solid var(--line-strong);
+    }
+}
+
+.fn-inline {
+    margin-block: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border-inline-start: 3px solid var(--accent);
+    font-size: 0.88rem;
+    font-style: italic;
+    color: var(--ink-soft);
+}
+
+[id] {
+    scroll-margin-block-start: 4rem;
+}
+
+@media print {
+    :root {
+        --paper: #fff;
+        --ink: #000;
+    }
+}

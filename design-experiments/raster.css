@@ -1,0 +1,1095 @@
+/* Raster — the International Typographic Style.
+
+   One twelve-column grid that everything hangs off: the wordmark,
+   the metadata and the section numbers live in columns 1–3, the
+   text in 4–9, code and quotes reach to 12. System sans only, set
+   large and tight for display and plain for reading. Rules instead
+   of boxes; one signal color, used sparingly. */
+
+@import "_shared.css";
+
+:root {
+    color-scheme: light dark;
+
+    --paper: light-dark(#ffffff, #0d0d0d);
+    --paper-raised: light-dark(#f3f3f1, #191919);
+    --ink: light-dark(#111111, #f1f1f1);
+    --ink-soft: light-dark(#505050, #b3b3b3);
+    --ink-faint: light-dark(#747474, #7c7c7c);
+    --line: light-dark(#e2e2e2, #2a2a2a);
+    --line-strong: light-dark(#111111, #f1f1f1);
+    --accent: light-dark(#e3241b, #ff5146);
+
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --label: 600 0.75rem / 1.35 var(--sans);
+
+    --margin: clamp(20px, 4vw, 64px);
+    --gap: clamp(16px, 1.6vw, 28px);
+
+    /* Column spans. Phones get one column; the grid opens up at
+       960px. */
+    --c-all: 1 / -1;
+    --c-side: 1 / -1;
+    --c-text: 1 / -1;
+    --c-wide: 1 / -1;
+
+    --code-surface: var(--paper-raised);
+    --code-shadow: light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.6));
+    --ct: light-dark(#1d1d1d, #e6e6e6);
+    --cc: light-dark(#8a8a8a, #7d7d7d);
+    --ck: light-dark(#c41d14, #ff6a5f);
+    --cf: light-dark(#1d1d1d, #ffffff);
+    --cs: light-dark(#1f5fbf, #7fb2ff);
+    --cn: light-dark(#c41d14, #ff8a80);
+    --cv: light-dark(#111111, #f1f1f1);
+    --cy: light-dark(#5a5a5a, #c4c4c4);
+    --cg: light-dark(#1f5fbf, #7fb2ff);
+    --ca: light-dark(#111111, #ffffff);
+    --cp: light-dark(#8a8a8a, #808080);
+}
+
+@media (min-width: 960px) {
+    :root {
+        --c-side: 1 / 4;
+        --c-text: 4 / 10;
+        --c-wide: 4 / 13;
+    }
+}
+
+html {
+    font-size: clamp(16px, 13.5px + 0.3vw, 19px);
+}
+
+/* ─── The grid ───────────────────────────────────────────── */
+
+body {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--gap);
+    align-content: start;
+    padding-inline: var(--margin);
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    font-feature-settings: "kern" 1, "tnum" 1;
+}
+
+@media (min-width: 960px) {
+    body {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+}
+
+main > *,
+article > * {
+    grid-column: var(--c-text);
+}
+
+body > *,
+main > :is(article, section, footer, nav),
+article > header {
+    grid-column: var(--c-all);
+}
+
+main,
+article,
+#about,
+#articles,
+article > header {
+    display: grid;
+    grid-template-columns: subgrid;
+    align-content: start;
+}
+
+/* ─── Type ───────────────────────────────────────────────── */
+
+h1 {
+    font-size: clamp(2.6rem, 1rem + 6.2vw, 7.5rem);
+    line-height: 0.92;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+}
+
+h2 {
+    position: relative;
+    font-size: clamp(1.35rem, 1.1rem + 0.7vw, 1.75rem);
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+h3 {
+    font-size: 1rem;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+}
+
+/* Sections are numbered; the number hangs at the left edge of the
+   grid, in the metadata column (50% + half a gap back from the
+   start of a six-column span is exactly three columns). */
+main,
+article {
+    counter-reset: section;
+}
+
+:is(main, article) > h2 {
+    counter-increment: section;
+
+    &::before {
+        content: counter(section, decimal-leading-zero);
+        display: block;
+        margin-block-end: 0.5rem;
+        font: var(--label);
+        letter-spacing: 0.02em;
+        color: var(--accent);
+    }
+}
+
+/* A table of contents owns the side column, so on those pages the
+   numbers sit above their headings instead. */
+@media (min-width: 960px) {
+    :is(main, article):not(:has(.toc)) > h2::before {
+        position: absolute;
+        inset-block-start: 0.35em;
+        inset-inline-start: calc(-50% - var(--gap) / 2);
+        margin: 0;
+    }
+}
+
+p {
+    line-height: 1.55;
+    text-wrap: pretty;
+}
+
+a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.18em;
+    transition: color 120ms ease;
+
+    &:hover {
+        color: var(--accent);
+    }
+}
+
+:is(nav, footer, #articles) a {
+    text-decoration: none;
+}
+
+/* Anchored headings land below the sticky bar. */
+[id] {
+    scroll-margin-block-start: 5rem;
+}
+
+em {
+    font-style: italic;
+}
+
+strong {
+    font-weight: 700;
+}
+
+small,
+time,
+figcaption {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background-color: var(--paper-raised);
+    padding: 0.1em 0.3em;
+}
+
+ul,
+ol {
+    padding-inline-start: 1.25em;
+
+    & li + li {
+        margin-block-start: 0.4em;
+    }
+}
+
+ul > li::marker {
+    content: "–  ";
+    color: var(--accent);
+}
+
+hr {
+    grid-column: var(--c-all) !important;
+    border: 0;
+    border-block-start: 1px solid var(--line-strong);
+    margin-block: clamp(3rem, 6vw, 5rem) 0;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+/* The wordmark sits over the metadata column and the links start
+   on the text column's edge, so the first thing on the page
+   already shows the grid. */
+
+body > header {
+    display: grid;
+    grid-template-columns: subgrid;
+    border-block-end: 1px solid var(--line-strong);
+}
+
+body > header nav {
+    grid-column: var(--c-all);
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.25rem;
+    align-items: baseline;
+    padding-block: 1.1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+
+    & a {
+        color: var(--ink);
+        padding-block: 0.6rem;
+
+        &:is(:hover, :focus-visible) {
+            color: var(--accent);
+        }
+    }
+}
+
+.logo {
+    order: -1;
+    flex-basis: 100%;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+
+    & [aria-hidden] {
+        display: none;
+    }
+
+    & i {
+        font-style: normal;
+    }
+}
+
+@media (min-width: 960px) {
+    body > header nav {
+        display: grid;
+        grid-template-columns: subgrid;
+        column-gap: var(--gap);
+
+        & a:nth-child(1) { grid-column: 4; }
+        & a:nth-child(2) { grid-column: 5; }
+        & a:nth-child(4) { grid-column: 6; }
+        & a:nth-child(5) { grid-column: 7; }
+    }
+
+    .logo {
+        grid-column: 1 / 4;
+        grid-row: 1;
+    }
+}
+
+/* ─── Home ───────────────────────────────────────────────── */
+
+#about {
+    padding-block-start: clamp(3rem, 8vw, 7rem);
+
+    & > p:first-child {
+        grid-column: var(--c-all);
+        font: var(--label);
+        color: var(--ink-soft);
+        margin-block-end: clamp(1.5rem, 3vw, 2.5rem);
+
+        &::before {
+            content: "●";
+            color: var(--accent);
+            margin-inline-end: 0.6em;
+        }
+    }
+
+    & h1 {
+        grid-column: var(--c-all);
+        font-size: clamp(3.4rem, 0.5rem + 11.5vw, 13rem);
+        line-height: 0.86;
+        letter-spacing: -0.055em;
+        max-width: 7.5em;
+    }
+
+    & h1 + p,
+    & > p:last-child {
+        grid-column: var(--c-all);
+        margin-block-start: 2rem;
+        padding-block-start: 1rem;
+        border-block-start: 2px solid var(--line-strong);
+    }
+
+    & h1 + p {
+        font-size: clamp(1.15rem, 1rem + 0.5vw, 1.5rem);
+        line-height: 1.35;
+        letter-spacing: -0.012em;
+    }
+
+    & > p:last-child {
+        font-size: clamp(1.4rem, 1.1rem + 1vw, 2.1rem);
+        line-height: 1.1;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+    }
+
+    & em {
+        font-style: normal;
+        color: var(--accent);
+    }
+}
+
+@media (min-width: 960px) {
+    #about {
+        & h1 + p {
+            grid-column: 7 / 13;
+            grid-row: 3;
+            margin-block-start: clamp(3rem, 5vw, 5rem);
+        }
+
+        & > p:last-child {
+            grid-column: 1 / 6;
+            grid-row: 3;
+            align-self: start;
+            margin-block-start: clamp(3rem, 5vw, 5rem);
+        }
+    }
+}
+
+/* The index: a year in the side column, then a ruled table of
+   number, title, summary, date. */
+#articles {
+    margin-block-start: clamp(2rem, 4vw, 3rem);
+    counter-reset: entry;
+
+    & h3 {
+        grid-column: var(--c-all);
+        font-size: clamp(2rem, 1.4rem + 2vw, 3.25rem);
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        margin-block: 0 1.25rem;
+    }
+
+    & ul {
+        grid-column: var(--c-all);
+        list-style: none;
+        padding: 0;
+        border-block-start: 2px solid var(--line-strong);
+    }
+
+    & li {
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr);
+        column-gap: var(--gap);
+        row-gap: 0.25rem;
+        align-items: baseline;
+        padding-block: 1rem;
+        margin: 0;
+        border-block-end: 1px solid var(--line);
+
+        &::marker {
+            content: none;
+        }
+
+        &:has(a) {
+            counter-increment: entry;
+
+            &::before {
+                content: counter(entry, decimal-leading-zero);
+                font: var(--label);
+                color: var(--ink-faint);
+            }
+        }
+
+        & > a {
+            color: var(--ink);
+            font-size: clamp(1.2rem, 1rem + 0.6vw, 1.55rem);
+            line-height: 1.15;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+
+            &:is(:hover, :focus-visible) {
+                color: var(--accent);
+            }
+        }
+
+        & time,
+        & p {
+            grid-column: 2;
+        }
+
+        & time {
+            font: var(--label);
+            font-weight: 500;
+            color: var(--ink-soft);
+        }
+
+        & p {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            color: var(--ink-soft);
+        }
+    }
+
+    /* A row without a link is a series label. */
+    & li:not(:has(a)) {
+        display: block;
+        padding-block: 1.5rem 0.75rem;
+        font: var(--label);
+        color: var(--accent);
+        border-block-end: 0;
+    }
+}
+
+@media (min-width: 960px) {
+    #articles {
+        & h3 {
+            grid-column: 1 / 4;
+            grid-row: 1;
+        }
+
+        & ul {
+            grid-column: 4 / 13;
+            display: grid;
+            grid-template-columns: subgrid;
+            align-content: start;
+        }
+
+        & li {
+            grid-column: 1 / -1;
+            grid-template-columns: subgrid;
+            column-gap: var(--gap);
+
+            &::before {
+                grid-column: 1;
+            }
+
+            & > a {
+                grid-column: 2 / 5;
+            }
+
+            & p {
+                grid-column: 5 / 8;
+                grid-row: 1;
+            }
+
+            & time {
+                grid-column: 8 / 10;
+                grid-row: 1;
+                justify-self: end;
+                white-space: nowrap;
+            }
+        }
+    }
+}
+
+main > section ~ p {
+    margin-block-start: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+}
+
+/* ─── Footer ─────────────────────────────────────────────── */
+/* An inverted band to end every page, mirroring the header: the
+   wordmark set huge, the links on the text column's edge. */
+
+main > footer {
+    grid-column: var(--c-all);
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: 1rem;
+    margin-block-start: clamp(5rem, 10vw, 9rem);
+    padding-block: clamp(2.5rem, 5vw, 4rem) 1.5rem;
+    background-color: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 0 0 100vmax var(--ink);
+    clip-path: inset(0 -100vmax);
+
+    & > span {
+        grid-column: var(--c-all);
+        font-size: clamp(3rem, 0.5rem + 10vw, 11.5rem);
+        line-height: 0.85;
+        font-weight: 700;
+        letter-spacing: -0.06em;
+        margin-block-end: clamp(1.5rem, 3vw, 3rem);
+    }
+
+    & small {
+        grid-column: var(--c-all);
+        font: var(--label);
+        color: color-mix(in srgb, var(--paper) 60%, var(--ink));
+    }
+
+    & nav {
+        grid-column: var(--c-all);
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 1.25rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+
+        & a {
+            color: var(--paper);
+            padding-block: 0.6rem;
+
+            &:is(:hover, :focus-visible) {
+                color: var(--accent);
+            }
+        }
+    }
+}
+
+@media (min-width: 960px) {
+    main > footer {
+        & small {
+            grid-column: 1 / 4;
+        }
+
+        & nav {
+            grid-column: 4 / 13;
+            display: grid;
+            grid-template-columns: repeat(9, minmax(0, 1fr));
+            column-gap: var(--gap);
+        }
+    }
+}
+
+/* ─── Standalone pages ───────────────────────────────────── */
+
+main > h1 {
+    grid-column: var(--c-all);
+    margin-block-start: clamp(3rem, 8vw, 7rem);
+}
+
+main > h1 + p {
+    margin-block-start: clamp(1.5rem, 3vw, 2.5rem);
+    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.35rem);
+}
+
+main > :is(p, ul, ol, figure, blockquote) {
+    margin-block-start: 1rem;
+}
+
+main > h2 {
+    margin-block: clamp(2.5rem, 5vw, 4rem) 0.25rem;
+}
+
+main > hr + h2 {
+    margin-block-start: 2.5rem;
+}
+
+main > figure {
+    grid-column: var(--c-wide);
+}
+
+/* ─── Article ────────────────────────────────────────────── */
+
+main > nav[aria-label="Breadcrumb"] {
+    grid-column: var(--c-all);
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 100;
+    display: flex;
+    gap: var(--gap);
+    align-items: baseline;
+    padding-block: 0.8rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    background-color: var(--paper);
+    border-block-end: 1px solid var(--line);
+    box-shadow: 0 0 0 100vmax var(--paper);
+    clip-path: inset(0 -100vmax);
+
+    & span:first-child {
+        font: var(--label);
+        color: var(--accent);
+        text-transform: capitalize;
+    }
+
+    & span + span {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    & a {
+        color: var(--ink);
+        white-space: nowrap;
+
+        &:hover {
+            color: var(--accent);
+        }
+    }
+}
+
+@media (max-width: 959.9px) {
+    main > nav[aria-label="Breadcrumb"] span:first-child {
+        display: none;
+    }
+}
+
+@media (min-width: 960px) {
+    main > nav[aria-label="Breadcrumb"] {
+        display: grid;
+        grid-template-columns: subgrid;
+
+        & span:first-child { grid-column: 1 / 4; }
+        & span + span { grid-column: 4 / 10; }
+        & a { grid-column: 10 / 13; justify-self: end; }
+    }
+}
+
+article {
+    padding-block: clamp(2.5rem, 6vw, 5.5rem) 0;
+
+    & > * + * {
+        margin-block-start: 1rem;
+    }
+}
+
+article > header {
+    row-gap: 0;
+    padding-block-end: clamp(2rem, 4vw, 3.5rem);
+    margin-block-end: clamp(1rem, 2vw, 1.5rem);
+    border-block-end: 2px solid var(--line-strong);
+
+    & > * {
+        grid-column: var(--c-all);
+    }
+
+    & > p:first-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 0.75rem;
+        font: var(--label);
+        color: var(--accent);
+        text-transform: capitalize;
+        margin-block-end: clamp(1.25rem, 2.5vw, 2rem);
+
+        & > * + *::before {
+            content: "/";
+            margin-inline-end: 0.75rem;
+            color: var(--ink-faint);
+        }
+    }
+
+    & h1 {
+        margin-block-end: clamp(2rem, 4vw, 3.5rem);
+    }
+
+    & > h1 + p:not(:has(time)) {
+        font-size: clamp(1.2rem, 1rem + 0.7vw, 1.65rem);
+        line-height: 1.28;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+    }
+
+    & > p:has(time) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 1.25rem;
+        margin-block-start: 1.5rem;
+        font: var(--label);
+        font-weight: 500;
+        color: var(--ink-soft);
+
+        & time {
+            font: inherit;
+            color: var(--ink);
+        }
+    }
+
+    & > p:has(time) + p {
+        margin-block-start: 1rem;
+        font-size: 0.875rem;
+        color: var(--ink-soft);
+    }
+}
+
+@media (min-width: 960px) {
+    article > header {
+        & h1 {
+            grid-column: 1 / 12;
+        }
+
+        & > h1 + p:not(:has(time)),
+        & > p:has(time) + p {
+            grid-column: 4 / 11;
+        }
+
+        /* The facts go in the side column, one per line, level
+           with the lede. */
+        & > p:has(time) {
+            grid-column: 1 / 4;
+            grid-row: 3 / span 2;
+            flex-direction: column;
+            align-self: start;
+            margin: 0;
+            padding-block-start: 0.45rem;
+        }
+    }
+}
+
+article > h2 {
+    margin-block: clamp(2.5rem, 5vw, 4rem) 0.25rem;
+}
+
+article > h3 {
+    margin-block-start: 2rem;
+}
+
+/* Wide things reach to the right edge of the grid. */
+article > :is(figure, [data-island]) {
+    grid-column: var(--c-wide);
+}
+
+blockquote {
+    grid-column: var(--c-wide) !important;
+    position: relative;
+    margin-block: clamp(2rem, 4vw, 3rem) !important;
+    padding-block: 1.25rem 0;
+    border-block-start: 2px solid var(--line-strong);
+
+    & p {
+        font-size: clamp(1.45rem, 1rem + 1.6vw, 2.45rem);
+        line-height: 1.08;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        text-wrap: balance;
+        max-width: 22em;
+    }
+
+    /* A red square marks the quote: in the side column on wide
+       screens, above it on phones. */
+    &::before {
+        content: "";
+        display: block;
+        inline-size: 0.8rem;
+        block-size: 0.8rem;
+        background-color: var(--accent);
+        margin-block: 0.25rem 1rem;
+    }
+}
+
+@media (min-width: 960px) {
+    :is(main, article):not(:has(.toc)) > blockquote::before {
+        position: absolute;
+        inset-block-start: calc(1.25rem + 0.45em);
+        inset-inline-start: calc(-1 * (100% - 8 * var(--gap)) / 9 * 3 - 3 * var(--gap));
+        margin: 0;
+    }
+}
+
+/* Code: a grey slab under a black rule, reaching to the edge. */
+[data-rehype-pretty-code-figure] {
+    margin-block: clamp(1.5rem, 3vw, 2.25rem) !important;
+    border-block-start: 2px solid var(--line-strong);
+    background-color: var(--code-surface);
+    font-family: var(--mono);
+
+    & figcaption {
+        padding: 0.6rem 1.25rem;
+        font: var(--label);
+        color: var(--ink);
+        border-block-end: 1px solid var(--line);
+    }
+
+    & pre {
+        padding: 1.25rem;
+
+        & code {
+            font-size: clamp(0.75rem, 0.7rem + 0.15vw, 0.82rem);
+            line-height: 1.7;
+        }
+    }
+}
+
+@media (max-width: 959.9px) {
+    article > [data-rehype-pretty-code-figure] {
+        margin-inline: calc(-1 * var(--margin));
+
+        & :is(figcaption, pre) {
+            padding-inline: var(--margin);
+        }
+    }
+}
+
+figure {
+    & img {
+        width: 100%;
+    }
+
+    & figcaption {
+        margin-block-start: 0.6rem;
+        font-size: 0.8125rem;
+    }
+}
+
+/* Callouts: a rule in the signal color, no box. */
+aside[data-type] {
+    padding-block: 1rem;
+    border-block: 4px solid var(--accent);
+    border-block-end-width: 1px;
+
+    & > p:first-child {
+        font: var(--label);
+        color: var(--accent);
+        margin-block-end: 0.5rem;
+    }
+
+    & > div > * + * {
+        margin-block-start: 0.75rem;
+    }
+}
+
+/* Table of contents: in the side column, sticky, on wide screens. */
+.toc {
+    padding-block: 1rem;
+    border-block: 1px solid var(--line);
+
+    & div > p {
+        font: var(--label);
+        color: var(--accent);
+        margin-block-end: 0.75rem;
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        font-size: 0.875rem;
+        counter-reset: toc;
+    }
+
+    & li {
+        counter-increment: toc;
+        display: flex;
+        gap: 0.75rem;
+
+        &::before {
+            content: counter(toc, decimal-leading-zero);
+            flex: 0 0 1.4rem;
+            font: var(--label);
+            color: var(--ink-faint);
+            padding-block-start: 0.3em;
+        }
+
+        & a {
+            color: var(--ink);
+            padding-block: 0.15rem;
+
+            &:hover {
+                color: var(--accent);
+            }
+        }
+    }
+}
+
+@media (min-width: 960px) {
+    .toc {
+        grid-column: 1 / 4 !important;
+        grid-row: span 200;
+        padding: 0;
+        border: 0;
+        padding-inline-end: var(--gap);
+
+        & > div {
+            position: sticky;
+            inset-block-start: 5rem;
+        }
+    }
+}
+
+/* Series: three columns, a big numeral over each title. */
+article > nav {
+    grid-column: var(--c-wide) !important;
+    margin-block-start: clamp(4rem, 8vw, 6rem) !important;
+    border-block-start: 2px solid var(--line-strong);
+    padding-block-start: 1rem;
+
+    & header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        align-items: baseline;
+        font: var(--label);
+
+        & p:first-child {
+            color: var(--accent);
+        }
+
+        & p:last-child {
+            margin-inline-start: auto;
+            color: var(--ink-soft);
+        }
+    }
+
+    & > div {
+        height: 4px;
+        background: var(--line);
+        margin-block: 0.75rem 1.5rem;
+
+        & > div {
+            height: 100%;
+            background: var(--accent);
+        }
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+        gap: 1.5rem var(--gap);
+
+        & li {
+            margin: 0;
+            display: grid;
+            gap: 0.4rem;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            line-height: 1.2;
+
+            & > span:first-child {
+                font-size: 2.75rem;
+                line-height: 0.9;
+                letter-spacing: -0.05em;
+                color: var(--ink-faint);
+            }
+
+            & a {
+                color: var(--ink);
+
+                &:hover {
+                    color: var(--accent);
+                }
+            }
+        }
+
+        & li[aria-current] > span:first-child {
+            color: var(--accent);
+        }
+    }
+
+    & > p {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--gap);
+        margin-block-start: 2rem;
+        padding-block-start: 1rem;
+        border-block-start: 1px solid var(--line);
+        font-size: 0.8125rem;
+        font-weight: 500;
+
+        & a {
+            color: var(--ink);
+
+            &:hover {
+                color: var(--accent);
+            }
+        }
+    }
+}
+
+.revisions {
+    margin-block-start: 3rem !important;
+
+    & > p {
+        font: var(--label);
+        color: var(--accent);
+        margin-block-end: 0.5rem;
+    }
+
+    & ol {
+        list-style: none;
+        padding: 0;
+    }
+
+    & li {
+        display: grid;
+        grid-template-columns: 8rem 1fr;
+        gap: var(--gap);
+        padding-block: 0.4rem;
+        border-block-start: 1px solid var(--line);
+        font-size: 0.875rem;
+    }
+}
+
+article > footer {
+    margin-block-start: clamp(3rem, 6vw, 4rem) !important;
+    font-size: 0.8125rem;
+    font-weight: 500;
+
+    & a {
+        color: var(--ink);
+
+        &:hover {
+            color: var(--accent);
+        }
+    }
+}
+
+/* Footnotes and margin notes. */
+section[data-footnotes] {
+    margin-block-start: 3rem !important;
+    padding-block-start: 1rem;
+    border-block-start: 1px solid var(--line-strong);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+
+    & h2::before {
+        display: none;
+    }
+}
+
+.margin-note {
+    grid-column: 10 / 13;
+    position: absolute;
+    padding-inline-start: var(--gap);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+
+    &::before {
+        content: attr(data-ref);
+        font-weight: 700;
+        color: var(--accent);
+        margin-inline-end: 0.4em;
+    }
+}
+
+@media (max-width: 959.9px) {
+    .margin-note {
+        display: none;
+    }
+}
+
+.fn-inline {
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    border-inline-start: 2px solid var(--accent);
+    padding-inline-start: 0.75rem;
+    margin-block: 0.5rem;
+}
+
+@media print {
+    :root {
+        --paper: #fff;
+        --ink: #000;
+    }
+
+    main > footer {
+        display: none;
+    }
+}
