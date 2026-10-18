@@ -1,0 +1,1059 @@
+/* Plaintext — the site as its own source.
+
+   "It's just text files", taken at its word: one monospace face at
+   one size, and the markdown left showing. The markers (#, >, -,
+   _, `) hang in the left margin so the text still lines up. Article
+   headers read as frontmatter, code keeps its fences, the series
+   bar is ASCII, and the breadcrumb is an editor's status line. */
+
+@import "_shared.css";
+
+:root {
+    color-scheme: light dark;
+
+    --paper: light-dark(#fbfaf6, #0f120f);
+    --paper-raised: light-dark(#f1efe7, #171b17);
+    --ink: light-dark(#1e211d, #d3dccd);
+    --ink-soft: light-dark(#53584f, #9aa695);
+    --ink-faint: light-dark(#6f7367, #73826e);
+    --line: light-dark(#e2e0d6, #252b24);
+    --line-strong: light-dark(#c9c6b8, #384036);
+    --accent: light-dark(#17773a, #8ee08a);
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --sans: var(--mono);
+    --label: 400 0.8125rem / 1.5 var(--mono);
+
+    --pad: 2ch;
+    --status: 2rem;
+
+    --code-surface: var(--paper-raised);
+    --code-shadow: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.6));
+    --ct: light-dark(#24292f, #d3dccd);
+    --cc: light-dark(#8a8f85, #66715f);
+    --ck: light-dark(#c4322b, #ff8c7f);
+    --cf: light-dark(#7442c8, #d4b0ff);
+    --cs: light-dark(#0b5394, #9fd2ff);
+    --cn: light-dark(#0a5aad, #84c4ff);
+    --cv: light-dark(#953800, #ffb77a);
+    --cy: light-dark(#7442c8, #d4b0ff);
+    --cg: light-dark(#17773a, #8ee08a);
+    --ca: light-dark(#17773a, #8ee08a);
+    --cp: light-dark(#6b7066, #8d9888);
+}
+
+html {
+    font-size: 15px;
+}
+
+@media (min-width: 700px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* ─── The page ───────────────────────────────────────────── */
+/* One text column of 72 characters, with a five-character margin
+   either side for the hanging markers. */
+
+body {
+    display: grid;
+    grid-template-columns:
+        [full-start] minmax(var(--pad), 1fr)
+        [gutter-start] 0
+        [text-start] minmax(0, 72ch)
+        [text-end] 0
+        [gutter-end] minmax(var(--pad), 1fr)
+        [full-end];
+    align-content: start;
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 1rem;
+    line-height: 1.7;
+    font-variant-ligatures: none;
+}
+
+@media (min-width: 760px) {
+    body {
+        grid-template-columns:
+            [full-start] minmax(var(--pad), 1fr)
+            [gutter-start] 5ch
+            [text-start] minmax(0, 72ch)
+            [text-end] 5ch
+            [gutter-end] minmax(var(--pad), 1fr)
+            [full-end];
+    }
+}
+
+body > *,
+main > *,
+article > * {
+    grid-column: text;
+}
+
+main,
+article {
+    grid-column: full;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-content: start;
+}
+
+/* A blank line between blocks, like a text file. */
+main > * + *,
+article > * + * {
+    margin-block-start: 1lh;
+}
+
+/* ─── Markdown, left showing ─────────────────────────────── */
+
+h1,
+h2,
+h3 {
+    position: relative;
+    font-size: 1rem;
+    line-height: inherit;
+    font-weight: 700;
+    color: var(--ink);
+
+    &::before {
+        position: absolute;
+        inset-inline-end: 100%;
+        color: var(--accent);
+        font-weight: 400;
+        white-space: pre;
+    }
+}
+
+/* The page title is a setext heading: underlined with = signs as
+   long as the title itself. */
+h1 {
+    inline-size: fit-content;
+
+    &::before {
+        content: none;
+    }
+
+    &::after {
+        content: "========================================================================================================";
+        display: block;
+        inline-size: 0;
+        min-inline-size: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        font-weight: 400;
+        color: var(--accent);
+    }
+}
+
+h2::before { content: "## "; }
+h3::before { content: "### "; }
+
+/* Phones have no margin to hang into: the markers go inline. */
+@media (max-width: 759.9px) {
+    :is(h1, h2, h3)::before {
+        position: static;
+    }
+}
+
+p {
+    text-wrap: pretty;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+
+    &:hover {
+        background-color: var(--accent);
+        color: var(--paper);
+        text-decoration: none;
+    }
+}
+
+/* Links in prose keep their brackets. */
+:is(p, li) > a:not([data-footnote-ref]) {
+    text-decoration: none;
+
+    &::before,
+    &::after {
+        color: var(--ink-faint);
+    }
+
+    &::before { content: "["; }
+    &::after { content: "]"; }
+}
+
+em {
+    font-style: italic;
+
+    &::before,
+    &::after {
+        content: "_";
+        font-style: normal;
+        color: var(--ink-faint);
+    }
+}
+
+strong {
+    font-weight: 700;
+
+    &::before,
+    &::after {
+        content: "**";
+        font-weight: 400;
+        color: var(--ink-faint);
+    }
+}
+
+code {
+    font-family: inherit;
+    font-size: 1em;
+    color: var(--ink);
+
+    &::before,
+    &::after {
+        content: "`";
+        color: var(--ink-faint);
+    }
+}
+
+pre code::before,
+pre code::after {
+    content: none;
+}
+
+small,
+time,
+figcaption {
+    font-size: 1em;
+    color: var(--ink-soft);
+}
+
+ul,
+ol {
+    padding: 0;
+    list-style: none;
+    counter-reset: item;
+
+    & li {
+        position: relative;
+
+        &::before {
+            position: absolute;
+            inset-inline-end: 100%;
+            color: var(--accent);
+            white-space: pre;
+        }
+    }
+}
+
+ul > li::before {
+    content: "- ";
+}
+
+ol > li {
+    counter-increment: item;
+
+    &::before {
+        content: counter(item) ". ";
+    }
+}
+
+@media (max-width: 759.9px) {
+    :is(ul, ol) {
+        padding-inline-start: 3ch;
+    }
+}
+
+/* Pull quotes: a > on every line, down the margin. */
+blockquote {
+    position: relative;
+    color: var(--ink-soft);
+    font-style: italic;
+    overflow: hidden;
+
+    &::before {
+        content: ">\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A";
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        white-space: pre;
+        font-style: normal;
+        color: var(--accent);
+        overflow: hidden;
+    }
+
+    & p {
+        padding-inline-start: 2ch;
+    }
+}
+
+hr {
+    border: 0;
+    height: 1lh;
+    overflow: hidden;
+    color: var(--ink-faint);
+
+    &::before {
+        content: "------------------------------------------------------------------------------------------------------------------------";
+        display: block;
+        white-space: nowrap;
+    }
+}
+
+/* ─── Header: a path and a few more ──────────────────────── */
+
+body > header {
+    padding-block: 2lh 1lh;
+}
+
+body > header nav {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 2ch;
+
+    & a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        text-transform: lowercase;
+
+        &::before {
+            content: "/";
+            color: var(--ink-faint);
+        }
+
+        &:hover {
+            color: var(--paper);
+        }
+    }
+}
+
+.logo {
+    order: -1;
+    margin-inline-end: auto;
+    font-weight: 700;
+
+    color: var(--ink);
+
+    &::before {
+        content: none;
+    }
+
+    & [aria-hidden] {
+        color: var(--accent);
+        font-weight: 400;
+    }
+
+    & i {
+        font-style: normal;
+    }
+}
+
+@media (max-width: 559.9px) {
+    .logo {
+        flex-basis: 100%;
+    }
+}
+
+/* ─── Home ───────────────────────────────────────────────── */
+
+#about {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: full;
+    margin-block-start: 2lh;
+
+    & > * {
+        grid-column: text;
+    }
+
+    & > * + * {
+        margin-block-start: 1lh;
+    }
+
+    /* The eyebrow is an HTML comment. */
+    & > p:first-child {
+        color: var(--ink-faint);
+
+        &::before { content: "<!-- "; }
+        &::after { content: " -->"; }
+    }
+
+    & h1 {
+        font-size: 1rem;
+    }
+
+    & > p:last-child {
+        font-weight: 700;
+    }
+}
+
+#articles {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: full;
+
+    & > * {
+        grid-column: text;
+    }
+
+    & ul {
+        margin-block: 1lh 0;
+    }
+
+    & li {
+        display: grid;
+        grid-template-columns: auto minmax(2ch, 1fr) auto;
+        column-gap: 1ch;
+        margin-block-end: 1lh;
+
+        /* The dot leader between title and date. */
+        &::before {
+            content: ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ";
+            position: static;
+            grid-column: 2;
+            grid-row: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            color: var(--ink-faint);
+        }
+
+        & > a {
+            grid-column: 1;
+            grid-row: 1;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        & time {
+            grid-column: 3;
+            grid-row: 1;
+            color: var(--ink-soft);
+        }
+
+        & p {
+            grid-column: 1 / -1;
+            color: var(--ink-soft);
+            padding-inline-start: 2ch;
+        }
+    }
+
+    /* A row without a link is a series label: a heading of its own. */
+    & li:not(:has(a)) {
+        display: block;
+        color: var(--ink-soft);
+
+        &::before {
+            content: "#### ";
+            position: absolute;
+            inset-inline-end: 100%;
+            white-space: pre;
+            color: var(--accent);
+            overflow: visible;
+        }
+    }
+}
+
+@media (max-width: 759.9px) {
+    #articles ul {
+        padding: 0;
+    }
+
+    #articles li:not(:has(a))::before {
+        position: static;
+    }
+
+    #articles li:has(a) {
+        grid-template-columns: 1fr;
+
+        &::before {
+            display: none;
+        }
+
+        & time,
+        & p {
+            grid-column: 1;
+            grid-row: auto;
+            padding: 0;
+        }
+    }
+}
+
+main > section ~ p {
+    color: var(--ink-soft);
+}
+
+/* ─── Footer: end of file ────────────────────────────────── */
+
+main > footer {
+    margin-block-start: 3lh;
+    padding-block: 0 3lh;
+    color: var(--ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 2ch;
+
+    /* An editor's empty lines past the end of the file. */
+    &::before {
+        content: "~\A~\A~";
+        flex-basis: 100%;
+        white-space: pre;
+        color: var(--ink-faint);
+        margin-block-end: 1lh;
+    }
+
+    & > span {
+        font-weight: 700;
+        color: var(--ink);
+
+        &::before {
+            content: "{";
+            color: var(--accent);
+            font-weight: 400;
+        }
+
+        &::after {
+            content: "}";
+            color: var(--accent);
+            font-weight: 400;
+        }
+    }
+
+    & small {
+        &::before {
+            content: "// ";
+            color: var(--ink-faint);
+        }
+    }
+
+    & nav {
+        flex-basis: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 2ch;
+
+        & a {
+            color: var(--ink-soft);
+            text-decoration: none;
+            text-transform: lowercase;
+
+            &::before {
+                content: "/";
+                color: var(--ink-faint);
+            }
+
+            &:hover {
+                color: var(--paper);
+            }
+        }
+    }
+}
+
+/* ─── Standalone pages ───────────────────────────────────── */
+
+main > h1 {
+    margin-block-start: 2lh;
+}
+
+main > h1 + p {
+    color: var(--ink-soft);
+}
+
+/* ─── Article ────────────────────────────────────────────── */
+
+/* The breadcrumb is a status line pinned to the bottom of the
+   window, in reverse video, like an editor's. */
+main > nav[aria-label="Breadcrumb"] {
+    position: fixed;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 100;
+    display: flex;
+    gap: 1ch;
+    align-items: center;
+    block-size: var(--status);
+    margin: 0;
+    padding-inline: 2ch;
+    background-color: var(--ink);
+    color: var(--paper);
+    font-size: 0.8125rem;
+
+    & span:first-child {
+        padding-inline: 1ch;
+        background-color: var(--accent);
+        color: var(--paper);
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    & span + span {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &::after {
+            content: " [+]";
+            color: color-mix(in srgb, var(--paper) 55%, var(--ink));
+        }
+    }
+
+    & a {
+        color: var(--paper);
+        text-decoration: none;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: var(--paper);
+            color: var(--ink);
+        }
+    }
+}
+
+body:has(nav[aria-label="Breadcrumb"]) {
+    padding-block-end: var(--status);
+
+    & #progress {
+        inset-block-start: auto;
+        inset-block-end: var(--status);
+        height: 2px;
+    }
+}
+
+/* The masthead is frontmatter: the facts between two fences, then
+   the title and the lede. */
+article {
+    padding-block: 1lh 2lh;
+}
+
+article > header {
+    display: flex;
+    flex-direction: column;
+
+    & > p:first-child {
+        order: 1;
+        color: var(--ink-soft);
+
+        &::before {
+            content: "---\A" "filed:   ";
+            white-space: pre;
+            color: var(--ink-faint);
+        }
+
+        & > span {
+            color: var(--ink);
+        }
+
+        & > * + *::before {
+            content: " / ";
+            color: var(--ink-faint);
+        }
+    }
+
+    & > p:has(time) {
+        order: 2;
+        display: flex;
+        flex-wrap: wrap;
+        color: var(--ink);
+
+        & time {
+            flex-basis: 100%;
+            color: var(--ink);
+
+            &::before {
+                content: "date:    ";
+                white-space: pre;
+                color: var(--ink-faint);
+            }
+        }
+
+        & > span + span::before {
+            content: ", ";
+            color: var(--ink-faint);
+        }
+
+        & > time + span::before {
+            content: "length:  ";
+            white-space: pre;
+            color: var(--ink-faint);
+        }
+
+        &::after {
+            content: "---";
+            flex-basis: 100%;
+            color: var(--ink-faint);
+        }
+    }
+
+    & > p:has(time) + p {
+        order: 3;
+        color: var(--ink-soft);
+
+        &::before {
+            content: "note:    ";
+            white-space: pre;
+            color: var(--ink-faint);
+        }
+    }
+
+    & h1 {
+        order: 4;
+        margin-block-start: 2lh;
+    }
+
+    & > h1 + p:not(:has(time)) {
+        order: 5;
+        margin-block-start: 1lh;
+        color: var(--ink-soft);
+    }
+}
+
+article > h2 {
+    margin-block-start: 2lh;
+}
+
+[id] {
+    scroll-margin-block-start: 2lh;
+}
+
+/* Code keeps its fences: ```css on top, ``` underneath. */
+[data-rehype-pretty-code-figure] {
+    grid-column: gutter !important;
+    position: relative;
+    background-color: var(--code-surface);
+    padding-inline: 5ch;
+
+    & figcaption {
+        padding-block-start: 0.5lh;
+        color: var(--ink-faint);
+
+        & > span:first-child {
+            text-transform: lowercase;
+            color: var(--ink-soft);
+
+            &::before {
+                content: "```";
+                color: var(--ink-faint);
+            }
+        }
+
+        & button {
+            gap: 0;
+            color: var(--ink-faint);
+            font-size: 0.8125rem;
+            text-transform: lowercase;
+
+            &::before {
+                content: "[";
+                mask: none;
+                background: none;
+                inline-size: auto;
+                block-size: auto;
+            }
+
+            &::after {
+                content: "]";
+            }
+
+            &:hover {
+                color: var(--accent);
+            }
+        }
+    }
+
+    & pre {
+        padding-block: 0.25lh;
+
+        & code {
+            font-size: 0.875rem;
+            line-height: 1.7;
+        }
+    }
+
+    &::after {
+        content: "```";
+        display: block;
+        padding-block-end: 0.5lh;
+        color: var(--ink-faint);
+    }
+}
+
+@media (max-width: 759.9px) {
+    [data-rehype-pretty-code-figure] {
+        grid-column: full !important;
+        padding-inline: var(--pad);
+    }
+}
+
+figure:not([data-rehype-pretty-code-figure]) {
+    & img {
+        width: 100%;
+        filter: grayscale(0.3);
+    }
+
+    & figcaption {
+        margin-block-start: 0.5lh;
+
+        &::before {
+            content: "^ ";
+            color: var(--accent);
+        }
+    }
+}
+
+/* Callouts read like GitHub's: > [!TIP]. */
+aside[data-type] {
+    position: relative;
+    padding-inline-start: 2ch;
+
+    &::before {
+        content: ">\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A";
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        white-space: pre;
+        color: var(--accent);
+        overflow: hidden;
+    }
+
+    & > p:first-child {
+        color: var(--accent);
+        text-transform: uppercase;
+
+        &::before { content: "[!"; }
+        &::after { content: "]"; }
+    }
+}
+
+.toc {
+    & div > p {
+        color: var(--ink-faint);
+
+        &::before { content: "<!-- "; }
+        &::after { content: " -->"; }
+    }
+
+    & li[data-level="3"] {
+        padding-inline-start: 2ch;
+    }
+
+    & li > a {
+        text-decoration: none;
+
+        &::before,
+        &::after {
+            color: var(--ink-faint);
+        }
+
+        &::before { content: "["; }
+        &::after { content: "]"; }
+    }
+}
+
+/* Series: an ASCII progress bar and a list with a cursor. */
+article > nav {
+    margin-block-start: 3lh !important;
+
+    & header {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 1ch;
+
+        &::before {
+            content: "---";
+            flex-basis: 100%;
+            color: var(--ink-faint);
+        }
+
+        & p:first-child {
+            color: var(--ink-faint);
+            text-transform: lowercase;
+
+            &::after {
+                content: ":";
+            }
+        }
+
+        & p:nth-child(2) {
+            font-weight: 700;
+        }
+
+        & p:last-child {
+            color: var(--ink-soft);
+
+            &::before { content: "("; }
+            &::after { content: ")"; }
+        }
+    }
+
+    & > div {
+        position: relative;
+        inline-size: max-content;
+        color: var(--ink-faint);
+        white-space: pre;
+
+        &::before {
+            content: "[------------------------------------]";
+        }
+
+        & > div {
+            position: absolute;
+            inset-block: 0;
+            inset-inline-start: 1ch;
+            max-inline-size: calc(100% - 2ch);
+            overflow: hidden;
+            color: var(--accent);
+
+            &::before {
+                content: "####################################";
+            }
+        }
+    }
+
+    & ol {
+        margin-block-start: 1lh;
+
+        & li {
+            display: flex;
+            gap: 1ch;
+
+            &::before {
+                content: none;
+            }
+
+            & > span:first-child {
+                color: var(--ink-faint);
+            }
+        }
+
+        & li[aria-current] {
+            font-weight: 700;
+
+            &::before {
+                content: "> ";
+                position: absolute;
+                inset-inline-end: 100%;
+                color: var(--accent);
+            }
+
+            & > span:first-child {
+                color: var(--accent);
+            }
+        }
+    }
+
+    & > p {
+        display: flex;
+        justify-content: space-between;
+        gap: 2ch;
+        margin-block-start: 1lh;
+
+        & a {
+            text-decoration: none;
+        }
+    }
+}
+
+.revisions {
+    & > p {
+        color: var(--ink-faint);
+
+        &::before { content: "<!-- "; }
+        &::after { content: " -->"; }
+    }
+
+    & li {
+        display: flex;
+        gap: 2ch;
+
+        &::before {
+            content: none;
+        }
+    }
+}
+
+article > footer {
+    & a {
+        text-decoration: none;
+    }
+}
+
+/* Footnotes: [^1]: … */
+section[data-footnotes] {
+    color: var(--ink-soft);
+
+    &::before {
+        content: "---";
+        display: block;
+        color: var(--ink-faint);
+    }
+
+    & ol > li::before {
+        content: "[^" counter(item) "]: ";
+    }
+
+    & p {
+        display: inline;
+    }
+}
+
+.margin-note {
+    grid-column: text-end / full-end;
+    position: absolute;
+    inset-inline-start: 7ch;
+    max-inline-size: 32ch;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+
+    &::before {
+        content: "[^" attr(data-ref) "]: ";
+        color: var(--accent);
+    }
+}
+
+@media (max-width: 1279.9px) {
+    .margin-note {
+        position: absolute;
+        inset-inline: auto;
+        grid-column: text;
+        z-index: 2;
+        margin-block-start: 1.7em;
+        padding: 0.5lh 2ch;
+        background-color: var(--paper-raised);
+        border: 1px solid var(--line-strong);
+    }
+}
+
+.fn-inline {
+    color: var(--ink-soft);
+
+    &::before {
+        content: "[^]: ";
+        color: var(--accent);
+    }
+}
+
+.playground {
+    border-color: var(--line-strong);
+}
+
+::selection {
+    background-color: var(--ink);
+    color: var(--paper);
+}
+
+@media print {
+    :root {
+        --paper: #fff;
+        --ink: #000;
+    }
+
+    body {
+        font-size: 10pt;
+    }
+}
