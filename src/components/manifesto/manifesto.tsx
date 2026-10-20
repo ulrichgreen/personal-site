@@ -12,10 +12,8 @@ export function Manifesto() {
             <h1>It's just text files.</h1>
 
             <p>
-                The web never stopped being simple. Under every website: text
-                files. Usually too many. My name is {SITE_AUTHOR}. I build text
-                files for a living. It's a surprisingly short list of materials.
-                Worth choosing the characters carefully.
+                Some are good. Most are too long. I'm {SITE_AUTHOR}. I make text
+                files for a living. This is one of them.
             </p>
 
             <p>
