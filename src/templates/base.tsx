@@ -48,7 +48,6 @@ export default function BaseLayout({
                 seriesName={seriesName}
             />
             <body>
-                <div id="progress" aria-hidden="true"></div>
                 <a className="skip-link" href="#main-content">
                     Skip to content
                 </a>

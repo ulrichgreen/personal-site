@@ -72,6 +72,6 @@ The component file should not:
 - Adding a class where an element or attribute selector already works.
 - Inventing utility classes; sizes and colors come from the tokens.
 - Component-specific stylesheet files; everything lives in `style.css`.
-- Styling a script hook (`.fn-ref`, `#progress`) differently from the
+- Styling a script hook (`.fn-inline`, `.margin-note`) differently from the
   script's expectations — those selectors are contracts, verified by the
   test suite.

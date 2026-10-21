@@ -30,7 +30,10 @@ async function main() {
         !homeHtml.includes('src="/islands.js"'),
         "Home page should not include islands.js (no islands present).",
     );
-    assert(homeHtml.includes('id="progress" aria-hidden="true"'));
+    assert(
+        !homeHtml.includes('id="progress"'),
+        "Reading progress is CSS only, with no markup.",
+    );
     assert(
         /<header>\s*<nav[^>]*aria-label="Primary"/.test(homeHtml),
         "Site header should be present.",

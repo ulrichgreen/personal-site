@@ -1014,16 +1014,26 @@ section[data-footnotes] {
     white-space: nowrap;
 }
 
-/* Reading progress, width set by script. */
-#progress {
-    position: fixed;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-    z-index: 250;
-    width: 0%;
-    height: 3px;
-    background: var(--accent);
-    transition: width 0.1s linear;
+/* Reading progress: a bar along the top that grows as the page
+   scrolls. Browsers without scroll-driven animations skip it. */
+@supports (animation-timeline: scroll()) {
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 250;
+        height: 3px;
+        background: var(--accent);
+        transform-origin: left;
+        animation: reading-progress linear both;
+        animation-timeline: scroll(root);
+    }
+}
+
+@keyframes reading-progress {
+    from {
+        transform: scaleX(0);
+    }
 }
 
 /* ─── Playground island ──────────────────────────────────── */
@@ -1221,7 +1231,7 @@ section[data-footnotes] {
         background: none;
     }
 
-    #progress,
+    body::before,
     .skip-link,
     main > nav {
         display: none !important;

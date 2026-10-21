@@ -159,9 +159,10 @@ The browser code is intentionally split by responsibility.
 
 `src/client/site.ts` enhances already-rendered pages. It is responsible for page-wide behaviors such as:
 
-- reading progress
-- heading reveal effects
+- copy buttons on code blocks
 - footnote interactions
+
+Reading progress is not here: it is a CSS scroll-driven animation in `style.css`.
 
 These behaviors decorate existing markup. They do not create the page or own the whole document.
 
