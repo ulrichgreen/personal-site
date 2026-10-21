@@ -17,7 +17,6 @@ export function SiteHead({
     pagePath,
     published,
     revised,
-    cssHref,
     seriesName,
 }: {
     title?: string;
@@ -25,7 +24,6 @@ export function SiteHead({
     pagePath?: string;
     published?: string;
     revised?: string;
-    cssHref?: string;
     seriesName?: string;
 }) {
     const { frontPageOnly } = useRenderContext();
@@ -75,7 +73,8 @@ export function SiteHead({
                 rel="icon"
                 href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2322c768'/><text x='50' y='74' font-size='72' font-weight='900' text-anchor='middle' fill='%2306190d' font-family='system-ui, sans-serif'>U</text></svg>"
             />
-            <link rel="stylesheet" href={cssHref || "/style.css"} />
+            {/* Built pages carry the CSS inline instead (inlineStylesheet in src/build/assets/css.ts) */}
+            <link rel="stylesheet" href="/style.css" />
             {!frontPageOnly && (
                 <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href="/feed.xml" />
             )}

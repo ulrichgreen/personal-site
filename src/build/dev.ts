@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
 import { DEV_DEBOUNCE_MS, DEV_PORT } from "../config.ts";
 import { buildClient } from "./assets/client.ts";
-import { buildCss } from "./assets/css.ts";
+import { existsSync, readFileSync } from "node:fs";
+import { buildCss, inlineStylesheet, stylesheetPath } from "./assets/css.ts";
 import { rebuildPages } from "./pipeline.ts";
 import { createCloudflareLikeServer } from "./serve-cloudflare.ts";
 const LIVE_RELOAD_SCRIPT = `<script>
@@ -96,8 +97,13 @@ function runFreshBuild(mode: FreshBuildMode): Promise<void> {
 export function startDevServer(): void {
     // Served the way Cloudflare serves the live site, with the live reload script added to pages
     const server = createCloudflareLikeServer({
-        transformHtml: (html) =>
-            html.replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`),
+        // The CSS is read as each page is served, so a style edit needs no page rebuild
+        transformHtml: (html) => {
+            const withReload = html.replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`);
+            return existsSync(stylesheetPath)
+                ? inlineStylesheet(withReload, readFileSync(stylesheetPath, "utf8"))
+                : withReload;
+        },
     });
 
     const wss = new WebSocketServer({ server });

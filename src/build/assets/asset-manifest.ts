@@ -4,7 +4,6 @@ import { join } from "node:path";
 import { distDirectory } from "../shared/paths.ts";
 
 export interface AssetManifest {
-    "style.css": string;
     "site.js": string;
     "islands.js": string;
 }
@@ -20,14 +19,12 @@ export function contentHash(filePath: string): string {
 }
 
 export const devAssetManifest: AssetManifest = {
-    "style.css": "style.css",
     "site.js": "site.js",
     "islands.js": "islands.js",
 };
 
 export function generateAssetManifest(baseDir: string = distDirectory): AssetManifest {
     return {
-        "style.css": `style.${contentHash(join(baseDir, "style.css"))}.css`,
         "site.js": `site.${contentHash(join(baseDir, "site.js"))}.js`,
         "islands.js": `islands.${contentHash(join(baseDir, "islands.js"))}.js`,
     };

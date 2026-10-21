@@ -45,7 +45,6 @@ export default function BaseLayout({
                 pagePath={pagePath}
                 published={meta.published}
                 revised={meta.revised}
-                cssHref={`/${assetManifest["style.css"]}`}
                 seriesName={seriesName}
             />
             <body>

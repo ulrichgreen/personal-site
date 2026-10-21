@@ -6,7 +6,23 @@ import { fileURLToPath } from "node:url";
 import { distDirectory } from "../shared/paths.ts";
 
 const source = fileURLToPath(new URL("../../styles/style.css", import.meta.url));
-const destination = join(distDirectory, "style.css");
+export const stylesheetPath = join(distDirectory, "style.css");
+
+/** The tag every page renders for the stylesheet (see SiteHead). */
+const STYLESHEET_LINK = '<link rel="stylesheet" href="/style.css"/>';
+
+/**
+ * Swaps the page's stylesheet link for the built CSS itself, so the whole page arrives in one
+ * response. The source stays in src/styles/style.css; only built or served pages carry it inline.
+ */
+export function inlineStylesheet(html: string, css: string): string {
+    if (!html.includes(STYLESHEET_LINK)) {
+        throw new Error(`No ${STYLESHEET_LINK} to inline the CSS into`);
+    }
+    // A "</style" inside the CSS would end the element early; "\/" is the same character in CSS
+    const safeCss = css.replaceAll("</style", "<\\/style");
+    return html.replace(STYLESHEET_LINK, () => `<style>${safeCss}</style>`);
+}
 
 export async function buildCss(): Promise<void> {
     mkdirSync(distDirectory, { recursive: true });
@@ -17,7 +33,7 @@ export async function buildCss(): Promise<void> {
         targets: LIGHTNING_CSS_TARGET,
     });
 
-    writeFileSync(destination, Buffer.from(code).toString("utf8"));
+    writeFileSync(stylesheetPath, Buffer.from(code).toString("utf8"));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

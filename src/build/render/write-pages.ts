@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import type { AssetManifest } from "../assets/asset-manifest.ts";
+import { inlineStylesheet } from "../assets/css.ts";
 import { resolveOutputPath } from "../content/discover.ts";
 import {
     renderPageWithMetadata,
@@ -31,6 +32,8 @@ export function writePages(
     articleIndex: ArticleIndexEntry[],
     assetManifest: AssetManifest,
     frontPageOnly = false,
+    /** The built CSS, to inline into every page; left out, pages link /style.css. */
+    inlineCss?: string,
 ): WrittenPageSummary {
     const seriesMap = buildSeriesMap(articleIndex);
     const islands: IslandUsage = {};
@@ -58,7 +61,12 @@ export function writePages(
             islandPages += 1;
             addIslandUsage(islands, rendered.islands);
         }
-        writeFileSync(outputPath, rendered.html);
+        writeFileSync(
+            outputPath,
+            inlineCss === undefined
+                ? rendered.html
+                : inlineStylesheet(rendered.html, inlineCss),
+        );
     }
 
     return { pageCount: compiled.length, islandPages, islands };

@@ -64,7 +64,6 @@ describe("generateAssetManifest", () => {
 
     before(() => {
         dir = mkdtempSync(join(tmpdir(), "asset-manifest-"));
-        writeFileSync(join(dir, "style.css"), "body{}");
         writeFileSync(join(dir, "site.js"), "console.log(1)");
         writeFileSync(join(dir, "islands.js"), "export default 0");
     });
@@ -77,10 +76,6 @@ describe("generateAssetManifest", () => {
         const manifest = generateAssetManifest(dir);
 
         assert.equal(
-            manifest["style.css"],
-            `style.${contentHash(join(dir, "style.css"))}.css`,
-        );
-        assert.equal(
             manifest["site.js"],
             `site.${contentHash(join(dir, "site.js"))}.js`,
         );
@@ -92,7 +87,6 @@ describe("generateAssetManifest", () => {
 
     it("preserves the original extension", () => {
         const manifest = generateAssetManifest(dir);
-        assert.match(manifest["style.css"], /^style\.[0-9a-f]{8}\.css$/);
         assert.match(manifest["site.js"], /^site\.[0-9a-f]{8}\.js$/);
         assert.match(manifest["islands.js"], /^islands\.[0-9a-f]{8}\.js$/);
     });
@@ -101,18 +95,16 @@ describe("generateAssetManifest", () => {
 describe("applyHashedFilenames", () => {
     it("renames each original asset to its hashed name", () => {
         const dir = mkdtempSync(join(tmpdir(), "asset-rename-"));
-        writeFileSync(join(dir, "style.css"), "body{}");
         writeFileSync(join(dir, "site.js"), "1");
         writeFileSync(join(dir, "islands.js"), "1");
 
         const manifest = generateAssetManifest(dir);
         applyHashedFilenames(manifest, dir);
 
-        assert.ok(!existsSync(join(dir, "style.css")));
-        assert.ok(existsSync(join(dir, manifest["style.css"])));
+        assert.ok(!existsSync(join(dir, "site.js")));
         assert.ok(existsSync(join(dir, manifest["site.js"])));
         assert.ok(existsSync(join(dir, manifest["islands.js"])));
-        assert.equal(readFileSync(join(dir, manifest["style.css"]), "utf8"), "body{}");
+        assert.equal(readFileSync(join(dir, manifest["site.js"]), "utf8"), "1");
 
         rmSync(dir, { recursive: true, force: true });
     });
@@ -120,7 +112,6 @@ describe("applyHashedFilenames", () => {
     it("throws when an asset to rename is missing", () => {
         const dir = mkdtempSync(join(tmpdir(), "asset-rename-missing-"));
         const manifest = {
-            "style.css": "style.deadbeef.css",
             "site.js": "site.deadbeef.js",
             "islands.js": "islands.deadbeef.js",
         };
@@ -135,7 +126,6 @@ describe("applyHashedFilenames", () => {
 describe("devAssetManifest", () => {
     it("maps each asset to its unhashed name for the dev server", () => {
         assert.deepEqual(devAssetManifest, {
-            "style.css": "style.css",
             "site.js": "site.js",
             "islands.js": "islands.js",
         });

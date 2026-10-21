@@ -109,7 +109,7 @@ It produces:
 - one browser bundle for islands
 - optimised image variants (AVIF, WebP, and resized versions) from source images in `src/images/`
 
-In production, emitted CSS and JavaScript filenames are fingerprinted so rendered pages can reference cache-friendly assets through a generated manifest.
+In production, every page carries the built CSS inline in a `<style>` element, so a whole page (about 7–11 KB compressed) arrives within the first 14 KB round trip; the source stays in `src/styles/style.css`, and `pnpm dev` inlines it as it serves each page. JavaScript filenames are fingerprinted so rendered pages can reference cache-friendly assets through a generated manifest.
 
 ### 7. Generate ancillary artifacts
 
