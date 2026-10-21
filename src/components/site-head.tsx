@@ -2,8 +2,8 @@ import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from "../config.ts";
 import { useRenderContext } from "../context/render-context.tsx";
 
 const OG_IMAGE_URL = `${SITE_URL}/og-image.svg`;
-const LIGHT_THEME_COLOR = "#f7f4eb";
-const DARK_THEME_COLOR = "#161a15";
+const LIGHT_THEME_COLOR = "#22c768";
+const DARK_THEME_COLOR = "#0f3f26";
 
 function safeISODate(value: string): string | undefined {
     const date = new Date(value);
@@ -73,7 +73,7 @@ export function SiteHead({
             />
             <link
                 rel="icon"
-                href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%233e6349'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%23f7f4eb' font-family='Georgia, serif'>U</text></svg>"
+                href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2322c768'/><text x='50' y='74' font-size='72' font-weight='900' text-anchor='middle' fill='%2306190d' font-family='system-ui, sans-serif'>U</text></svg>"
             />
             <link rel="stylesheet" href={cssHref || "/style.css"} />
             {!frontPageOnly && (
