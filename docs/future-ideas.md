@@ -67,7 +67,7 @@ Design considerations:
 
 - Must stay subtle to match the site's calm tone. Think gentle opacity fades and small vertical translations on section entries, not dramatic swoops.
 - Respect `prefers-reduced-motion` — disable entirely or reduce to opacity-only.
-- **Overlap with existing features:** The reading progress indicator already uses scroll position, and the header uses scroll-direction-based reveal/hide. Scroll-driven animations should target _content_ elements (article sections, figures, blockquotes) rather than chrome, to avoid conflicting with those existing behaviors.
+- **Overlap with existing features:** The reading progress bar is already a scroll-driven animation (`body::before` on the root scroller). Scroll-driven animations should target _content_ elements (article sections, figures, blockquotes) rather than chrome, to avoid conflicting with those existing behaviors.
 
 Candidates:
 

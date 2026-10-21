@@ -25,12 +25,18 @@ async function main() {
     const homeHtml = renderPage(home, articleIndex);
 
     assert(homeHtml.includes("<title>Ulrich Green</title>"));
-    assert(homeHtml.includes('src="/site.js"'));
+    assert(
+        !homeHtml.includes('src="/site.js"'),
+        "Home page has no code blocks, so it should not load site.js.",
+    );
     assert(
         !homeHtml.includes('src="/islands.js"'),
         "Home page should not include islands.js (no islands present).",
     );
-    assert(homeHtml.includes('id="progress" aria-hidden="true"'));
+    assert(
+        !homeHtml.includes('id="progress"'),
+        "Reading progress is CSS only, with no markup.",
+    );
     assert(
         /<header>\s*<nav[^>]*aria-label="Primary"/.test(homeHtml),
         "Site header should be present.",
@@ -62,8 +68,12 @@ async function main() {
         "Home page should render the article index entries.",
     );
     assert(
-        homeHtml.includes('aria-label="ulrich.green \u2014 home"'),
+        homeHtml.includes('class="logo">ulrich.green</a>'),
         "Site logo should be present.",
+    );
+    assert(
+        homeHtml.includes('href="/index.html" aria-current="page">Home</a>'),
+        "Home link should be marked as the current page on the home page.",
     );
 
     assert(
@@ -151,10 +161,24 @@ async function main() {
         "Article should render the published date in the header.",
     );
     assert(
-        articleHtml.includes('src="/islands.js"'),
+        articleHtml.includes('<script type="module" src="/islands.js">'),
         "Article page with an interactive demo should include islands.js.",
     );
     assert(articleHtml.includes('data-island="GridPlayground"'));
+    assert(
+        articleHtml.includes('href="/#articles" aria-current="true">Articles</a>') &&
+            !articleHtml.includes('aria-current="page"'),
+        "Articles link should be marked current on an article page.",
+    );
+    assert(
+        articleHtml.includes(
+            'popovertarget="user-content-fn-assumptions-popover"',
+        ) &&
+            articleHtml.includes(
+                '<span id="user-content-fn-assumptions-popover" popover="auto" role="note"',
+            ),
+        "Footnote references should open their notes as popovers.",
+    );
     assert(
         !articleHtml.includes('data-island="TableOfContents"'),
         "Table of contents should be static markup, not an island.",
@@ -213,6 +237,15 @@ async function main() {
     ).pathname;
     const scripting = await buildContent(scriptingPath);
     const scriptingHtml = renderPage(scripting, articleIndex);
+
+    assert(
+        scriptingHtml.includes('src="/site.js"'),
+        "A page with code blocks should load site.js for its copy buttons.",
+    );
+    assert(
+        !articleHtml.includes('src="/site.js"'),
+        "An article without code blocks should not load site.js.",
+    );
 
     assert(
         /<figcaption>[^]*?<button[^>]*aria-label="Copy[^"]*"[^>]*disabled/.test(

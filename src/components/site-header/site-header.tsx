@@ -1,33 +1,34 @@
 import { useRenderContext } from "../../context/render-context.tsx";
 
-export function SiteHeader() {
+const links = [
+    { href: "/index.html", label: "Home" },
+    { href: "/#articles", label: "Articles" },
+    { href: "/cv.html", label: "CV" },
+    { href: "/colophon.html", label: "Colophon" },
+];
+
+// "page" marks the link to this very page. An article is not the
+// Articles link itself, but it lives there, so that link gets "true".
+function currentFor(href: string, pagePath: string) {
+    if (href === pagePath) return "page";
+    if (href === "/#articles" && pagePath.startsWith("/articles/")) return "true";
+    return undefined;
+}
+
+export function SiteHeader({ pagePath }: { pagePath: string }) {
     const { frontPageOnly } = useRenderContext();
     return (
         <header>
             <nav aria-label="Primary">
-                {!frontPageOnly && (
-                    <>
-                        <a href="/index.html">Home</a>
-                        <a href="/#articles">Articles</a>
-                    </>
-                )}
-                <a
-                    href="/index.html"
-                    className="logo"
-                    aria-label="ulrich.green — home"
-                >
-                    <span aria-hidden="true">{"{"}</span>
-                    <span>
-                        u<i>lrich.green</i>
-                    </span>
-                    <span aria-hidden="true">{"}"}</span>
+                <a href="/index.html" className="logo">
+                    ulrich.green
                 </a>
-                {!frontPageOnly && (
-                    <>
-                        <a href="/cv.html">CV</a>
-                        <a href="/colophon.html">Colophon</a>
-                    </>
-                )}
+                {!frontPageOnly &&
+                    links.map(({ href, label }) => (
+                        <a href={href} aria-current={currentFor(href, pagePath)}>
+                            {label}
+                        </a>
+                    ))}
             </nav>
         </header>
     );

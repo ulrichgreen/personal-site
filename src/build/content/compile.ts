@@ -79,7 +79,7 @@ function extractNodeText(node: HastNode): string {
     return (node.children || []).filter(Boolean).map(extractNodeText).join("");
 }
 
-function rehypeCodeBlockChrome() {
+function rehypeCodeBlockChrome(found: { codeBlocks: boolean }) {
     return (tree: HastNode) => {
         visitTree(tree, (node) => {
             if (
@@ -148,6 +148,77 @@ function rehypeCodeBlockChrome() {
 
             children.splice(preIndex, 0, toolbar);
             node.children = children;
+            found.codeBlocks = true;
+        });
+    };
+}
+
+// Each footnote reference becomes a button that opens its note as a
+// popover, placed under the reference with CSS anchor positioning. The
+// footnote list at the end of the article stays as it is.
+function rehypeFootnotePopovers() {
+    return (tree: HastNode) => {
+        const notes = new Map<string, HastNode[]>();
+        visitTree(tree, (node) => {
+            const id = getStringProperty(node.properties?.id);
+            if (node.tagName !== "li" || !id?.startsWith("user-content-fn-")) return;
+            const paragraphs = (node.children || []).filter((child) => child.tagName === "p");
+            const content = paragraphs.flatMap((paragraph, index) => [
+                ...(index > 0 ? [createText(" ")] : []),
+                ...(paragraph.children || []).filter(
+                    (child) => !hasProperty(child, "dataFootnoteBackref"),
+                ),
+            ]);
+            const last = content.at(-1);
+            if (last?.type === "text") {
+                content[content.length - 1] = createText((last.value ?? "").trimEnd());
+            }
+            notes.set(id, content);
+        });
+
+        visitTree(tree, (node) => {
+            const children = node.children || [];
+            for (let index = 0; index < children.length; index++) {
+                const sup = children[index];
+                const ref = sup.tagName === "sup" ? sup.children?.[0] : undefined;
+                if (!ref || !hasProperty(ref, "dataFootnoteRef")) continue;
+
+                const noteId = getStringProperty(ref.properties?.href)?.replace(/^#/, "");
+                const content = noteId ? notes.get(noteId) : undefined;
+                if (!noteId || !content) continue;
+
+                const popoverId = `${noteId}-popover`;
+                const anchor = `--${noteId.replace("user-content-", "")}`;
+                sup.children = [
+                    createElement(
+                        "button",
+                        {
+                            type: "button",
+                            id: ref.properties?.id,
+                            popovertarget: popoverId,
+                            dataFootnoteRef: true,
+                            ariaDescribedBy: ref.properties?.ariaDescribedBy,
+                            style: `anchor-name:${anchor}`,
+                        },
+                        ref.children,
+                    ),
+                ];
+                children.splice(
+                    index + 1,
+                    0,
+                    createElement(
+                        "span",
+                        {
+                            id: popoverId,
+                            popover: "auto",
+                            role: "note",
+                            style: `position-anchor:${anchor}`,
+                        },
+                        structuredClone(content),
+                    ),
+                );
+                index++;
+            }
         });
     };
 }
@@ -205,11 +276,16 @@ function getSiteHighlighter() {
 export async function compileMdx(
     body: string,
     filePath: string,
-): Promise<{ Content: ContentBodyComponent; headings: ContentHeading[] }> {
+): Promise<{
+    Content: ContentBodyComponent;
+    headings: ContentHeading[];
+    hasCodeBlocks: boolean;
+}> {
     assertSupportedMdx(body, filePath);
 
     const { evaluate } = await import("@mdx-js/mdx");
     const headings: ContentHeading[] = [];
+    const found = { codeBlocks: false };
 
     const module = (await evaluate(
         { value: body, path: filePath },
@@ -242,7 +318,8 @@ export async function compileMdx(
                         },
                     },
                 ],
-                rehypeCodeBlockChrome,
+                [rehypeCodeBlockChrome, found],
+                rehypeFootnotePopovers,
                 [rehypeAutolinkHeadings, { behavior: "append" }],
             ],
         },
@@ -250,7 +327,7 @@ export async function compileMdx(
         default: ContentBodyComponent;
     };
 
-    return { Content: module.default, headings };
+    return { Content: module.default, headings, hasCodeBlocks: found.codeBlocks };
 }
 
 /**
@@ -261,9 +338,9 @@ export async function buildContent(filePath: string): Promise<BuiltContent> {
     const raw = readFileSync(filePath, "utf8");
     const parsed = parseFrontmatter(raw, filePath);
     const meta = resolvePageMeta(parsed, filePath);
-    const { Content, headings } = await compileMdx(parsed.body, filePath);
+    const { Content, headings, hasCodeBlocks } = await compileMdx(parsed.body, filePath);
 
-    return { meta, Content, headings, sourcePath: filePath };
+    return { meta, Content, headings, hasCodeBlocks, sourcePath: filePath };
 }
 
 export interface CompileResult {

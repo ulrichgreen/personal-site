@@ -22,8 +22,8 @@ components through structure and context:
   list are `li:not(:has(a))`.
 - **Classes last, and only single words.** A class exists when structure
   genuinely cannot disambiguate (`.toc`, `.revisions`, `.logo`,
-  `.playground`) or when a script needs a stable hook (`.skip-link`,
-  `.fn-ref`, `.margin-note`, `.scroll-reveal-heading`). No BEM, no
+  `.playground`) or when it is a stable hook (`.skip-link`, `.sr-only`).
+  No BEM, no
   utilities, no `component__element--modifier` naming.
 
 Colors are `light-dark()` pairs declared once in `:root`; nothing outside
@@ -72,6 +72,5 @@ The component file should not:
 - Adding a class where an element or attribute selector already works.
 - Inventing utility classes; sizes and colors come from the tokens.
 - Component-specific stylesheet files; everything lives in `style.css`.
-- Styling a script hook (`.fn-ref`, `#progress`) differently from the
-  script's expectations — those selectors are contracts, verified by the
-  test suite.
+- Reaching for a script where HTML and CSS already do the job (popovers,
+  anchor positioning, scroll-driven animations).

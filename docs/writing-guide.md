@@ -55,7 +55,7 @@ An interactive example island — a small, article-scoped "mini CodePen". It ren
 <GridPlayground initialColumns={3} initialGap={16} boxCount={9} />
 ```
 
-New examples are authored as island components under `src/components/examples/` and registered in `src/islands/registry.ts`; once registered they are available in MDX automatically.
+New examples are authored as island components under `src/components/examples/` and registered in `src/islands/registry.ts` (for server rendering) and `src/islands/loaders.ts` (so the browser can load its code on demand; typecheck fails if one is missing); once registered they are available in MDX automatically.
 
 ### `Callout`
 
@@ -159,7 +159,7 @@ This is the claim.[^1]
 [^1]: This is the note.
 ```
 
-The client enhancement layer turns those notes into lighter-weight inline or margin treatments depending on viewport size, but the authored format stays plain Markdown.
+The build turns each reference into a button that opens its note as a popover, placed under the reference with CSS anchor positioning. No script is involved, and the full list of notes still renders at the end of the article. The authored format stays plain Markdown.
 
 ## Maintenance Audit
 

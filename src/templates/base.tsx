@@ -1,6 +1,7 @@
 import { SiteHeader } from "../components/site-header/site-header.tsx";
 import { SiteFooter } from "../components/site-footer/site-footer.tsx";
 import { SiteHead } from "../components/site-head.tsx";
+import { useRenderContext } from "../context/render-context.tsx";
 import type { ReactNode } from "preact/compat";
 import type { AssetManifest } from "../build/assets/asset-manifest.ts";
 import type { PageMeta } from "../types/content.ts";
@@ -26,7 +27,7 @@ function IslandsScript({
     hasIslands,
 }: Pick<BaseLayoutProps, "assetManifest" | "hasIslands">) {
     if (!hasIslands()) return null;
-    return <script src={`/${assetManifest["islands.js"]}`} defer />;
+    return <script type="module" src={`/${assetManifest["islands.js"]}`} />;
 }
 
 export default function BaseLayout({
@@ -37,6 +38,7 @@ export default function BaseLayout({
     seriesName,
     children,
 }: BaseLayoutProps) {
+    const { hasCodeBlocks } = useRenderContext();
     return (
         <html lang="en">
             <SiteHead
@@ -48,16 +50,17 @@ export default function BaseLayout({
                 seriesName={seriesName}
             />
             <body>
-                <div id="progress" aria-hidden="true"></div>
                 <a className="skip-link" href="#main-content">
                     Skip to content
                 </a>
-                <SiteHeader />
+                <SiteHeader pagePath={pagePath} />
                 <main id="main-content">
                     {children}
                     <SiteFooter />
                 </main>
-                <script src={`/${assetManifest["site.js"]}`} defer></script>
+                {hasCodeBlocks && (
+                    <script src={`/${assetManifest["site.js"]}`} defer></script>
+                )}
                 <IslandsScript
                     assetManifest={assetManifest}
                     hasIslands={hasIslands}

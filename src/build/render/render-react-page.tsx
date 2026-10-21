@@ -38,6 +38,7 @@ function createRenderContext(
     return {
         context: {
             headings: content.headings,
+            hasCodeBlocks: content.hasCodeBlocks ?? false,
             registerIsland,
             hasIslands,
             frontPageOnly,
