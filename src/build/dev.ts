@@ -6,7 +6,7 @@ import { DEV_DEBOUNCE_MS, DEV_PORT } from "../config.ts";
 import { buildClient } from "./assets/client.ts";
 import { buildCss } from "./assets/css.ts";
 import { rebuildPages } from "./pipeline.ts";
-import { createStaticSiteServer } from "./serve.ts";
+import { createCloudflareLikeServer } from "./serve-cloudflare.ts";
 const LIVE_RELOAD_SCRIPT = `<script>
 (() => {
     if (window.__siteLiveReload) {
@@ -94,7 +94,8 @@ function runFreshBuild(mode: FreshBuildMode): Promise<void> {
 }
 
 export function startDevServer(): void {
-    const server = createStaticSiteServer({
+    // Served the way Cloudflare serves the live site, with the live reload script added to pages
+    const server = createCloudflareLikeServer({
         transformHtml: (html) =>
             html.replace("</body>", `${LIVE_RELOAD_SCRIPT}</body>`),
     });

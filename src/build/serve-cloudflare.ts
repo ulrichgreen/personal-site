@@ -138,12 +138,14 @@ function isInsideDirectory(candidate: string, directory: string): boolean {
     return candidate.startsWith(directory + sep);
 }
 
-export function createCloudflareHandler(directory = distDirectory) {
-    const root = resolve(directory);
-    const headerRules = parseHeaders(readIfFile(resolve(root, "_headers"))?.toString() ?? "");
-    const redirectRules = parseRedirects(
-        readIfFile(resolve(root, "_redirects"))?.toString() ?? "",
-    );
+export interface CloudflareServerOptions {
+    directory?: string;
+    /** Rewrites every HTML page before it is compressed (pnpm dev adds its live reload script). */
+    transformHtml?: (html: string) => string;
+}
+
+export function createCloudflareHandler(options: CloudflareServerOptions = {}) {
+    const root = resolve(options.directory ?? distDirectory);
     const compressed = new Map<string, Buffer>();
 
     function fileAt(pathname: string): string | undefined {
@@ -168,6 +170,13 @@ export function createCloudflareHandler(directory = distDirectory) {
         requestUrl: string,
         requestHeaders: http.IncomingHttpHeaders,
     ): CloudflareResponse {
+        // Read on every request, so a rebuild under pnpm dev takes effect at once
+        const headerRules = parseHeaders(
+            readIfFile(resolve(root, "_headers"))?.toString() ?? "",
+        );
+        const redirectRules = parseRedirects(
+            readIfFile(resolve(root, "_redirects"))?.toString() ?? "",
+        );
         let pathname: string;
         let search: string;
         try {
@@ -224,6 +233,9 @@ export function createCloudflareHandler(directory = distDirectory) {
         }
 
         let body: Buffer = readFileSync(filePath);
+        if (contentType === "text/html" && options.transformHtml) {
+            body = Buffer.from(options.transformHtml(body.toString()));
+        }
         const etag =
             status === 200 && contentType !== "text/html"
                 ? createHash("sha256").update(body).digest("hex").slice(0, 32)
@@ -256,8 +268,8 @@ export function createCloudflareHandler(directory = distDirectory) {
     };
 }
 
-export function createCloudflareLikeServer(directory = distDirectory): http.Server {
-    const handle = createCloudflareHandler(directory);
+export function createCloudflareLikeServer(options: CloudflareServerOptions = {}): http.Server {
+    const handle = createCloudflareHandler(options);
     return http.createServer((req, res) => {
         const response = handle(req.method ?? "GET", req.url ?? "/", req.headers);
         res.writeHead(response.status, response.headers);

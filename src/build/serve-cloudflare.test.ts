@@ -14,7 +14,7 @@ writeFileSync(join(directory, "_redirects"), "/ /index.html 200\n/old.html /inde
 writeFileSync(join(directory, "_headers"), "/*.css\n  Cache-Control: public, max-age=31536000, immutable\n");
 mkdirSync(join(directory, "articles"));
 writeFileSync(join(directory, "articles/index.html"), "articles");
-const handle = createCloudflareHandler(directory);
+const handle = createCloudflareHandler({ directory });
 const get = (url: string, headers = {}) => handle("GET", url, headers);
 
 after(() => rmSync(directory, { recursive: true, force: true }));
@@ -66,6 +66,15 @@ describe("Cloudflare-like serving", () => {
         assert.equal(get("/style.css", { "if-none-match": etag }).status, 304);
         assert.equal(get("/style.css", { "if-none-match": `W/${etag}` }).status, 304);
         assert.equal(get("/", {}).headers.etag, undefined);
+    });
+
+    it("runs transformHtml on pages only", () => {
+        const withScript = createCloudflareHandler({
+            directory,
+            transformHtml: (html) => `${html}<script></script>`,
+        });
+        assert.match(withScript("GET", "/", {}).body.toString(), /<script><\/script>$/);
+        assert.doesNotMatch(withScript("GET", "/style.css", {}).body.toString(), /script/);
     });
 
     it("rejects traversal", () => {

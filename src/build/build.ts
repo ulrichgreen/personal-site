@@ -49,7 +49,12 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     assertCompiledCleanly(failed);
 
     // Stage 6 — ancillary artifacts (feed, sitemap, robots, headers, og-image).
-    const ancillarySummary = await buildAncillary(articleIndex, compiled, frontPageOnly);
+    const ancillarySummary = await buildAncillary(
+        articleIndex,
+        compiled,
+        frontPageOnly,
+        dev ? [] : Object.values(manifest),
+    );
 
     // Stage 7 — production-only finalization.
     if (!dev) {

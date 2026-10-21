@@ -17,7 +17,7 @@ There are two main kinds of source material:
 - site code in `src/`
 
 `pnpm build` reads the content tree, compiles pages, renders layouts, bundles assets, and writes the finished site to `dist/`.
-`pnpm start` runs that build and then serves the generated site from `dist/` on localhost the way Cloudflare serves ulrich.green: exact `.html` URLs only, `_redirects` and `_headers` applied, the 404 page for misses, zstd/brotli/gzip compression, ETags and the same Cache-Control (`src/build/serve-cloudflare.ts`). `pnpm dev` keeps its own looser server with live reload.
+`pnpm start` runs that build and then serves the generated site from `dist/` on localhost the way Cloudflare serves ulrich.green: exact `.html` URLs only, `_redirects` and `_headers` applied, the 404 page for misses, zstd/brotli/gzip compression, ETags and the same Cache-Control (`src/build/serve-cloudflare.ts`). `pnpm dev` uses the same server and adds its live reload script to each page.
 
 The output is plain HTML, CSS, images, and a couple of focused browser bundles. The site does not depend on client-side routing or full-page hydration to exist.
 

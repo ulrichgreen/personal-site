@@ -16,11 +16,13 @@ export async function buildAncillary(
     articleIndex: ArticleIndexEntry[],
     compiledPages: BuiltContent[],
     frontPageOnly = false,
+    hashedAssets: string[] = [],
 ): Promise<AncillaryBuildSummary> {
     const context: ArtifactContext = {
         articleIndex,
         compiledPages,
         compiledArticles: compiledPages.filter(isArticlePage),
+        hashedAssets,
     };
     buildSitemap(context);
     buildRobots(context);

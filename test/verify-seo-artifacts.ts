@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const distUrl = new URL("../dist/", import.meta.url);
@@ -67,18 +67,18 @@ function main() {
         headers.includes("Cache-Control:"),
         "_headers should include Cache-Control directives.",
     );
-    assert(
-        headers.includes("/*.css"),
-        "_headers should include a CSS caching rule.",
+    const hashedAssets = readdirSync(fileURLToPath(distUrl)).filter((name) =>
+        /\.[0-9a-f]{8}\.(css|js)$/.test(name),
     );
-    assert(
-        headers.includes("/*.js"),
-        "_headers should include a JS caching rule.",
-    );
-    assert(
-        headers.includes("immutable"),
-        "_headers Cache-Control should include immutable for hashed assets.",
-    );
+    assert(hashedAssets.length > 0, "dist/ should contain hashed CSS and JS.");
+    for (const file of hashedAssets) {
+        assert(
+            headers.includes(`/${file}\n  Cache-Control: public, max-age=31536000, immutable`),
+            `_headers should mark ${file} immutable.`,
+        );
+    }
+    // A wildcard would also mark the 404 page for a missing URL immutable
+    assert(!headers.includes("*"), "_headers should name each hashed file, not use wildcards.");
 
     // _redirects
     const redirects = requireDist("_redirects");

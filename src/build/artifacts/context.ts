@@ -12,6 +12,8 @@ export interface ArtifactContext {
     compiledPages: BuiltContent[];
     /** The article subset of {@link compiledPages}. */
     compiledArticles: BuiltContent[];
+    /** Content-hashed asset filenames (empty in dev, where names carry no hash). */
+    hashedAssets: string[];
 }
 
 export type Artifact = (context: ArtifactContext) => void | Promise<unknown>;
