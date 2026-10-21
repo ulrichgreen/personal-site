@@ -27,7 +27,7 @@ function IslandsScript({
     hasIslands,
 }: Pick<BaseLayoutProps, "assetManifest" | "hasIslands">) {
     if (!hasIslands()) return null;
-    return <script src={`/${assetManifest["islands.js"]}`} defer />;
+    return <script type="module" src={`/${assetManifest["islands.js"]}`} />;
 }
 
 export default function BaseLayout({

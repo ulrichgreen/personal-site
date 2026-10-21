@@ -55,7 +55,7 @@ An interactive example island — a small, article-scoped "mini CodePen". It ren
 <GridPlayground initialColumns={3} initialGap={16} boxCount={9} />
 ```
 
-New examples are authored as island components under `src/components/examples/` and registered in `src/islands/registry.ts`; once registered they are available in MDX automatically.
+New examples are authored as island components under `src/components/examples/` and registered in `src/islands/registry.ts` (for server rendering) and `src/islands/loaders.ts` (so the browser can load its code on demand; typecheck fails if one is missing); once registered they are available in MDX automatically.
 
 ### `Callout`
 

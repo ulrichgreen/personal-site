@@ -12,7 +12,7 @@ import {
 } from "./build-summary.ts";
 import { cleanDist } from "./clean.ts";
 import { buildAncillary } from "./artifacts/ancillary.ts";
-import { buildClient } from "./assets/client.ts";
+import { buildClient, listIslandChunks } from "./assets/client.ts";
 import { buildCss, stylesheetPath } from "./assets/css.ts";
 import { buildImages } from "./assets/images.ts";
 import { cleanGeneratedPages } from "./content/discover.ts";
@@ -61,7 +61,7 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
         articleIndex,
         compiled,
         frontPageOnly,
-        dev ? [] : Object.values(manifest),
+        dev ? [] : [...Object.values(manifest), ...listIslandChunks()],
     );
 
     // Stage 7 — production-only finalization.

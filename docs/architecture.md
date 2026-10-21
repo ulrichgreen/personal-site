@@ -175,7 +175,11 @@ Each island is:
 
 The current island system supports multiple hydration timings, including immediate, visible, idle, and interaction-driven hydration.
 
-This keeps interactivity opt-in and local. A page with no islands remains a static page with no island runtime cost.
+This keeps interactivity opt-in and local. A page with no islands remains a static page with no island runtime cost: the `islands.js` module tag is only emitted when the page registered an island while rendering.
+
+On a page that has islands, `islands.js` is a small ES module (about 0.6 KB compressed) that only schedules hydration. When an island's trigger fires, it imports Preact and that island's code from content-hashed chunks in `dist/chunks/`, so a page loads only the islands it uses, and only once they are needed. The browser-side loaders live in `src/islands/loaders.ts`, typed so every island in `registry.ts` must have one.
+
+Likewise, `site.js` is only emitted on pages whose MDX produced code blocks.
 
 The build summary lists which island components were rendered and how many pages needed the island runtime. That keeps selective hydration visible instead of implicit.
 

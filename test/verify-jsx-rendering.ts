@@ -161,7 +161,7 @@ async function main() {
         "Article should render the published date in the header.",
     );
     assert(
-        articleHtml.includes('src="/islands.js"'),
+        articleHtml.includes('<script type="module" src="/islands.js">'),
         "Article page with an interactive demo should include islands.js.",
     );
     assert(articleHtml.includes('data-island="GridPlayground"'));

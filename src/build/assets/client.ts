@@ -1,43 +1,57 @@
 import { build } from "esbuild";
+import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ESBUILD_TARGET } from "../../config.ts";
 import { distDirectory } from "../shared/paths.ts";
 
-const targets = [
-    {
-        entryPoint: fileURLToPath(
-            new URL("../../client/site.ts", import.meta.url),
-        ),
-        outfile: join(distDirectory, "site.js"),
-    },
-    {
-        entryPoint: fileURLToPath(
-            new URL("../../client/islands.ts", import.meta.url),
-        ),
-        outfile: join(distDirectory, "islands.js"),
-    },
-];
+const clientEntry = (name: string) =>
+    fileURLToPath(new URL(`../../client/${name}.ts`, import.meta.url));
+
+// Island code lives in content-hashed chunks next to the islands.js entry.
+export const chunkDirectory = "chunks";
+
+/** The island chunks the last build wrote, as paths relative to dist/. */
+export function listIslandChunks(): string[] {
+    return readdirSync(join(distDirectory, chunkDirectory)).map(
+        (file) => `${chunkDirectory}/${file}`,
+    );
+}
 
 export async function buildClient(
     options: { dev?: boolean } = {},
 ): Promise<void> {
     const dev = options.dev ?? false;
-    await Promise.all(
-        targets.map(({ entryPoint, outfile }) =>
-            build({
-                entryPoints: [entryPoint],
-                outfile,
-                bundle: true,
-                format: "iife",
-                platform: "browser",
-                target: ESBUILD_TARGET,
-                // Keep dev output readable for debugging; ship minified.
-                minify: !dev,
-                logLevel: "silent",
-            }),
-        ),
-    );
+    const shared = {
+        bundle: true,
+        platform: "browser",
+        target: ESBUILD_TARGET,
+        // Keep dev output readable for debugging; ship minified.
+        minify: !dev,
+        logLevel: "silent",
+    } as const;
+
+    rmSync(join(distDirectory, chunkDirectory), { recursive: true, force: true });
+
+    await Promise.all([
+        build({
+            ...shared,
+            entryPoints: [clientEntry("site")],
+            outfile: join(distDirectory, "site.js"),
+            format: "iife",
+        }),
+        // islands.js is a small module that waits for each island's trigger,
+        // then imports Preact and that island's code from chunks/.
+        build({
+            ...shared,
+            entryPoints: [clientEntry("islands")],
+            outdir: distDirectory,
+            entryNames: "[name]",
+            chunkNames: `${chunkDirectory}/[name]-[hash]`,
+            format: "esm",
+            splitting: true,
+        }),
+    ]);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

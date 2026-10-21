@@ -1,60 +1,34 @@
-import { createElement, hydrate, type ComponentType } from "preact";
-import { islandRegistry } from "../islands/registry.ts";
+import { islandLoaders } from "../islands/loaders.ts";
 
-function hydrateIsland(root: HTMLElement): void {
-    if (root.dataset.hydrated === "true") return;
+// Nothing heavy is in this module. Preact and each island's code are
+// imported only when that island's hydration trigger fires.
+async function hydrateIsland(root: HTMLElement): Promise<void> {
+    if (root.dataset.hydrated) return;
+    root.dataset.hydrated = "true";
 
     const name = root.dataset.island;
-    if (!name || !(name in islandRegistry)) return;
-
-    const Component = islandRegistry[name as keyof typeof islandRegistry]
-        .component as ComponentType<any>;
-    const rawProps = root.getAttribute("data-island-props") || "{}";
+    if (!name || !(name in islandLoaders)) return;
 
     let props: Record<string, unknown>;
     try {
-        props = JSON.parse(rawProps) as Record<string, unknown>;
+        props = JSON.parse(root.dataset.islandProps || "{}");
     } catch {
         return;
     }
 
-    hydrate(createElement(Component, props), root);
-    root.dataset.hydrated = "true";
-}
-
-function bootIslands() {
-    document.querySelectorAll<HTMLElement>("[data-island]").forEach((root) => {
-        if (root.dataset.hydrated === "true") return;
-
-        const strategy = root.dataset.hydrate || "load";
-
-        switch (strategy) {
-            case "visible":
-                scheduleVisible(root);
-                break;
-            case "idle":
-                scheduleIdle(root);
-                break;
-            case "interaction":
-                scheduleInteraction(root);
-                break;
-            default:
-                hydrateIsland(root);
-                break;
-        }
-    });
+    const [Component, { hydrateIsland: hydrate }] = await Promise.all([
+        islandLoaders[name as keyof typeof islandLoaders](),
+        import("./hydrate.ts"),
+    ]);
+    hydrate(root, Component, props);
 }
 
 function scheduleVisible(root: HTMLElement): void {
     const observer = new IntersectionObserver(
         (entries) => {
-            for (const entry of entries) {
-                if (entry.isIntersecting) {
-                    observer.disconnect();
-                    hydrateIsland(root);
-                    return;
-                }
-            }
+            if (!entries.some((entry) => entry.isIntersecting)) return;
+            observer.disconnect();
+            hydrateIsland(root);
         },
         { rootMargin: "200px" },
     );
@@ -73,9 +47,7 @@ function scheduleIdle(root: HTMLElement): void {
 function scheduleInteraction(root: HTMLElement): void {
     const events = ["click", "focusin", "mouseover", "touchstart"] as const;
     const handler = () => {
-        for (const event of events) {
-            root.removeEventListener(event, handler);
-        }
+        for (const event of events) root.removeEventListener(event, handler);
         hydrateIsland(root);
     };
     for (const event of events) {
@@ -83,8 +55,19 @@ function scheduleInteraction(root: HTMLElement): void {
     }
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootIslands, { once: true });
-} else {
-    bootIslands();
+// A module script runs once the document is parsed.
+for (const root of document.querySelectorAll<HTMLElement>("[data-island]")) {
+    switch (root.dataset.hydrate) {
+        case "visible":
+            scheduleVisible(root);
+            break;
+        case "idle":
+            scheduleIdle(root);
+            break;
+        case "interaction":
+            scheduleInteraction(root);
+            break;
+        default:
+            hydrateIsland(root);
+    }
 }
