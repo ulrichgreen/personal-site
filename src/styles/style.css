@@ -935,8 +935,10 @@ article > nav {
 [data-footnote-ref] {
     padding: 0.6em 0.4em;
     margin-inline: -0.25em;
+    border: 0;
+    background: none;
     color: var(--accent);
-    text-decoration: none;
+    font: inherit;
     cursor: pointer;
 }
 
@@ -952,38 +954,31 @@ section[data-footnotes] {
     }
 }
 
-/* With the field on the left there is no free margin, so notes open
-   as cards under their reference (position set by script). */
-.margin-note {
-    position: absolute;
-    inset-inline: max(var(--pad), (100% - var(--measure)) / 2);
-    z-index: 3;
-    margin-block-start: 1.8em;
+/* A reference opens its note as a popover card just under it. Without
+   anchor positioning the card opens in the middle of the screen. */
+[role="note"][popover] {
+    --start: 1rem;
+    --width: min(var(--measure), 100vw - var(--start) - 1rem);
+    inline-size: var(--width);
     padding: 0.8rem 1rem;
+    border: 0;
     background-color: var(--ink);
     color: var(--paper);
     font-family: var(--sans);
     font-size: 0.85rem;
     line-height: 1.5;
 
-    &::before {
-        content: attr(data-ref) "  ";
-        font-weight: 900;
-        color: var(--field);
+    @supports (anchor-name: --a) {
+        inset: auto;
+        margin: 0.4rem 0;
+        inset-block-start: anchor(bottom);
+        inset-inline-start: clamp(var(--start), anchor(center) - var(--width) / 2, 100vw - var(--width) - 1rem);
+        position-try-fallbacks: flip-block;
     }
-}
 
-.fn-inline {
-    display: none;
-    margin-block: 0.5rem;
-    padding: 0.7rem 0.9rem;
-    background-color: var(--paper-raised);
-    border-inline-start: 4px solid var(--field);
-    font-family: var(--sans);
-    font-size: 0.88rem;
-
-    &.is-open {
-        display: block;
+    /* Keep the card off the green panel. */
+    @media (min-width: 960px) {
+        --start: calc(var(--panel) + 1rem);
     }
 }
 

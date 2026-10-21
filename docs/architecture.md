@@ -157,12 +157,9 @@ The browser code is intentionally split by responsibility.
 
 ### Document-level enhancements
 
-`src/client/site.ts` enhances already-rendered pages. It is responsible for page-wide behaviors such as:
+`src/client/site.ts` enhances already-rendered pages. Today that is only the copy buttons on code blocks, which need the clipboard API.
 
-- copy buttons on code blocks
-- footnote interactions
-
-Reading progress is not here: it is a CSS scroll-driven animation in `style.css`.
+Behavior that CSS and HTML can carry stays out of it: reading progress is a CSS scroll-driven animation, and footnotes are popovers placed with anchor positioning, built at compile time.
 
 These behaviors decorate existing markup. They do not create the page or own the whole document.
 

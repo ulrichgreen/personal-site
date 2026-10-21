@@ -168,6 +168,15 @@ async function main() {
         "Articles link should be marked current on an article page.",
     );
     assert(
+        articleHtml.includes(
+            'popovertarget="user-content-fn-assumptions-popover"',
+        ) &&
+            articleHtml.includes(
+                '<span id="user-content-fn-assumptions-popover" popover="auto" role="note"',
+            ),
+        "Footnote references should open their notes as popovers.",
+    );
+    assert(
         !articleHtml.includes('data-island="TableOfContents"'),
         "Table of contents should be static markup, not an island.",
     );

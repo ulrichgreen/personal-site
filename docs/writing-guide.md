@@ -159,7 +159,7 @@ This is the claim.[^1]
 [^1]: This is the note.
 ```
 
-The client enhancement layer turns those notes into lighter-weight inline or margin treatments depending on viewport size, but the authored format stays plain Markdown.
+The build turns each reference into a button that opens its note as a popover, placed under the reference with CSS anchor positioning. No script is involved, and the full list of notes still renders at the end of the article. The authored format stays plain Markdown.
 
 ## Maintenance Audit
 

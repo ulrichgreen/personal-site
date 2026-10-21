@@ -152,6 +152,76 @@ function rehypeCodeBlockChrome() {
     };
 }
 
+// Each footnote reference becomes a button that opens its note as a
+// popover, placed under the reference with CSS anchor positioning. The
+// footnote list at the end of the article stays as it is.
+function rehypeFootnotePopovers() {
+    return (tree: HastNode) => {
+        const notes = new Map<string, HastNode[]>();
+        visitTree(tree, (node) => {
+            const id = getStringProperty(node.properties?.id);
+            if (node.tagName !== "li" || !id?.startsWith("user-content-fn-")) return;
+            const paragraphs = (node.children || []).filter((child) => child.tagName === "p");
+            const content = paragraphs.flatMap((paragraph, index) => [
+                ...(index > 0 ? [createText(" ")] : []),
+                ...(paragraph.children || []).filter(
+                    (child) => !hasProperty(child, "dataFootnoteBackref"),
+                ),
+            ]);
+            const last = content.at(-1);
+            if (last?.type === "text") {
+                content[content.length - 1] = createText((last.value ?? "").trimEnd());
+            }
+            notes.set(id, content);
+        });
+
+        visitTree(tree, (node) => {
+            const children = node.children || [];
+            for (let index = 0; index < children.length; index++) {
+                const sup = children[index];
+                const ref = sup.tagName === "sup" ? sup.children?.[0] : undefined;
+                if (!ref || !hasProperty(ref, "dataFootnoteRef")) continue;
+
+                const noteId = getStringProperty(ref.properties?.href)?.replace(/^#/, "");
+                const content = noteId ? notes.get(noteId) : undefined;
+                if (!noteId || !content) continue;
+
+                const popoverId = `${noteId}-popover`;
+                const anchor = `--${noteId.replace("user-content-", "")}`;
+                sup.children = [
+                    createElement(
+                        "button",
+                        {
+                            type: "button",
+                            id: ref.properties?.id,
+                            popovertarget: popoverId,
+                            dataFootnoteRef: true,
+                            ariaDescribedBy: ref.properties?.ariaDescribedBy,
+                            style: `anchor-name:${anchor}`,
+                        },
+                        ref.children,
+                    ),
+                ];
+                children.splice(
+                    index + 1,
+                    0,
+                    createElement(
+                        "span",
+                        {
+                            id: popoverId,
+                            popover: "auto",
+                            role: "note",
+                            style: `position-anchor:${anchor}`,
+                        },
+                        structuredClone(content),
+                    ),
+                );
+                index++;
+            }
+        });
+    };
+}
+
 function rehypeCollectHeadings(headings: ContentHeading[]) {
     return (tree: HastNode) => {
         visitTree(tree, (node) => {
@@ -243,6 +313,7 @@ export async function compileMdx(
                     },
                 ],
                 rehypeCodeBlockChrome,
+                rehypeFootnotePopovers,
                 [rehypeAutolinkHeadings, { behavior: "append" }],
             ],
         },
