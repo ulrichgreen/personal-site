@@ -27,10 +27,12 @@ components through structure and context:
   utilities, no `component__element--modifier` naming.
 
 Colors are `light-dark()` pairs declared once in `:root`; nothing outside
-the token block mentions a color scheme. Layout is one named-column grid
-on `body` (`prose`, `wide`, `bleed`), with `main` and `article` as
-subgrids so any element can claim a wider column without wrappers or
-negative margins.
+the token block mentions a color scheme. Layout is a poster: `main` and
+`article` are flex columns in which every child takes the reading
+measure, and the few things that bleed (the green hero, the breadcrumb,
+code blocks, the footer) stretch to the edges instead. On wide screens
+the hero and header are fixed to a green field on the left, and the
+column scrolls beside it.
 
 ## What a component should look like
 

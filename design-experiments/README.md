@@ -1,6 +1,6 @@
 # Design experiments
 
-Five complete overhauls of the site's look, each in a single stylesheet. Every one restyles the same HTML the build already writes: nothing in `src/` or `content/` changed. They keep the premise: minimal, system fonts only, nothing extra to download, and writing at the center. All five fit the CSS budget in `site.config.ts` (4.9–6.2 KiB gzipped; today's sheet is 6.1).
+Five complete overhauls of the site's look, each in a single stylesheet. Every one restyles the same HTML the build already writes: nothing in `src/` or `content/` changed. They keep the premise: minimal, system fonts only, nothing extra to download, and writing at the center. All five fit the CSS budget in `site.config.ts` (4.9–6.2 KiB gzipped). Poster has since become the site's own stylesheet, `src/styles/style.css`, refined there; the file here is the original experiment.
 
 | Direction | Type | Layout | Color | CSS, gzipped |
 | --- | --- | --- | --- | --- |

@@ -97,7 +97,7 @@ export function ArticleList({
         <section id="articles">
             {yearGroups.map((group) => (
                 <>
-                    <h3 key={group.year}>{group.year}</h3>
+                    <h2 key={group.year}>{group.year}</h2>
                     <ul>
                         {group.seriesOrder.map((seriesName) => {
                             const seriesEntries =

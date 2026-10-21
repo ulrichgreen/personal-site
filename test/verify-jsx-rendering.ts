@@ -108,13 +108,13 @@ async function main() {
     );
     assert(
         homeHtml.includes(
-            'name="theme-color" media="(prefers-color-scheme: light)" content="#f7f4eb"',
+            'name="theme-color" media="(prefers-color-scheme: light)" content="#22c768"',
         ),
         "Home page should include the light theme-color meta tag.",
     );
     assert(
         homeHtml.includes(
-            'name="theme-color" media="(prefers-color-scheme: dark)" content="#161a15"',
+            'name="theme-color" media="(prefers-color-scheme: dark)" content="#0f3f26"',
         ),
         "Home page should include the dark theme-color meta tag.",
     );
