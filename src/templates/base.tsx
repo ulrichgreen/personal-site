@@ -52,7 +52,7 @@ export default function BaseLayout({
                 <a className="skip-link" href="#main-content">
                     Skip to content
                 </a>
-                <SiteHeader />
+                <SiteHeader pagePath={pagePath} />
                 <main id="main-content">
                     {children}
                     <SiteFooter />

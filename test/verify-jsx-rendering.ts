@@ -62,8 +62,12 @@ async function main() {
         "Home page should render the article index entries.",
     );
     assert(
-        homeHtml.includes('aria-label="ulrich.green \u2014 home"'),
+        homeHtml.includes('class="logo">ulrich.green</a>'),
         "Site logo should be present.",
+    );
+    assert(
+        homeHtml.includes('href="/index.html" aria-current="page">Home</a>'),
+        "Home link should be marked as the current page on the home page.",
     );
 
     assert(
@@ -155,6 +159,11 @@ async function main() {
         "Article page with an interactive demo should include islands.js.",
     );
     assert(articleHtml.includes('data-island="GridPlayground"'));
+    assert(
+        articleHtml.includes('href="/#articles" aria-current="true">Articles</a>') &&
+            !articleHtml.includes('aria-current="page"'),
+        "Articles link should be marked current on an article page.",
+    );
     assert(
         !articleHtml.includes('data-island="TableOfContents"'),
         "Table of contents should be static markup, not an island.",

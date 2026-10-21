@@ -287,7 +287,8 @@ body > header nav {
     & a {
         padding-block: 0.6rem;
 
-        &:hover {
+        &:hover,
+        &[aria-current] {
             text-decoration: underline;
             text-decoration-thickness: 2px;
             text-underline-offset: 0.3em;
@@ -296,21 +297,11 @@ body > header nav {
 }
 
 .logo {
-    order: -1;
     margin-inline-end: auto;
     font-size: 1rem;
     font-weight: 900;
     letter-spacing: -0.03em;
     text-transform: none;
-
-    & [aria-hidden] {
-        font-weight: 500;
-        opacity: 0.6;
-    }
-
-    & i {
-        font-style: normal;
-    }
 }
 
 @media (max-width: 599.9px) {
