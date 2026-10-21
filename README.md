@@ -22,7 +22,7 @@ pnpm dev
 | --------------------- | ------------------------------------------------------------------- |
 | `pnpm build`          | Build the site into `dist/`.                                        |
 | `pnpm dev`            | Build, serve locally, and rebuild on change.                        |
-| `pnpm start`          | Build once and serve the generated site from `dist/`.               |
+| `pnpm start`          | Build once and serve `dist/` the way Cloudflare serves the live site. |
 | `pnpm test`           | Run unit tests and rendered-output verifiers.                       |
 | `pnpm typecheck`      | Check the TypeScript contracts (`tsc --noEmit`).                    |
 | `pnpm verify`         | Typecheck, build, and test, in that order.                          |

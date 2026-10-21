@@ -1,3 +1,4 @@
+import { readFileSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
     applyHashedFilenames,
@@ -12,7 +13,7 @@ import {
 import { cleanDist } from "./clean.ts";
 import { buildAncillary } from "./artifacts/ancillary.ts";
 import { buildClient } from "./assets/client.ts";
-import { buildCss } from "./assets/css.ts";
+import { buildCss, stylesheetPath } from "./assets/css.ts";
 import { buildImages } from "./assets/images.ts";
 import { cleanGeneratedPages } from "./content/discover.ts";
 import { validateContentContracts } from "./content/contracts.ts";
@@ -45,11 +46,23 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
     // Stage 5 — render pages to disk.
     cleanGeneratedPages();
     const frontPageOnly = isFrontPageOnly(dev);
-    const pageSummary = writePages(compiled, articleIndex, manifest, frontPageOnly);
+    // Production pages carry the CSS inline; pnpm dev's server inlines it as it serves each page
+    const pageSummary = writePages(
+        compiled,
+        articleIndex,
+        manifest,
+        frontPageOnly,
+        dev ? undefined : readFileSync(stylesheetPath, "utf8"),
+    );
     assertCompiledCleanly(failed);
 
     // Stage 6 — ancillary artifacts (feed, sitemap, robots, headers, og-image).
-    const ancillarySummary = await buildAncillary(articleIndex, compiled, frontPageOnly);
+    const ancillarySummary = await buildAncillary(
+        articleIndex,
+        compiled,
+        frontPageOnly,
+        dev ? [] : Object.values(manifest),
+    );
 
     // Stage 7 — production-only finalization.
     if (!dev) {
@@ -68,6 +81,9 @@ export async function buildAll(options: { dev?: boolean } = {}): Promise<void> {
         islands: pageSummary.islands,
         largestFiles: listLargestOutputFiles(),
     });
+
+    // Every page carries the CSS now, so nothing links the file; it stayed until here to be measured
+    if (!dev) rmSync(stylesheetPath);
 
     const elapsed = ((performance.now() - start) / 1000).toFixed(2);
     process.stdout.write(`built ${compiled.length} pages in ${elapsed}s\n`);
