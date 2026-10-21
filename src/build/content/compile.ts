@@ -79,7 +79,7 @@ function extractNodeText(node: HastNode): string {
     return (node.children || []).filter(Boolean).map(extractNodeText).join("");
 }
 
-function rehypeCodeBlockChrome() {
+function rehypeCodeBlockChrome(found: { codeBlocks: boolean }) {
     return (tree: HastNode) => {
         visitTree(tree, (node) => {
             if (
@@ -148,6 +148,7 @@ function rehypeCodeBlockChrome() {
 
             children.splice(preIndex, 0, toolbar);
             node.children = children;
+            found.codeBlocks = true;
         });
     };
 }
@@ -275,11 +276,16 @@ function getSiteHighlighter() {
 export async function compileMdx(
     body: string,
     filePath: string,
-): Promise<{ Content: ContentBodyComponent; headings: ContentHeading[] }> {
+): Promise<{
+    Content: ContentBodyComponent;
+    headings: ContentHeading[];
+    hasCodeBlocks: boolean;
+}> {
     assertSupportedMdx(body, filePath);
 
     const { evaluate } = await import("@mdx-js/mdx");
     const headings: ContentHeading[] = [];
+    const found = { codeBlocks: false };
 
     const module = (await evaluate(
         { value: body, path: filePath },
@@ -312,7 +318,7 @@ export async function compileMdx(
                         },
                     },
                 ],
-                rehypeCodeBlockChrome,
+                [rehypeCodeBlockChrome, found],
                 rehypeFootnotePopovers,
                 [rehypeAutolinkHeadings, { behavior: "append" }],
             ],
@@ -321,7 +327,7 @@ export async function compileMdx(
         default: ContentBodyComponent;
     };
 
-    return { Content: module.default, headings };
+    return { Content: module.default, headings, hasCodeBlocks: found.codeBlocks };
 }
 
 /**
@@ -332,9 +338,9 @@ export async function buildContent(filePath: string): Promise<BuiltContent> {
     const raw = readFileSync(filePath, "utf8");
     const parsed = parseFrontmatter(raw, filePath);
     const meta = resolvePageMeta(parsed, filePath);
-    const { Content, headings } = await compileMdx(parsed.body, filePath);
+    const { Content, headings, hasCodeBlocks } = await compileMdx(parsed.body, filePath);
 
-    return { meta, Content, headings, sourcePath: filePath };
+    return { meta, Content, headings, hasCodeBlocks, sourcePath: filePath };
 }
 
 export interface CompileResult {

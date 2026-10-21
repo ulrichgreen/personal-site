@@ -25,7 +25,10 @@ async function main() {
     const homeHtml = renderPage(home, articleIndex);
 
     assert(homeHtml.includes("<title>Ulrich Green</title>"));
-    assert(homeHtml.includes('src="/site.js"'));
+    assert(
+        !homeHtml.includes('src="/site.js"'),
+        "Home page has no code blocks, so it should not load site.js.",
+    );
     assert(
         !homeHtml.includes('src="/islands.js"'),
         "Home page should not include islands.js (no islands present).",
@@ -234,6 +237,15 @@ async function main() {
     ).pathname;
     const scripting = await buildContent(scriptingPath);
     const scriptingHtml = renderPage(scripting, articleIndex);
+
+    assert(
+        scriptingHtml.includes('src="/site.js"'),
+        "A page with code blocks should load site.js for its copy buttons.",
+    );
+    assert(
+        !articleHtml.includes('src="/site.js"'),
+        "An article without code blocks should not load site.js.",
+    );
 
     assert(
         /<figcaption>[^]*?<button[^>]*aria-label="Copy[^"]*"[^>]*disabled/.test(

@@ -1,6 +1,7 @@
 import { SiteHeader } from "../components/site-header/site-header.tsx";
 import { SiteFooter } from "../components/site-footer/site-footer.tsx";
 import { SiteHead } from "../components/site-head.tsx";
+import { useRenderContext } from "../context/render-context.tsx";
 import type { ReactNode } from "preact/compat";
 import type { AssetManifest } from "../build/assets/asset-manifest.ts";
 import type { PageMeta } from "../types/content.ts";
@@ -37,6 +38,7 @@ export default function BaseLayout({
     seriesName,
     children,
 }: BaseLayoutProps) {
+    const { hasCodeBlocks } = useRenderContext();
     return (
         <html lang="en">
             <SiteHead
@@ -56,7 +58,9 @@ export default function BaseLayout({
                     {children}
                     <SiteFooter />
                 </main>
-                <script src={`/${assetManifest["site.js"]}`} defer></script>
+                {hasCodeBlocks && (
+                    <script src={`/${assetManifest["site.js"]}`} defer></script>
+                )}
                 <IslandsScript
                     assetManifest={assetManifest}
                     hasIslands={hasIslands}

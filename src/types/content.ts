@@ -84,6 +84,8 @@ export interface BuiltContent {
     meta: PageMeta;
     Content: ContentBodyComponent;
     headings: ContentHeading[];
+    /** The page has code blocks, so it needs the copy button script. */
+    hasCodeBlocks?: boolean;
     sourcePath: string;
 }
 
